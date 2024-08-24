@@ -1,0 +1,17 @@
+<footer is="reactive-footer" class="footer" hidden="$todosEmpty">
+    <!-- This should be `0 items left` by default -->
+    <span class="todo-count"><strong is="reactive-strong" _text="incompleteTodosCount"></strong> <span is="reactive-span" _text="todosNoun"></span> left</span>
+    <ul class="filters">
+        <li>
+            <a is="reactive-a" ref="filter-all" filter="All" href="/#" selected="$is_currentTodosFilterName:All">All</a>
+        </li>
+        <li>
+            <a is="reactive-a" ref="filter-active" filter="Active" href="/#active" selected="$is_currentTodosFilterName:Active">Active</a>
+        </li>
+        <li>
+            <a is="reactive-a" ref="filter-completed" filter="Completed" href="/#completed" selected="$is_currentTodosFilterName:Completed">Completed</a>
+        </li>
+    </ul>
+    <!-- Hidden if no completed items are left ↓ -->
+    <button ref="button-clear-completed" is="reactive-button" part="button" class="clear-completed" hidden="$!completedTasksExist">Clear completed</button>
+</footer>

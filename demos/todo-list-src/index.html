@@ -1,0 +1,16 @@
+<div class="todoapp stack-large">
+  <h1>Sprout Todo List</h1>
+  <todo-form></todo-form>
+  <div is="reactive-div" class="filters btn-group stack-exception" _map="filterButtonStates:todo-filter-button"></div>
+  <h2 id="list-heading" tabIndex="-1">
+    <span is="reactive-span" _text="tasksCount"></span>
+    <span is="reactive-span" _text="tasksNoun"></span>
+    remaining
+  </h2>
+  <ul
+      is="reactive-ul"
+      aria-labelledby="list-heading"
+      class="todo-list stack-large stack-exception"
+      role="list" _map="tasksFiltered:todo-item">
+  </ul>
+</div>

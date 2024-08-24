@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style app="tic_tac_toe">
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: sans-serif;
+    margin: 20px;
+    padding: 0;
+  }
+  
+  h1 {
+    margin-top: 0;
+    font-size: 22px;
+  }
+  
+  h2 {
+    margin-top: 0;
+    font-size: 20px;
+  }
+  
+  h3 {
+    margin-top: 0;
+    font-size: 18px;
+  }
+  
+  h4 {
+    margin-top: 0;
+    font-size: 16px;
+  }
+  
+  h5 {
+    margin-top: 0;
+    font-size: 14px;
+  }
+  
+  h6 {
+    margin-top: 0;
+    font-size: 12px;
+  }
+  
+  code {
+    font-size: 1.2em;
+  }
+  
+  ul {
+    padding-inline-start: 20px;
+  }
+  
+  .game {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .game-info {
+    margin-left: 20px;
+  }
+  </style>
+<script app="tic_tac_toe"> tic_tac_toe_runtime = function() { const t={history:[Array.from({length:9},((t,e)=>({value:"",key:e})))],currentMove:0,set_xIsNext:[function(){return this.currentMove%2==0},["currentMove"],!0],set_currentSquares:[function(){return[...this.history[this.currentMove]]},["currentMove"],!0],set_status:[function(){const t=this.calculateWinner();let e;return e=t?"Winner: "+t:"Next player: "+(this.xIsNext?"X":"O"),e},["currentSquares"],!0],set_moves:[function(){return this.history.map(((t,e)=>{let r;return r=e>0?"Go to move #"+e:"Go to game start",{move:e,description:r}}))},["history"]],calculateWinner(){const t=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]],e=this.currentSquares;for(let r=0;r<t.length;r++){const[n,s,u]=t[r];if(e[n].value&&e[n].value===e[s].value&&e[n].value===e[u].value)return e[n].value}return e.every((({value:t})=>t))?"TIE!":null},handlePlay(t){const e=[...this.history.slice(0,this.currentMove+1),t];this.history=e,this.currentMove=e.length-1},jumpTo(t){this.currentMove=t}};this.setGlobalState(t);
+ }</script>
+<script src="lib/sprout-core.js"></script>
+<script>const build_tic_tac_toeApp = SproutInitApp("tic_tac_toe");</script>
+<template app="tic_tac_toe" for="ttt-move"><script> var tttMoveRuntime=function(){"use strict";return{events:{jumpToBtn(t,e,n){n.jumpTo(e.getState("move"))}}}}();
+ return tttMoveRuntime; </script><style></style><li is="reactive-li" key="$move">
+    <button is="reactive-button" ref="jumpToBtn" _text="description"></button>
+</li></template>
+<template app="tic_tac_toe" for="ttt-square"><script> var tttSquareRuntime=function(){"use strict";return{events:{squareBtn(t,e,r){if(""!==this.getAttribute("value"))return;if(r.calculateWinner())return;const u=r.currentSquares.toArray();console.log("NEXT SQUARES: ",u);const n=this.getAttribute("key");r.xIsNext?u[n].value="X":u[n].value="O",r.handlePlay(u)}}}}();
+ return tttSquareRuntime; </script><style>.square {
+    background: #fff;
+    border: 1px solid #999;
+    float: left;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 34px;
+    height: 34px;
+    margin-right: -1px;
+    margin-top: -1px;
+    padding: 0;
+    text-align: center;
+    width: 34px;
+  }
+  </style><button is="reactive-button" ref="squareBtn" class="square" _text="value" key="$key" value="$value"></button></template>
+<template app="tic_tac_toe" for="ttt-board"><script> var tttBoardRuntime=function(){"use strict";return{state:{get row1(){return this._global.currentSquares.slice(0,3)},get row2(){return this._global.currentSquares.slice(3,6)},get row3(){return this._global.currentSquares.slice(6,9)}}}}();
+ return tttBoardRuntime; </script><style>.status {
+    margin-bottom: 10px;
+}
+
+.board-row:after {
+    clear: both;
+    content: '';
+    display: table;
+}
+
+  </style><div is="reactive-div" class="status" _text="status"></div>
+<div is="reactive-div" class="board-row" _map="row1:ttt-square"></div>
+<div is="reactive-div" class="board-row" _map="row2:ttt-square"></div>
+<div is="reactive-div" class="board-row" _map="row3:ttt-square"></div>
+</template>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>build_tic_tac_toeApp();</script>
+</head>
+<body>
+<div class="game">
+    <div class="game-board">
+        <ttt-board></ttt-board>
+    </div>
+    <div class="game-info">
+      <ol is="reactive-ol" _map="moves:ttt-move"></ol>
+    </div>
+</div>
+</body>
+</html>

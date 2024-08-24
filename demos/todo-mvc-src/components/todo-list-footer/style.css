@@ -1,0 +1,92 @@
+.footer {
+	border-top: 1px solid #e6e6e6;
+	font-size: 15px;
+	height: 20px;
+	padding: 10px 15px;
+	text-align: center
+}
+
+.footer:before {
+	bottom: 0;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 8px 0 -3px #f6f6f6, 0 9px 1px -3px rgba(0, 0, 0, .2), 0 16px 0 -6px #f6f6f6, 0 17px 2px -6px rgba(0, 0, 0, .2);
+	content: "";
+	height: 50px;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0
+}
+
+.todo-count {
+	float: left;
+	text-align: left
+}
+
+.todo-count strong {
+	font-weight: 300
+}
+
+.filters {
+	left: 0;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	right: 0
+}
+
+.filters li {
+	display: inline
+}
+
+.filters li a {
+	border: 1px solid transparent;
+	border-radius: 3px;
+	color: inherit;
+	margin: 3px;
+	padding: 3px 7px;
+	text-decoration: none
+}
+
+.filters li a:hover {
+	border-color: #db7676
+}
+
+.filters li a[selected] {
+	border-color: #ce4646
+}
+
+.clear-completed,
+html .clear-completed:active {
+	cursor: pointer;
+	float: right;
+	line-height: 19px;
+	position: relative;
+	text-decoration: none
+}
+
+.clear-completed:hover {
+	text-decoration: underline
+}
+
+.info {
+	color: #4d4d4d;
+	font-size: 11px;
+	margin: 65px auto 0;
+	text-align: center;
+	text-shadow: 0 1px 0 hsla(0, 0%, 100%, .5)
+}
+
+.info p {
+	line-height: 1
+}
+
+.info a {
+	color: inherit;
+	font-weight: 400;
+	text-decoration: none
+}
+
+.info a:hover {
+	text-decoration: underline
+}

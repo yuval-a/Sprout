@@ -1,0 +1,19 @@
+<form ref="todo-form" is="reactive-form" onsubmit="event.preventDefault()">
+    <h2 class="label-wrapper">
+      <label for="new-todo-input" class="label__lg">
+        What needs to be done?
+      </label>
+    </h2>
+
+    <input
+      is="reactive-input"
+      type="text"
+      id="new-todo-input"
+      class="input input__lg"
+      autoComplete="off"
+      ref="todo-form-input"
+    />
+    <button ref="todo-form-add" type="submit" class="btn btn__primary btn__lg">
+      Add
+    </button>
+  </form>

@@ -1,0 +1,13 @@
+.btn.toggle-btn {
+    border-color: #d3d3d3;
+    border-width: 1px;
+    width: 100%;
+}
+.btn.toggle-btn[aria-pressed="true"] {
+    border-color: #4d4d4d;
+    text-decoration: underline;
+}
+.btn__filter {
+    border-color: lightgrey;
+}
+  

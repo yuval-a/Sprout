@@ -1,0 +1,94 @@
+h1 {
+	color: #b83f45;
+	font-size: 80px;
+	font-weight: 200;
+	position: absolute;
+	text-align: center;
+	-webkit-text-rendering: optimizeLegibility;
+	-moz-text-rendering: optimizeLegibility;
+	text-rendering: optimizeLegibility;
+	top: -140px;
+	width: 100%
+}
+
+.edit,
+.new-todo {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	border: 1px solid #999;
+	box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, .2);
+	box-sizing: border-box;
+	color: inherit;
+	font-family: inherit;
+	font-size: 24px;
+	font-weight: inherit;
+	line-height: 1.4em;
+	margin: 0;
+	padding: 6px;
+	position: relative;
+	width: 100%
+}
+
+.new-todo {
+	background: rgba(0, 0, 0, .003);
+	border: none;
+	box-shadow: inset 0 -2px 1px rgba(0, 0, 0, .03);
+	height: 65px;
+	padding: 16px 16px 16px 60px
+}
+
+.main {
+	border-top: 1px solid #e6e6e6;
+	position: relative;
+	z-index: 2
+}
+
+#toggle-all-container {
+    top: 0;
+    position: absolute;
+    z-index: 999;
+}
+.toggle-all {
+	height: 60px !important;
+	right: auto !important;
+	width: 40px !important;
+    border: none;
+	bottom: 100%;
+	height: 1px;
+	opacity: 0;
+	position: absolute;
+	right: 100%;
+	width: 1px;
+}
+
+.toggle-all-label {
+	pointer-events: none
+}
+
+.toggle-all+label {
+	align-items: center;
+	display: flex;
+	font-size: 0;
+	height: 65px;
+	justify-content: center;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 45px;
+    cursor: default;
+}
+
+.toggle-all+label:before {
+	color: #949494;
+	content: "❯";
+	display: inline-block;
+	font-size: 22px;
+	padding: 10px 27px;
+	-webkit-transform: rotate(90deg);
+	transform: rotate(90deg)
+}
+
+.toggle-all:checked+label:before {
+	color: #484848
+}
+

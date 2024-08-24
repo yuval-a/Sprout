@@ -1,0 +1,63 @@
+<li class="todo">
+  <form ref="todo-edit-form" is="reactive-form" class="stack-small todo-edit" hidden="$!isEditing" onsubmit="event.preventDefault()">
+      <div class="form-group">
+          <label class="todo-label" for="$id">
+          New name for <span is="reactive-span" _text="name"></span>
+          </label>
+          <input
+          ref="todo-edit-input"
+          is="reactive-input"
+          id="$id"
+          class="todo-text"
+          type="text"
+          _bind="value:newName"
+          />
+      </div>
+      <div class="btn-group">
+          <button
+          ref="todo-edit-cancel"
+          type="button"
+          class="btn todo-cancel">
+          Cancel
+          <span class="visually-hidden">renaming 
+              <span is="reactive-span" _text="name"></span>
+          </span>
+          </button>
+          <button ref="todo-edit-save" type="submit" class="btn btn__primary todo-edit">
+          Save
+          <span class="visually-hidden">new name for <span is="reactive-span" _text="name"></span></span>
+          </button>
+      </div>
+  </form>
+
+  <div class="stack-small todo-view" is="reactive-div" hidden="$isEditing">
+      <div class="c-cb">
+        <input
+          is="reactive-input"
+          type="checkbox" 
+          ref="todo-checkbox"
+          id="$id"
+          checked="$completed"
+          _bind="checked:completed"
+        />
+        <label 
+          is="reactive-label" 
+          class="todo-label" 
+          for="$id"
+          _text="name">
+        </label>
+      </div>
+      <div class="btn-group">
+        <button ref="todo-edit-btn"
+          type="button"
+          class="btn edit-btn">
+          Edit <span is="reactive-span" class="visually-hidden" _text="name"></span>
+        </button>
+        <button ref="todo-delete-btn"
+          type="button"
+          class="btn btn__danger">
+          Delete <span is="reactive-span" class="visually-hidden" _text="name"></span>
+        </button>
+      </div>
+    </div>
+</li>
