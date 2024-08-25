@@ -16,16 +16,16 @@ You can use "native reactive HTML elements" within the templates of your compone
 HTML elements within a component are rendered into the "Shadow DOM" of a rendered custom element.
 
 ## State Attributes
-One of Sprout's core features is the concept of **State Attributes** which is supported on any HTML element which is part of a component's template (and has an `is="reactive..."` attribute) attribute, and also on custom elements defined using Sprout.
-A state attribute is an attribute specified on an element as part of a component's **template** (the "prototype" - unrendered form of a component) - the values of a state attribute always start with a Dollar sign ($). State attributes are **bound** to **State Properties**, the string value after the dollar sign should be equal to an existing state property. This creates a **binding** between the value of that attribute - on the rendered component.
+One of Sprout's core features is the concept of **State Attributes** which is supported on any HTML element which is part of a component's template (and has an `is="reactive..."` attribute) attribute, and also on custom elements defined using Sprout. <br>
+A state attribute is an attribute specified on an element as part of a component's **template** (the "prototype" - unrendered form of a component) - the values of a state attribute always start with a Dollar sign ($) (and this is what will make Sprout treat it as a State Attribute). State attributes are **bound** to **State Properties**, the string value after the dollar sign should be equal to an existing state property. This creates a **binding** between the value of that attribute - on the rendered component - and the value of a state property.
 So, whenever the value of that **state property** changes --- the value of the bound State Attribute will also automatically change to reflect the change (it will "react to the state change").
-You can use any attribute that you can normally use on an element as a State Attribute - simply by specifing a state property prefixed with a dollar sign as its value. This includes, for example,  attributes such as `hidden` - giving a state property that has a boolean value will enable you to easily control the visibility of an element, via the component state.
+You can use any attribute that you can normally use on an element as a State Attribute - simply by specifing a state property prefixed with a dollar sign as its value. This includes, for example,  attributes such as `hidden` - giving a state property that has a boolean value will enable you to easily control the visibility of an element, via the component state. (Sprout knows how to treat "boolean attributes" corretly, for example, with `hidden` - a truthy value will set `hidden=""`, and a falsy value will remove the `hidden` attribute from the element (but the association/binding will **still remain**, changing the state value back to `true` will bring back `hidden=""` to the element. 
 
 **NOTE**: the values of State Attributes should **never** be written to directly. Their goal is to be completely controlled by manipulating the state objects.
 
 ## State objects
 ### Local State
-Every Sprout component has a `state` property - representing its **local state**. The local state should only represent state related to that component. Anything that is related to a state that is shared between several components - should be moved to the "Global State" object.
+Every Sprout component has a `state` property - representing its **local state**. The local state should only represent state related to that component. Anything that is related to a state that is shared between several components, or a "global app state" - should be moved to the "Global State" object.
 
 To initialize a local state object, you can define an object under the `state` property in the Runtime Object of a component.
 
@@ -38,13 +38,16 @@ To initialize a global state object, call the `this.setGlobalState` function wit
 A state object is a JS object, with some extra features related to how Sprout handles state changes and reactivity.
 
 #### Primitive State values
-You can directly set state properties to primitive values, such as strings, numbers and booleans (e.g. `filter: "All").
+You can directly set state properties to primitive values, such as strings, numbers and booleans (e.g. `filter: "All"`).
 
 #### Stateful Arrays
-If the value of a state property is an array of objects, each of these objects will also automatically become a "state object" - these kind of arrays are called "Stateful Arrays" and are usually used along with the `_map` command to "map" an array of "state objects" into a series of rendered custom elements (usually the elements within a list elemen). In this case, the initial local state of each of these components will be initialized to the values of the equavilent object in the array. Manipulating one of these local states directly - will affect the specific rendered component, manipulating **the objects within the array, by changing the array values of state property in the state object** - will lead new eqauvilent renderings and DOM manipulations to the rendered components list (removing elements, adding new ones, and so on...).
+If the value of a state property is an array of objects, each of these objects will also automatically become a "state object" - these kind of arrays are called "Stateful Arrays" and are usually used along with the `_map` command to "map" an array of "state objects" into a series of rendered custom elements (usually the elements within a list element). In this case, the initial local state of each of these components will be initialized to the values of the equavilent object in the array. Manipulating one of these local states directly - will affect the specific rendered component, manipulating **the objects within the array, by changing the array values of the state property in the state object** - will lead new eqauvilent renderings and DOM manipulations to the rendered components list (removing elements, adding new ones, and so on...).
+
+#### Objects
+To be decided / tested...
 
 #### Getter functions
-You can use getter functions in a state object, like you would normally use with any object (e.g. `get tasksCount() { return this.tasks.length; });
+You can use getter functions in a state object, like you would normally use with any object (e.g. `get tasksCount() { return this.tasks.length; });`
 Using `this` inside a getter function will reference the actual live state object itself. This will also create a "dependency" between the getter property and the other state value it accesses. **Sprout knows to analyze these dependencies**, and remember the binding between them - so, for example if the value of the `tasks` state property is changed - Sprout will know to call the `getter` function again in all the appropriate places.
 
 Note that the dependency check goes "one level deep" - so, even if, like in the example above, which is accessed it `this.tasks.length` - whenever `tasks` is changed or manipulated - the getter will be recalled - **even if the length property itself won't change**.
