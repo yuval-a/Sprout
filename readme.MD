@@ -47,7 +47,7 @@ If the value of a state property is an array of objects, each of these objects w
 To be decided / tested...
 
 #### Getter functions
-You can use getter functions in a state object, like you would normally use with any object (e.g. `get tasksCount() { return this.tasks.length; });`
+You can use getter functions in a state object, like you would normally use with any object (e.g. `get tasksCount() { return this.tasks.length; });`)
 Using `this` inside a getter function will reference the actual live state object itself. This will also create a "dependency" between the getter property and the other state value it accesses. **Sprout knows to analyze these dependencies**, and remember the binding between them - so, for example if the value of the `tasks` state property is changed - Sprout will know to call the `getter` function again in all the appropriate places.
 
 Note that the dependency check goes "one level deep" - so, even if, like in the example above, which is accessed it `this.tasks.length` - whenever `tasks` is changed or manipulated - the getter will be recalled - **even if the length property itself won't change**.
