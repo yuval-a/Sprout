@@ -59,7 +59,7 @@ export const setStateAttribute = function(attrName, stateProp) {
             },
             enumerable: true
         });
-
+        theState._stateManager.addStateDependency(stateProp, conditionalStateProp);
         stateVal = theState[conditionalStateProp];
         stateProp = conditionalStateProp;
     }
