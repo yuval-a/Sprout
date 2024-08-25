@@ -1,6 +1,6 @@
 # Introduction
 Sprout is a client-side Javascript framework that introduces "state" management and "reactivity" into HTML elements, 
-by using the native Web Components API and extending the HTMLElement class - adding additional capabilities, allowing you define custom HTML elements that can handle state changes and react to it, and even do the same for exisiting native HTML elements.
+by using the native Web Components API, extending the HTMLElement class, adding additional capabilities to it, allowing you to define "custom elements" that reacts to state changes, using native browser features such as the `<template>` element, while also adding these capabilities to exisiting native HTML elements.
 
 # Main Concepts
 ## ReactiveElement
