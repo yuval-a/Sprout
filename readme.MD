@@ -82,6 +82,8 @@ Here is an example of an SSH defined on a State object:
 
 In this example `FILTER_MAP` can be an object with "filter functions", mapped to names, where the state `filter` property is a string representing the currently selected name, and `tasks` is an array of "tasks" objects in a "Todo List" app.
 
+#### `onStateChange` functions
+You can also declare functions on the state object, named like `on_[stateProp]Change` - where `stateProp` is a state property name (e.g. `on_todosChange`) - each of these functions will be called when the equivalent state value will change. In the majority of cases you can handle state dependency by using SSHs (preferred) or getter functions - and you will mostly not need to define onStateChange functions. Using those functions can add a lot of extra clutter to your state object, and is generally discouraged.
 
 #### Special state values on State Attributes
 When you specify values on State Attributes, there some special "operators" you can use within the value:
@@ -94,6 +96,7 @@ You can prefix a state property name with `is_` to check for "equality", compari
 Using this syntax is a "shortcut" in a way - "syntactic sugar" - as it will actually define a new getter function on the state object, called e.g. `is_currentFilterNameActive` - that returns the equality condition result.
 It will also auto define the dependency between `currentFilterName` and `is_currentFilterName` - so it saves the overhead you get if you define the getter function yourself.
 For more complex state eqaulity check - you can still define getter functions or define SSHs directly on the state object.
+
 
 ### Reading from state
 #### `getState(stateProperty, [getStateObject: boolean])`
@@ -125,7 +128,7 @@ You can directly manipulate state values by assigning to `host.state`, or `host.
 You can directly manipulate Stateful Arrays in state objects, including using native JS Array functions on them.
 
 ## Commands
-Another important core feature in Sprout are "Commands", commands can be declared on elements by defining an attribute with the name of a command. All command names start with an underscore (`_`) character. Commands usually creates effects that affects how the UI is rendered. The values of commands are usually related to State Objects, sometimes they are directly state property names.
+Another important core feature in Sprout are "**Commands**", commands can be declared on elements by defining an attribute with the name of a command. All command names start with an underscore (`_`) character. Commands usually creates effects that affects how the UI is rendered. The values of commands are usually related to State Objects, sometimes they are directly state property names.
 These are the commands currently supported:
 
 ### `_text`
@@ -145,26 +148,24 @@ You can set the `_map` command on the "parent element". The rendered elements ma
 
 # App development
 
-You will usually develop your app in a "development environment". Sprout supplies a "builder" script - that will eventually consolidate all the app "parts" into a single "compiled  HTML" file. The next section will describe how this "compiled" file is structured - you will usually won't need to create that structure "manually", as mentioned, as you can use the automatic builder script to create it for you (along with minification, bundling and so on).
+You will usually develop your app in a "development environment". Sprout supplies a "builder" script - that will eventually consolidate all the app "parts" into a single "compiled  HTML" file. The next section will describe how this "compiled" file is structured - you will usually won't need to create that structure "manually" yourself, as mentioned, as you can use the automatic builder script to create it for you (along with minification, bundling and so on), but we will still describe it here, for clarity, you SHOULD go over it, to understand the structure of how a "compiled app" looks like, and also to know about concepts such as "app scope".
 
 ## Compiled HTML
 
-Note, most of the things described here, are **automatically generated** when you call the "Sprout Build App" script on your app in a development environment. They are explained and detailed, for clarity.
-
 ## App Scope
 Sprout maintains everything related to your app, including its own runtime script in a separate "scope", this also allows you to run several different "apps" in the same page.
-Tags related to your app that sits within the `<head>` part of the "compiled" HTML file supports the `app` attribute, where you can specifiy a name for your app. Tags having the same value for the `app` attribute, are all "part of the same app".
+Tags related to your app that sits within the `<head>` part of the "compiled" HTML file supports the `app` attribute, where you can specifiy a name for your app (Again, those are added automatically by the 'builder script "compiler"'. Tags having the same value for the `app` attribute, are all "part of the same app".
 
-## Global Elements
-Global elements can include a `<style>` element containing the global style declrations of your app, and a `<script>` tag containing the global runtime code of your app - where the logic is returned from a "self invoking function".
+## Global App Elements
+"Global App Elements" can include a `<style>` element containing the global style declrations of your app, and a `<script>` tag containing the global runtime code of your app - where the logic is returned from a "self invoking function".
 These should have an `app` attribute set to the name of your app.
 
 ## `<template>` elements
-The `<head>` part of the html should include a `<template>` element for each reusable component in your app, each template can encompass the style declarations for it (in a child `<style>` element), the HTML UI "prototype" description (including "unresolved" State Attributes, and Command Attributes) directly inside the `<template>` and a `<script>` tag containg the logic for that component, also saved to a variable named `<componentName (camel-cased)>Runtime` (e.g. todoItemRuntime) returned from a self invoking function.
+The `<head>` part of the html should include a `<template>` element per each seperate reusable component in your app. Each template can encompass the style declarations for it (in a child `<style>` element), the HTML UI "prototype" description (including "unresolved" State Attributes, and Command Attributes) directly inside the `<template>` and a `<script>` tag containg the logic for that component, also saved to a variable named `<componentName (camel-cased)>Runtime` (e.g. todoItemRuntime) returned from a self invoking function.
 
-Other than the `app` attribute - `<template>` tags describing components, **must** also include a `for` attribute, where the value describes a "name" for the component that the template describes.
+Other than the `app` attribute - `<template>` tags describing components, **must** also include a `for` attribute, where the value describes a "name" for the component that the template describes - that name will eventually be defined as the name of a custom element. Note, that those names must adhere to the naming rules of custom elements (lowercased strings with hyphens as word seperators).
 
-## Sprout runtime script
+## Sprout runtime script - `SprountInitApp` and the "Build Function"
 The `<head>` should include a script tag that loads the `sprout-core.js` library.
 This script exposes the global function `SproutInitApp` - that function can receive an "app name", calling it, runs and initializes all the neccesary parts of your app (it takes into account the values of the `app` attribute in the relevant tags), and it returns a "Build Function" - which you can save into a variable, e.g.: `const build_todo_listApp = SproutInitApp("todo_list");`
 
@@ -182,22 +183,106 @@ Once you call the build function - your app becomes "live" on the page.
 ## App body
 the `<body>` part of the "compiled" HTML should contain the main "skeleton" of your app, this is the place where you can use the custom elements defined from the initializations in the `<head>` part. Using Command Attributes and State Attributes - Sprout will also know to render additional expected DOM elements. Custom Elements will render their content with Shadow DOM, and their logic will be handled by Sprout's runtime.
 
-This was a general description of the "compiled state" of an app. The next section will discuss the development environment of a Sprout App, and will also describe in greater details the main features mentioned above, such as "State Attributes", and "Command Attributes".
 
 # Development
+You will mostly develop your app within a "development" environment.
+Your app should reside in its own seperate folder (possibly within a `src` folder).
 
 ## Folder structure of an app
+### `components`
+Your app needs to have a `components` sub-folder where all of the definitions for your components should reside.
+Each "component" should be defined within its own subfolder - **named after the component name** - this would also be the name defined for the "custom element" - so, it should adhere to the custom elements naming restrictions.
 
-## Sprout Concepts
-### UI
-#### Reactive Element
-##### State Attributes
-###### State
-####### Global State and Local State
+A component folder can contain the following:
+#### `template.html`
+This file is an HTML file describing the component UI.
+Within it you can put any HTML elements. Those elements supports `State Attributes` and `Commands` (remember to put the `is="reactive-..."` attribute if you need to use those).
 
-##### Command Attributes
+#### `style.css`
+This is a CSS file where you can specify any styling rules for the component. Those styling rules will only apply in the scope of that component. <br>
+Note, that as a component is rendered as a custom element with Shadow DOM, you can also use the `:host` psuedo-class.
+
+### `runtime.js`
+This file should contain the "logic" of your component. You should `export` an object as a default export (`export default`). That object can contain the following properties and values:
+
+#### `state`
+This can be an object representing the initial state of the **local state** of the component.
+
+#### `onMount`
+This can be a function - that will be exectued when the component is first mounted. <br>
+The `this` context in the function is the rendered component, so you can access `this.state` or `this.getState()` and so on...
+The global state object is passed as the first argument of the function. You can access it directly via the argument or via `this.state._global`.
+
+#### `events`
+This object is where you specifiy Event Handlers for the component's elements.
+The properties of the `events` object are element's "ref" names. if you want to add an event handler to an element in your component you need to define a `ref` attribute on that element. A `ref` attribute is a way to identify an element in "Sprout's context", you can give it any name you'd like.
+The values in the `events` object can be either a function or an object.
+
+If the value is a function - that function will be used as the `onclick` handler function for the element.
+If the value is an object, then the properties should be standard DOM elements event names, and the values are functions that will be used as event handlers.
+
+## `root folder`
+The root folder of your app, should contain any "global" parts of your app, and can have the following files:
+### `index.html`
+An HTML file containing the general "global skeleton" template of your app. This is where you can use custom elements named after your components.
+### `index.css`
+A css file containing the "global" styling rules for your app. These rules will apply to any UI part of your app, including those within components.
+### `index.js`
+This file can contain "global" logic for your app. You will generally only use it to initialize the first state of the "global state" object, by calling:
+```javascript
+this.setGlobalState(initState)
+```
+Where `initState` is an object with Sprout's "state object" format.
+Anything in the global runtime will actually be called when calling the "app build function" - at which point `setGlobalState` will also be called - which will actually make the global state "live" (meaning things dependant on it will react to changes).
+
+##### Notes:
+Each event handler function receives 3 arguments:
+* `event`: The native Javascript Event object.
+* `host`: The "host" of the element, which is actually the rendered component instance - which is a `ReactiveElement` class instance, from which you can access things like `state`, `getState` and so on. Read more in `ReactiveElement instance methods`.
+* `global`: The global state object.
+
+The `this` context inside the function is **The element that triggered the event**.
+##### Example:
+
+## ReactiveElement class instance
+When you have access to an instance of a ReactiveElement which is a "rendered component instance" you also have access to its public methods and properties, which this section will specify:
+
+### `getState(stateProp, returnStateObject=false)`
+This function can be used to get the value of a state property `stateProp`. If the second argument is `false` the function returns the value of the state prop directly, or `undefined` if it can't find it, if the second argument is `true` the function returns both the state value and the state object (e.g. `const [stateVal, stateObj] = host.getState("someprop", true);`).
+The function first tries to retrieve a value from the local state of the component, and if it can't find one - it tries to retrieve from the global state, or undefined if it can't find one.
+### `state`
+You can directly access the local state from the `state` property
+### findElement(refName)
+This function can return a DOM element that has `refName` defined as a `ref` attribute.
+Using this function can be faster than calling `querySelector[ref="refName"]` - as DOM elements that has a `ref` attributes are saved internally on a component instance, and this function leverages that to access them more directly.
+
+### `host`
+`host` is a property you can access from "Reactive native HTML elements" - i.e. elements that are part of your component and have an `is="reactive..."` attribute. <br>
+The `host` will contain the containing rendered custom element (the "rendered component"). For the custom elements/rendered components themselves - the value of this property will be `null`
+
+### `isNativeElement`
+`true` for reactive native HTML elements (elements having the `is="reactive..."` attribute, `false` for host components (rendered components as custom elements).
 
 ## Lifecycle of a component
+This section will specify the "life cycle" of a component.
+On a "compiled HTML" file, Sprout's core runtime, takes the component's definitions from the equivalent `<template>` elements, and basically defines the required **custom elements** based on a class extending the `ReactiveElement` class - 
+at this point the constructor method of the class is called for each component.
+The constructor basically saves the UI template, styling and script logic into the instance.
+Sprout runtime also extends native HTML element classes with `ReactiveElement` to enable the usage of the `is="reactive-..."` attribute on them and make them reactive - 
+at this point their constructors gets called as well, but they don't need to save all the information that a constructor for a "component element" does.
+
+Most of the actual "lifecycle" occurs when the browser's HTML parser encounters custom elements used in the body of an HTML, and "mounts" (or "renders") them to the DOM tree of the document, 
+when this happens, the following occurs, in this order:
+
+1. **State becomes live**: If the component was given an "initial state" object (via its runtime) - that state becomes "live" - and things dependent on it will react to changes on it.
+2. **State Attributes are resolved and bound to state**: Any State Attribute values are **resolved** to equavilent values from state objects (either local or global). At this stage Sprout's also makes sure to create the "binding" between state properties and their equivalent "State Attribute" nodes.
+3. **Commands are run**: Any Command Attributes are handled and are actually run - this MAY result in additional DOM elements (usually custom elements representing defined components) added to the DOM tree.
+4 **UI rendering** At this stage the UI part (saved when a component instance was first constructed) - is actually rendered: a Shadow DOM root is created, and the relevant UI is attached to it.
+5. **Styling is implemented** by using `adoptedStyleSheets`.
+6 **Events are bound** - Event handlers are bound to the component. Sprout leverages "event bubbling" - it doesn't attach a "separate" event handler directly to each element - rather there is a SINGLE GLOBAL event handler (per each specified type in the component's runtime) - this event checks if the element that triggered the event has a relevant handler function defined in the `events` object on the component's runtime 
+7. **onMount()** is called. if an `onMount` function is declared on the component's runtime - it is called at this stage, binding the rendered component itself as its `this` context.
+
+## Builder script
 
 # Architecture
 
