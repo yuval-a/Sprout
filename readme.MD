@@ -118,14 +118,14 @@ Since you will mostly access state from event handlers - the host is passed as a
 If you know that a property exists on a local state, you can access it directly from `host.state[propertyName]` (or `host.state.propertyName`).
 #### Accessing global state from local state
 Whenever you have access to a local state, you can also access the global state by accessing the `_global` property which directly references the global state object.
-**Note** that if you are inside a local state SSH or getter, you can access the global state by accessing `this._global` --- ** This will also create a dependency/binding between the accessed global state property and the local state property function it was accessed from. In other words: if a local state getter or SSH accesses a global state property - whenever that global state property value will change - the getter function or the SSH function will be called again.
+**Note** that if you are inside a local state SSH or getter, you can access the global state by accessing `this._global` --- **This will also create a dependency/binding between the accessed global state property and the local state property function it was accessed from**; In other words: if a local state getter or SSH accesses a global state property - whenever that global state property value changes - the getter function or the SSH function will be called again.
 
 ### Writing to state
-You can directly manipulate state values by assigning to `host.state`, or `host.state_global`. In event handlers you also get the global state as the third argument, so you can simply access it (e.g. `global.stateProp = something`).
-You can directly manipulate Stateful Arrays in state objects.
+You can directly manipulate state values by assigning to `host.state`, or `host.state._global`. In event handlers you also get the global state as the third argument, so you can simply access it (e.g. `global.stateProp = something`).
+You can directly manipulate Stateful Arrays in state objects, including using native JS Array functions on them.
 
 ## Commands
-Another important core feature in Sprout are "Commands", commands can be declared on elements by defining an attribute with their names. All command names start with an underscore (`_`) character. Commands usually creates effects that affects how the UI is rendered. The values of commands are usually related to State Objects, sometimes they are directly state property names.
+Another important core feature in Sprout are "Commands", commands can be declared on elements by defining an attribute with the name of a command. All command names start with an underscore (`_`) character. Commands usually creates effects that affects how the UI is rendered. The values of commands are usually related to State Objects, sometimes they are directly state property names.
 These are the commands currently supported:
 
 ### `_text`
