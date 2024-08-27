@@ -284,7 +284,8 @@ Each event handler function receives 3 arguments:
 * `global`: The global state object.
 
 The `this` context inside the function is **The element that triggered the event**.
-##### Example runtime.js
+
+##### Example `runtime.js`
 As an example, here is the content of the `runtime.js` of the `todo-item` component in the Todo List demo app:
 
 ```javascript
@@ -330,7 +331,7 @@ export default {
     }
 }
 ```
-### `root folder`
+### Root Folder
 The root folder of your app, should contain any "global" parts of your app, and can have the following files:
 
 #### `index.html`
