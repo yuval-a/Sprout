@@ -1,29 +1,33 @@
 # Introduction
 Sprout is a client-side Javascript framework that introduces "state" management and "reactivity" into HTML elements, 
-by using the native Web Components API, extending the HTMLElement class, adding additional capabilities to it, allowing you to define "custom elements" that reacts to state changes, using native browser features such as the `<template>` element, while also adding these capabilities to exisiting native HTML elements.
+by using the native [Web Components API](https://developer.mozilla.org/en-US/docs/Web/API/Web_components), extending the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) class, adding additional capabilities to it, allowing you to define "[custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)" that reacts to state changes, using native browser features such as the [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) element, while also adding these capabilities to exisiting native HTML elements.
 
 # Main Concepts
 ## ReactiveElement
 At the heart of Sprout is the `ReactiveElement` class, this is a base class, extending the `HTMLElement` class, effectivily extending HTML Elements with the features Sprout supports.
 
-"Building" an app with Sprout initially entails defining "Components" (where the "compiled form" uses `<template>` elements), that encapsulates within them the three aspects of a component: the UI (HTML), the styling (its look - CSS), and the logic (Javascript). Sprout's core library passes this information to a new instance of a ReactiveElement, and then defines a new "Custom Element" based off of this. When you use that custom element in your HTML structure - it already supports Sprout's features. 
+"Building" an app with Sprout initially entails defining "Components" (where the "compiled form" uses `<template>` elements), that encapsulates within them the three aspects of a component: the UI (HTML), the styling (its look - CSS), and the logic (Javascript). Sprout's core library passes this information to a new instance of a `ReactiveElement`, and then defines a new "Custom Element" based off of this. When you use that custom element in your HTML structure - it already supports Sprout's features. 
 
 ### Reactive Native HTML Elements, using the `is` attribute
-Other than "custom elements" - Sprout also makes sure to extend ALL native HTML elements subclasses with the `ReactiveElement` class, this allows you to enable Sprouts features even for native HTML elements, you do this by using the `is` attribute on a native element - the value of the attribute should be in the form of: `reactive-[tag-name]` where `[tag-name]` is the name of the element's tag (lower-cased). So, for example: for a `<div>` element you would use `is="reactive-div"`, for a `<span>`: `is="reactive-span"`, for a `<ul>`: `is="reactive-ul"`, for an `<input>`: `is="reactive-input` and so on.
+Other than "custom elements" - Sprout also makes sure to extend ALL native HTML elements subclasses with the `ReactiveElement` class, this allows you to enable Sprouts features even for native HTML elements, you do this by using the [`is`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is) attribute on a native element - the value of the attribute should be in the form of: `reactive-[tag-name]` where `[tag-name]` is the name of the element's tag (lower-cased). So, for example: for a `<div>` element you would use `is="reactive-div"`, for a `<span>`: `is="reactive-span"`, for a `<ul>`: `is="reactive-ul"`, for an `<input>`: `is="reactive-input` and so on.
+
+**Note**: Safari still doesn't support the `is` attribute - next versions of Sprout will go around this but automatically converting any native HTML element with `is` to an actual custom element (and will make sure to define it), so `<input is="reactive-input" />` will become `<reactive-input />`.
 
 You can use "native reactive HTML elements" within the templates of your components - and you will most likely do that quite a lot when building your app - so whenever you use a Sprout feature on an element - **remember** to put an `is` attribute on it -- otherwise it will be treated as a "normal" HTML element, and using features like State Attributes or Commands - won't work.
 
 HTML elements within a component are rendered into the "Shadow DOM" of a rendered custom element.
 
+Note, since eventually you use custom elements, and the Web Components API, it is also possible to make use of ["Slots"](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_templates_and_slots) in your templates - allowing for "loosely coupled" templates, where certain parts of it can be "plugged into" with different kinds of other elements.
+
 ## State Attributes
 One of Sprout's core features is the concept of **State Attributes** which is supported on any HTML element which is part of a component's template (and has an `is="reactive..."` attribute) attribute, and also on custom elements defined using Sprout. <br>
-A state attribute is an attribute specified on an element as part of a component's **template** (the "prototype" - unrendered form of a component) - the values of a state attribute always start with a Dollar sign ($) (and this is what will make Sprout treat it as a State Attribute). State attributes are **bound** to **State Properties**, the string value after the dollar sign should be equal to an existing state property. This creates a **binding** between the value of that attribute - on the rendered component - and the value of a state property.
+A State Attribute is an attribute specified on an element as part of a component's **template** (which represents the "prototype" of a component - the  "unrendered" form of a component) - the values of a State Attribute is a string that always start with a Dollar sign (`$`) (and this is what will make Sprout treat it as a State Attribute). State attributes are **bound** to **State Properties** (See [State Objects](#state-objects] for more information), the string value after the dollar sign should be equal to an existing state property. This creates a **binding** between the value of that attribute - on the rendered component - and the value of a state property.
 So, whenever the value of that **state property** changes --- the value of the bound State Attribute will also automatically change to reflect the change (it will "react to the state change").
-You can use any attribute that you can normally use on an element as a State Attribute - simply by specifing a state property prefixed with a dollar sign as its value. This includes, for example,  attributes such as `hidden` - giving a state property that has a boolean value will enable you to easily control the visibility of an element, via the component state. (Sprout knows how to treat "boolean attributes" corretly, for example, with `hidden` - a truthy value will set `hidden=""`, and a falsy value will remove the `hidden` attribute from the element (but the association/binding will **still remain**, changing the state value back to `true` will bring back `hidden=""` to the element. 
+You can use any attribute that you can normally use on an element as a State Attribute - simply by specifing a state property prefixed with a dollar sign as its value. This includes, for example, attributes such as `hidden` - giving a state property that returns a truthy or falsy value -  will enable you to easily control the visibility of an element, via the component state. (Sprout knows how to treat "boolean attributes" corretly, for example, with `hidden` - a truthy value will set `hidden=""`, and a falsy value will remove the `hidden` attribute from the element (but the association/binding will **still remain**, changing the state value back to `true` will bring back `hidden=""` to the element. 
 
 **NOTE**: the values of State Attributes should **never** be written to directly. Their goal is to be completely controlled by manipulating the state objects.
 
-## State objects
+## State Objects
 ### Local State
 Every Sprout component has a `state` property - representing its **local state**. The local state should only represent state related to that component. Anything that is related to a state that is shared between several components, or a "global app state" - should be moved to the "Global State" object.
 
@@ -331,6 +335,12 @@ These are the available scripts:
 
 You only need to build Sprout's core if you make changes to it, of-course, and also - build it when you first clone the repo. **The `sprout-build-app` expects both `./dist/sprout-core.js` and `sprout-core.js.map` to exist**
 
+There are also .sh (bash) files for each of the demos, running each will:
+1. Build Sprout's core.
+2. Build the demo app from source.
+3. Serve it on a localhost Webpack server.
+
+The files are: `serve-todo-app.sh`, `serve-todomvc-app.sh`, `serve-ttt-app.sh`
 Enjoy!
 
 # Contact
