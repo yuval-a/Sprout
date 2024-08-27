@@ -36,7 +36,8 @@ To initialize a local state object, you can define an object under the `state` p
 ### Global State
 The global state is an object representing the "app state". Any "state" value that is not specific to a single component, or is shared between several components should be used in the global state.
 
-To initialize a global state object, call the `this.setGlobalState` function within the global runtime of your app, passing it an object representing the initial state of your app. Note, the `this` in the Global Runtime context is equal to the "App Scope".
+To initialize a global state object, call the `this.setGlobalState` function within the global runtime of your app, passing it an object representing the initial state of your app. Note, the `this` in the Global Runtime context is equal to the ["App Scope"](#app-scope).
+(See an example in the "global runtime"[#indexjs] section).
 
 ### State Object structure and features
 A state object is a JS object, with some extra features related to how Sprout handles state changes and reactivity.
@@ -45,20 +46,20 @@ A state object is a JS object, with some extra features related to how Sprout ha
 You can directly set state properties to primitive values, such as strings, numbers and booleans (e.g. `filter: "All"`).
 
 #### Stateful Arrays
-If the value of a state property is an array of objects, each of these objects will also automatically become a "state object" - these kind of arrays are called "Stateful Arrays" and are usually used along with the `_map` command to "map" an array of "state objects" into a series of rendered custom elements (usually the elements within a list element). In this case, the initial local state of each of these components will be initialized to the values of the equavilent object in the array. Manipulating one of these local states directly - will affect the specific rendered component, manipulating **the objects within the array, by changing the array values of the state property in the state object** - will lead new eqauvilent renderings and DOM manipulations to the rendered components list (removing elements, adding new ones, and so on...).
+If the value of a state property is an array of objects, each of these objects will also automatically become a "state object" - these kind of arrays are called "Stateful Arrays" and are usually used along with the [`_map`](#_map) command to "map" an array of "State objects" into a series of rendered custom elements (usually the elements within a list element). In this case, the initial local state of each of these components will be initialized to the values of the equavilent object in the array. Manipulating one of these local states directly - will affect the specific rendered component, manipulating **the objects within the array**, by changing the array values of the state property in the state object - will lead to new equvilent renderings and DOM manipulations to the rendered components list (removing elements, adding new ones, and so on...).
 
 #### Objects
 To be decided / tested...
 
 #### Getter functions
 You can use getter functions in a state object, like you would normally use with any object (e.g. `get tasksCount() { return this.tasks.length; });`)
-Using `this` inside a getter function will reference the actual live state object itself. This will also create a "dependency" between the getter property and the other state value it accesses. **Sprout knows to analyze these dependencies**, and remember the binding between them - so, for example if the value of the `tasks` state property is changed - Sprout will know to call the `getter` function again in all the appropriate places.
+Using `this` inside a getter function will reference the actual live state object itself. This will also create a "dependency" between the getter property and the other state property value it accesses. **Sprout knows to analyze these dependencies**, and remember the binding between them - so, for example if the value of the `tasks` state property is changed - Sprout will know to call the `getter` function again in all the appropriate places.
 
-Note that the dependency check goes "one level deep" - so, even if, like in the example above, which accesses `this.tasks.length` - whenever `tasks` is changed or manipulated - the getter will be recalled - **even if the length property itself won't change**.
+Note that the dependency check goes "one level deep" - so, even if, like in the example above, the function accesses `this.tasks.length` - whenever `tasks` is changed or manipulated - the getter will be recalled - **even if the length property itself won't change**.
 
 Also note, that as part of this "dependency analysis" - Sprout will call state getter functions as part of the initialization process. This will add a little bit of an overhead to the initialization.
 
-Because of these aspects, it is recommended to use "State Setter Hooks" (SSH) - which allow for finer control over state dependencies.
+Because of these aspects, it is recommended to use ["State Setter Hooks"](#state-setter-hooks) (SSHs) - which allow for finer control over state dependencies.
 
 #### State Setter Hooks
 This is a Sprout feature supported in State Objects used by Sprout.
@@ -89,14 +90,63 @@ In this example `FILTER_MAP` can be an object with "filter functions", mapped to
 #### `onStateChange` functions
 You can also declare functions on the state object, named like `on_[stateProp]Change` - where `stateProp` is a state property name (e.g. `on_todosChange`) - each of these functions will be called when the equivalent state value will change. In the majority of cases you can handle state dependency by using SSHs (preferred) or getter functions - and you will mostly not need to define onStateChange functions. Using those functions can add a lot of extra clutter to your state object, and is generally discouraged.
 
+#### A state object example:
+Here is an example of the initial local state of a `todo-item` component, from the [Todo List App demo]:
+
+```javascript
+    state: {
+        isEditing: false,
+        newName: ""
+    }
+```
+
+In here is an example of the global state of the Todo List App demo, showing the usage of more advanced features of it:
+```javascript
+const initState = {
+    filter: "All",
+    tasks: [
+      { id: "todo-task-0", name: "Eat", completed: true, isEditing: false },
+      { id: "todo-task-1", name: "Sleep", completed: false, isEditing: false },
+      { id: "todo-task-2", name: "Repeat", completed: false, isEditing: false, },
+    ],
+    // DO NOT USE ARROW FUNCTION HERE, because state object needs to be passed as THIS!
+    set_tasksFiltered: [function() {
+        return this.tasks.filter(FILTER_MAP[this.filter]);
+    }, ["tasks", "filter"], true],
+  
+    set_filterButtonStates: [function() {
+      return FILTER_NAMES.map(name=> {
+        return {
+          name,
+          // This value is used as a string value on bound attributes,
+          // without casting to string, leaving as boolean, will cause
+          // the attribute to be removed, if the value is false
+          isOn: String(name === this.filter)
+        }
+      });
+    }, ["filter"], true],
+
+    get tasksCount() {
+      return this.tasksFiltered.length;
+    },
+
+    get tasksNoun() {
+      return this.tasksCount !== 1 ? "tasks" : "task";
+    },
+
+
+}
+this.setGlobalState(initState);
+```
+
 #### Special state values on State Attributes
 When you specify values on State Attributes, there some special "operators" you can use within the value:
 
 ##### Negation operator (`!`):
-You can use the `!` char before a state property name (e.g. `$!isSomething`) - this will return a boolean `true` if `isSomething` resolved to a "falsy" value, or `true` if it's "truey"
+You can use the `!` char before a state property name (e.g. `$!isSomething`) - this will return a boolean `true` if `isSomething` resolves to a "falsy" value, or `true` if it's "truey"
 
 ##### Eqaulity operator (`is_`)
-You can prefix a state property name with `is_` to check for "equality", comparing one state value to another, the two state property names should be separated by a colon (`:`) character, so `$is_currentFilterName:Active` will return true if the state value of `currentFilterName` is equal (===) to the string `"Active"`. For now only strings are supported for the equality check value, but it might be extended in the future.
+You can prefix a state property name with `is_` to check for "equality", comparing one state value to another, the two state property names should be separated by a colon (`:`) character, so `$is_currentFilterName:Active` will return true if the state value of `currentFilterName` is equal (`===`) to the string `"Active"`. For now only strings are supported for the equality check value, but it might be extended in the future.
 Using this syntax is a "shortcut" in a way - "syntactic sugar" - as it will actually define a new getter function on the state object, called e.g. `is_currentFilterNameActive` - that returns the equality condition result.
 It will also auto define the dependency between `currentFilterName` and `is_currentFilterName` - so it saves the overhead you get if you define the getter function yourself.
 For more complex state eqaulity check - you can still define getter functions or define SSHs directly on the state object.
@@ -117,11 +167,12 @@ Second variation, retrieve both the state property value and the state object it
 const [filter, theState] = host.getState('filter', true);
 ```
 
-**Note** Only components themselves have "state", or rather actually the "host" of the Shadow DOM of a custom element defined from a component definition. "Native HTML elements" won't have "state" on their own (their "state" is the state of their host).
-Since you will mostly access state from event handlers - the host is passed as a second argument to Sprout's Event Handler Definition functions, accessing its state is then just a matter of accessing `host.getState` or `host.state`.
+**Note** Only components themselves have "state". "Native HTML elements" won't have "state" on their own (their "state" is the state of their host).
+Since you will mostly access state from event handlers - the host is passed as a second argument to Sprout's [Event Handler Definition](#events) functions, accessing its state is then just a matter of accessing `host.getState` or `host.state`.
 
 #### Reading State directly
 If you know that a property exists on a local state, you can access it directly from `host.state[propertyName]` (or `host.state.propertyName`).
+
 #### Accessing global state from local state
 Whenever you have access to a local state, you can also access the global state by accessing the `_global` property which directly references the global state object.
 **Note** that if you are inside a local state SSH or getter, you can access the global state by accessing `this._global` --- **This will also create a dependency/binding between the accessed global state property and the local state property function it was accessed from**; In other words: if a local state getter or SSH accesses a global state property - whenever that global state property value changes - the getter function or the SSH function will be called again.
@@ -155,35 +206,35 @@ You will usually develop your app in a "development environment". Sprout supplie
 
 ## Compiled HTML
 
-## App Scope
+### App Scope
 Sprout maintains everything related to your app, including its own runtime script in a separate "scope", this also allows you to run several different "apps" in the same page.
 Tags related to your app that sits within the `<head>` part of the "compiled" HTML file supports the `app` attribute, where you can specifiy a name for your app (Again, those are added automatically by the 'builder script "compiler"'. Tags having the same value for the `app` attribute, are all "part of the same app".
 
-## Global App Elements
+### Global App Elements
 "Global App Elements" can include a `<style>` element containing the global style declrations of your app, and a `<script>` tag containing the global runtime code of your app - where the logic is returned from a "self invoking function".
 These should have an `app` attribute set to the name of your app.
 
-## `<template>` elements
+### `<template>` elements
 The `<head>` part of the html should include a `<template>` element per each seperate reusable component in your app. Each template can encompass the style declarations for it (in a child `<style>` element), the HTML UI "prototype" description (including "unresolved" State Attributes, and Command Attributes) directly inside the `<template>` and a `<script>` tag containg the logic for that component, also saved to a variable named `<componentName (camel-cased)>Runtime` (e.g. todoItemRuntime) returned from a self invoking function.
 
 Other than the `app` attribute - `<template>` tags describing components, **must** also include a `for` attribute, where the value describes a "name" for the component that the template describes - that name will eventually be defined as the name of a custom element. Note, that those names must adhere to the naming rules of custom elements (lowercased strings with hyphens as word seperators).
 
-## Sprout runtime script - `SprountInitApp` and the "Build Function"
+### Sprout runtime script - `SprountInitApp` and the "Build Function"
 The `<head>` should include a script tag that loads the `sprout-core.js` library.
 This script exposes the global function `SproutInitApp` - that function can receive an "app name", calling it, runs and initializes all the neccesary parts of your app (it takes into account the values of the `app` attribute in the relevant tags), and it returns a "Build Function" - which you can save into a variable, e.g.: `const build_todo_listApp = SproutInitApp("todo_list");`
 
-## Custom Elements
+### Custom Elements
 One of the things the SproutInitApp does, is taking into account the `<template>` definitions and their content, and defining new "custom elements" (named after the value put into the `for` attribute), which you can use in the HTML's `<body>` and can support State Attributes, Command Attributes and other features Sprout makes available.
 
-## Native HTML elements as "Reactive elements"
+### Native HTML elements as "Reactive elements"
 Another thing loading the runtime does is extending all native HTML element classes with Sprout's "Reactive Element" class, allowing you to give the power of state and reactivity even to native HTML elements (besides custom elements which represents your components) - to make a native element "reactive", you use the Web Components' `is` attribute, giving it the value `"reactive-[tag-name]` according to which tag you use. For example, for a `<div>` element you would use `is="reactive-div"`, for a `<span>`: `is="reactive-span"`, for a `<ul>`: `is="reactive-ul"`, for an `<input>`: `is="reactive-input` and so on.
 Using this attribute will allow you to use State Attributes and Commands on that element.
 You should also do the same for native HTML elements that are part of the template of your components and needs to make use of one or more of Sprout's features (State Attributes, Command Attributes...).
 
-## Build
+### Build
 Once you call the build function - your app becomes "live" on the page.
 
-## App body
+### App Body
 the `<body>` part of the "compiled" HTML should contain the main "skeleton" of your app, this is the place where you can use the custom elements defined from the initializations in the `<head>` part. Using Command Attributes and State Attributes - Sprout will also know to render additional expected DOM elements. Custom Elements will render their content with Shadow DOM, and their logic will be handled by Sprout's runtime.
 
 
@@ -192,9 +243,10 @@ You will mostly develop your app within a "development" environment.
 Your app should reside in its own seperate folder (possibly within a `src` folder).
 
 ## Folder structure of an app
+
 ### `components`
 Your app needs to have a `components` sub-folder where all of the definitions for your components should reside.
-Each "component" should be defined within its own subfolder - **named after the component name** - this would also be the name defined for the "custom element" - so, it should adhere to the custom elements naming restrictions.
+Each "component" should be defined within its own subfolder - **named after the component name** - this would also be the name defined for the "custom element" - so, it should adhere to the [custom elements naming restrictions](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#name).
 
 A component folder can contain the following:
 #### `template.html`
@@ -205,18 +257,18 @@ Within it you can put any HTML elements. Those elements supports `State Attribut
 This is a CSS file where you can specify any styling rules for the component. Those styling rules will only apply in the scope of that component. <br>
 Note, that as a component is rendered as a custom element with Shadow DOM, you can also use the `:host` psuedo-class.
 
-### `runtime.js`
+#### `runtime.js`
 This file should contain the "logic" of your component. You should `export` an object as a default export (`export default`). That object can contain the following properties and values:
 
-#### `state`
+##### `state`
 This can be an object representing the initial state of the **local state** of the component.
 
-#### `onMount`
+##### `onMount`
 This can be a function - that will be exectued when the component is first mounted. <br>
 The `this` context in the function is the rendered component, so you can access `this.state` or `this.getState()` and so on...
 The global state object is passed as the first argument of the function. You can access it directly via the argument or via `this.state._global`.
 
-#### `events`
+##### `events`
 This object is where you specifiy Event Handlers for the component's elements.
 The properties of the `events` object are element's "ref" names. if you want to add an event handler to an element in your component you need to define a `ref` attribute on that element. A `ref` attribute is a way to identify an element in "Sprout's context", you can give it any name you'd like.
 The values in the `events` object can be either a function or an object.
@@ -224,13 +276,72 @@ The values in the `events` object can be either a function or an object.
 If the value is a function - that function will be used as the `onclick` handler function for the element.
 If the value is an object, then the properties should be standard DOM elements event names, and the values are functions that will be used as event handlers.
 
-## `root folder`
+#####W Notes:
+Each event handler function receives 3 arguments:
+* `event`: The native Javascript Event object.
+* `host`: The "host" of the element, which is actually the rendered component instance - which is a `ReactiveElement` class instance, from which you can access things like `state`, `getState` and so on. Read more in `ReactiveElement instance methods`.
+* `global`: The global state object.
+
+The `this` context inside the function is **The element that triggered the event**.
+##### Example runtime.js
+As an example, here is the content of the `runtime.js` of the `todo-item` component in the Todo List demo app:
+
+```javascript
+import { editTask, deleteTask, toggleTaskCompleted } from "../../modules/tasks-manager.mjs";
+
+let wasEditing = false;
+
+export default {
+    state: {
+        isEditing: false,
+        newName: ""
+    },
+
+    onMount() {
+        const state = this.state;
+        if (!wasEditing && state.isEditing) {
+            this.findElement('todo-edit-input').focus();
+        }
+        else if (wasEditing && !state.isEditing) {
+            this.findElement('todo-edit-btn').focus();
+        }
+    },
+    events: {
+        'todo-edit-save': (event, host, global)=> {
+            const newName = host.getAttribute("newName");
+            if (!newName.length || !/\S/.test(newName)) return;
+            editTask.call({state: global}, host.getAttribute('id'), newName);
+            host.state.newName = "";
+            host.state.isEditing = false;
+        },
+        'todo-edit-btn': (event, host)=> {
+            host.state.isEditing = true;
+        },
+        'todo-edit-cancel': (event, host)=> {
+            host.state.isEditing = false;
+        },
+        'todo-delete-btn': (event, host, global)=> {
+            deleteTask.call({state: global}, host.getAttribute('id'));
+        },
+        'todo-checkbox': (event, host, global)=> {
+            toggleTaskCompleted.call({state: global}, host.getAttribute('id'));
+        }
+    }
+}
+```
+### `root folder`
 The root folder of your app, should contain any "global" parts of your app, and can have the following files:
-### `index.html`
+
+#### `index.html`
 An HTML file containing the general "global skeleton" template of your app. This is where you can use custom elements named after your components.
-### `index.css`
-A css file containing the "global" styling rules for your app. These rules will apply to any UI part of your app, including those within components.
-### `index.js`
+
+#### `head.html`
+You can optionally include a `head.html` file that can include additional content that will be added to the `<head>` part of the compiled HTML when you build the app.
+
+#### `index.css`
+A CSS file containing the "global" styling rules for your app. These rules will apply to any UI part of your app, including those within components.
+
+#### `index.js`
 This file can contain "global" logic for your app. You will generally only use it to initialize the first state of the "global state" object, by calling:
 ```javascript
 this.setGlobalState(initState)
@@ -238,23 +349,68 @@ this.setGlobalState(initState)
 Where `initState` is an object with Sprout's "state object" format.
 Anything in the global runtime will actually be called when calling the "app build function" - at which point `setGlobalState` will also be called - which will actually make the global state "live" (meaning things dependant on it will react to changes).
 
-##### Notes:
-Each event handler function receives 3 arguments:
-* `event`: The native Javascript Event object.
-* `host`: The "host" of the element, which is actually the rendered component instance - which is a `ReactiveElement` class instance, from which you can access things like `state`, `getState` and so on. Read more in `ReactiveElement instance methods`.
-* `global`: The global state object.
+##### Example
+here is an example of the `index.js` global runtime of the Todo List demo app:
 
-The `this` context inside the function is **The element that triggered the event**.
-##### Example:
+```javascript
+const FILTER_MAP = {
+  All: () => true,
+  Active: (task) => !task.completed,
+  Completed: (task) => task.completed,
+};
+const FILTER_NAMES = Object.keys(FILTER_MAP);
 
-## ReactiveElement class instance
+const initState = {
+    filter: "All",
+    tasks: [
+      { id: "todo-task-0", name: "Eat", completed: true, isEditing: false },
+      { id: "todo-task-1", name: "Sleep", completed: false, isEditing: false },
+      { id: "todo-task-2", name: "Repeat", completed: false, isEditing: false, },
+    ],
+    // DO NOT USE ARROW FUNCTION HERE, because state object needs to be passed as THIS!
+    set_tasksFiltered: [function() {
+        return this.tasks.filter(FILTER_MAP[this.filter]);
+    }, ["tasks", "filter"], true],
+  
+    set_filterButtonStates: [function() {
+      return FILTER_NAMES.map(name=> {
+        return {
+          name,
+          // This value is used as a string value on bound attributes,
+          // without casting to string, leaving as boolean, will cause
+          // the attribute to be removed, if the value is false
+          isOn: String(name === this.filter)
+        }
+      });
+    }, ["filter"], true],
+
+    get tasksCount() {
+      return this.tasksFiltered.length;
+    },
+
+    get tasksNoun() {
+      return this.tasksCount !== 1 ? "tasks" : "task";
+    },
+
+
+}
+this.setGlobalState(initState);
+```
+
+### Folder structure example
+Here is an example of the folder structure of the Todo List app demo:
+![Example Sprout App Folder Structure]()
+
+## ReactiveElement class instance methods and properties
 When you have access to an instance of a ReactiveElement which is a "rendered component instance" you also have access to its public methods and properties, which this section will specify:
 
 ### `getState(stateProp, returnStateObject=false)`
 This function can be used to get the value of a state property `stateProp`. If the second argument is `false` the function returns the value of the state prop directly, or `undefined` if it can't find it, if the second argument is `true` the function returns both the state value and the state object (e.g. `const [stateVal, stateObj] = host.getState("someprop", true);`).
 The function first tries to retrieve a value from the local state of the component, and if it can't find one - it tries to retrieve from the global state, or undefined if it can't find one.
+
 ### `state`
 You can directly access the local state from the `state` property
+
 ### findElement(refName)
 This function can return a DOM element that has `refName` defined as a `ref` attribute.
 Using this function can be faster than calling `querySelector[ref="refName"]` - as DOM elements that has a `ref` attributes are saved internally on a component instance, and this function leverages that to access them more directly.
@@ -264,7 +420,7 @@ Using this function can be faster than calling `querySelector[ref="refName"]` - 
 The `host` will contain the containing rendered custom element (the "rendered component"). For the custom elements/rendered components themselves - the value of this property will be `null`
 
 ### `isNativeElement`
-`true` for reactive native HTML elements (elements having the `is="reactive..."` attribute, `false` for host components (rendered components as custom elements).
+A property with `true` for reactive native HTML elements (elements having the `is="reactive..."` attribute, `false` for host components (rendered components as custom elements).
 
 ## Lifecycle of a component
 This section will specify the "life cycle" of a component.
