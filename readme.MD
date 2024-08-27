@@ -277,7 +277,7 @@ The values in the `events` object can be either a function or an object.
 If the value is a function - that function will be used as the `onclick` handler function for the element.
 If the value is an object, then the properties should be standard DOM elements event names, and the values are functions that will be used as event handlers.
 
-#####W Notes:
+###### Notes:
 Each event handler function receives 3 arguments:
 * `event`: The native Javascript Event object.
 * `host`: The "host" of the element, which is actually the rendered component instance - which is a `ReactiveElement` class instance, from which you can access things like `state`, `getState` and so on. Read more in `ReactiveElement instance methods`.
