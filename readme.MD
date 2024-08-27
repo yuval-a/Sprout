@@ -476,7 +476,7 @@ This is an implementation based on the Tic-Tac-Toe game app from [React's tutori
 This is a "Todo List" app implementation based on [MDN's implementation of a Todo List app in React](https://github.com/mdn/todo-react) (the result of [this tutorial](https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks/React_todo_list_beginning).
 
 ### Todo MVC (`demos/todo-mvc-src`)
-This is an implentation of the "Todo List app" that can be seen on (https://todomvc.com/)[https://todomvc.com/] - a popular site that compares between frameworks by showing implementations of a Todo List app - in different frameworks 
+This is an implentation of the "Todo List app" that can be seen on https://todomvc.com/ - a popular site that compares between frameworks by showing implementations of a Todo List app - in different frameworks 
 
 ## Building and compiling
 `package.json` defines some npm scripts you can run for building and compiling both the runtime and core parts of Sprout and/or the included app demos. Use `npm run [script-name]` to run a script.
