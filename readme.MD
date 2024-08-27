@@ -458,7 +458,7 @@ node ./sprout-build-app.mjs [app-src-folder] [app-build-folder] <--app app-name>
 
 The first argument should be the folder with the app "source", the second argument should be a destination folder for the "build" - where the "compiled" version will be written to.
 
-#### `--app` argument
+#### `--app`
 You can optionally give your app's name using the `--app` command line argument - if the argument is not given - a **random** name will be used for the app - so, **it is recommended** to use that option and specify a meaningful name for your app. That name will be used wherever an "app name" is needed on the compiled app (See: "App Scope").
 
 #### `--minify`
