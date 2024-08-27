@@ -31,7 +31,7 @@ You can use any attribute that you can normally use on an element as a State Att
 ### Local State
 Every Sprout component has a `state` property - representing its **local state**. The local state should only represent state related to that component. Anything that is related to a state that is shared between several components, or a "global app state" - should be moved to the ["Global State" object](#global-state).
 
-To initialize a local state object, you can define an object under the `state` property in the [Runtime Object of a component](#runtime.js).
+To initialize a local state object, you can define an object under the `state` property in the [Runtime Object of a component](#runtimejs).
 
 ### Global State
 The global state is an object representing the "app state". Any "state" value that is not specific to a single component, or is shared between several components should be used in the global state.
