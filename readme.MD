@@ -86,6 +86,7 @@ Here is an example of an SSH defined on a State object:
 ```
 
 In this example `FILTER_MAP` can be an object with "filter functions", mapped to names, where the state `filter` property is a string representing the currently selected name, and `tasks` is an array of "tasks" objects in a "Todo List" app.
+In the example you can see two "dependencies" defined: `tasks` (an array defined on the state object) and `filter` (a string defined on the state object) - whenever any of them changes - the SSH function will run, resulting in a new value for the `taskFiltered` state property (which contains an array of "tasks" objects filtered from the `tasks` array defined on the state object. The third `true` argument will make the SSH function run when the state first becomes "live".
 
 #### `onStateChange` functions
 You can also declare functions on the state object, named like `on_[stateProp]Change` - where `stateProp` is a state property name (e.g. `on_todosChange`) - each of these functions will be called when the equivalent state value will change. In the majority of cases you can handle state dependency by using SSHs (preferred) or getter functions - and you will mostly not need to define onStateChange functions. Using those functions can add a lot of extra clutter to your state object, and is generally discouraged.
