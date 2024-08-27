@@ -501,5 +501,8 @@ There are also .sh (bash) files for each of the demos, running each will:
 The files are: `serve-todo-app.sh`, `serve-todomvc-app.sh`, `serve-ttt-app.sh`
 Enjoy!
 
+# Contributing
+Feel free to make contributions by branching and pushing a PR.
+
 # Contact
 For questions or queries you can open a new "issue" or send a message via Github.
