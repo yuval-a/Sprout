@@ -454,6 +454,7 @@ This version of Sprout comes with a "builder script" - which can take a folder w
 3. Run: <br>
 ```
 node ./sprout-build-app.mjs [app-src-folder] [app-build-folder] <--app app-name> <--minify>
+```
 
 The first argument should be the folder with the app "source", the second argument should be a destination folder for the "build" - where the "compiled" version will be written to.
 
