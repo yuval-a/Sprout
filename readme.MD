@@ -282,10 +282,56 @@ when this happens, the following occurs, in this order:
 6 **Events are bound** - Event handlers are bound to the component. Sprout leverages "event bubbling" - it doesn't attach a "separate" event handler directly to each element - rather there is a SINGLE GLOBAL event handler (per each specified type in the component's runtime) - this event checks if the element that triggered the event has a relevant handler function defined in the `events` object on the component's runtime 
 7. **onMount()** is called. if an `onMount` function is declared on the component's runtime - it is called at this stage, binding the rendered component itself as its `this` context.
 
-## Builder script
+# Building
 
-# Architecture
+## App Builder Script
+This version of Sprout comes with a "builder script" - which can take a folder with your app's "development environment" and "build" it, turning it to a single "compiled HTML" - simply loading that HTML in a browser will run your app.
 
+### Using the app builder script.
+1. Make sure you have your app ready in its own sub-folder (e.g. `src/appname`) - with the correct folder and file structure.
+2. Make sure both `./dist/sprout-core.js` and `sprout-core.js.map` exist as the builder script needs to copy them to the app dist folder. If you just cloned the repo (or if you made any changes to Sprout) - you should build the Sprout Core library first, by running `npm run build` - it will create the two `sprout-core.js` and `sprout-core.js.map` files mentioned above.
+3. Run: <br>
+```
+node ./sprout-build-app.mjs [app-src-folder] [app-build-folder] <--app app-name> <--minify>
 
+The first argument should be the folder with the app "source", the second argument should be a destination folder for the "build" - where the "compiled" version will be written to.
 
+#### `--app` argument
+You can optionally give your app's name using the `--app` command line argument - if the argument is not given - a **random** name will be used for the app - so, **it is recommended** to use that option and specify a meaningful name for your app. That name will be used wherever an "app name" is needed on the compiled app (See: "App Scope").
 
+#### `--minify`
+If you include this argument - the compiled build will also minify any HTML, CSS and JS that's created in the compiled file. <br>
+You should include this argument for "compiled" builds, and omit it for "development builds" - where you'll probably want an easy way to debug it.
+
+# Demos
+This repo includes several ready-made Sprout apps for demonstrations purposes. It is recommended to study them - to see where all the aspects of a Sprout App come into action in a practical way.
+These are the demos included:
+
+### Tic-Tac-Toe game (`demos/tic-tac-toe-src`)
+This is an implementation based on the Tic-Tac-Toe game app from [React's tutorial](https://react.dev/learn/tutorial-tic-tac-toe) - including the "time travel" feature - which allows you to "go back" to any previous move in the game. Comparing this Sprout implementation to the React implementation might help you grasp the attitude and concepts of Sprout - especially if you are familiar with React and its concepts and have used it before.
+
+### Todo List (`demos/todo-list-src`)
+This is a "Todo List" app implementation based on [MDN's implementation of a Todo List app in React](https://github.com/mdn/todo-react) (the result of [this tutorial](https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks/React_todo_list_beginning).
+
+### Todo MVC (`demos/todo-mvc-src`)
+This is an implentation of the "Todo List app" that can be seen on (https://todomvc.com/)[https://todomvc.com/] - a popular site that compares between frameworks by showing implementations of a Todo List app - in different frameworks 
+
+## Building and compiling
+`package.json` defines some npm scripts you can run for building and compiling both the runtime and core parts of Sprout and/or the included app demos. Use `npm run [script-name]` to run a script.
+These are the available scripts:
+
+### `build`: builds the Sprout's core library which includes its "runtime" part and the "builder" part. The script will be compiled into `dist/sprout-core.js` along with a source-map at `dist/sprout-core.js.map` for easier debugging.
+
+* `build-todo-app` runs the `sprout-build-app.mjs` to build the Todo List App (Unminified) into `demos/todo-list-build`.
+* `build-todomvc-app` runs the `sprout-build-app.mjs` to build the Todo List MVC App (Unminified) into `demos/todo-list-build`.
+* `build-ttt-app` runs the `sprout-build-app.mjs` to build the Tic-Tac-Toe App (Unminified) into `demos/todo-list-build`.
+* `serve-todo-app`: Serves the build of the Todo List App in a localhost Webpack dev server.
+* `serve-todomvc-app`: Serves the build of the Todo List MVC App in a localhost Webpack dev server.
+* `serve-ttt-app`: Serves the build of the Tic-Tac-Toe in a localhost Webpack dev server.
+
+You only need to build Sprout's core if you make changes to it, of-course, and also - build it when you first clone the repo. **The `sprout-build-app` expects both `./dist/sprout-core.js` and `sprout-core.js.map` to exist**
+
+Enjoy!
+
+# Contact
+For questions or queries you can open a new "issue" or send a message via Github.
