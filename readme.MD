@@ -401,7 +401,7 @@ this.setGlobalState(initState);
 
 ### Folder structure example
 Here is an example of the folder structure of the Todo List app demo:
-![Example Sprout App Folder Structure]()
+![Example Sprout App Folder Structure](https://github.com/yuval-a/Sprout/blob/main/Sprout-Todo-List-App-Folder-Structure.png?raw=true)
 
 ## ReactiveElement class instance methods and properties
 When you have access to an instance of a ReactiveElement which is a "rendered component instance" you also have access to its public methods and properties, which this section will specify:
