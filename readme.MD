@@ -21,7 +21,7 @@ Note, since eventually you use custom elements, and the Web Components API, it i
 
 ## State Attributes
 One of Sprout's core features is the concept of **State Attributes** which is supported on any HTML element which is part of a component's template (and has an `is="reactive..."` attribute) attribute, and also on custom elements defined using Sprout. <br>
-A State Attribute is an attribute specified on an element as part of a component's **template** (which represents the "prototype" of a component - the  "unrendered" form of a component) - the values of a State Attribute is a string that always start with a Dollar sign (`$`) (and this is what will make Sprout treat it as a State Attribute). State attributes are **bound** to **State Properties** (See [State Objects](#state-objects] for more information), the string value after the dollar sign should be equal to an existing state property. This creates a **binding** between the value of that attribute - on the rendered component - and the value of a state property.
+A State Attribute is an attribute specified on an element as part of a component's **template** (which represents the "prototype" of a component - the  "unrendered" form of a component) - the values of a State Attribute is a string that always start with a Dollar sign (`$`) (and this is what will make Sprout treat it as a State Attribute). State attributes are **bound** to **State Properties** (See [State Objects](#state-objects) for more information), the string value after the dollar sign should be equal to an existing state property. This creates a **binding** between the value of that attribute - on the rendered component - and the value of a state property.
 So, whenever the value of that **state property** changes --- the value of the bound State Attribute will also automatically change to reflect the change (it will "react to the state change").
 You can use any attribute that you can normally use on an element as a State Attribute - simply by specifing a state property prefixed with a dollar sign as its value. This includes, for example, attributes such as `hidden` - giving a state property that returns a truthy or falsy value -  will enable you to easily control the visibility of an element, via the component state. (Sprout knows how to treat "boolean attributes" corretly, for example, with `hidden` - a truthy value will set `hidden=""`, and a falsy value will remove the `hidden` attribute from the element (but the association/binding will **still remain**, changing the state value back to `true` will bring back `hidden=""` to the element. 
 
@@ -29,9 +29,9 @@ You can use any attribute that you can normally use on an element as a State Att
 
 ## State Objects
 ### Local State
-Every Sprout component has a `state` property - representing its **local state**. The local state should only represent state related to that component. Anything that is related to a state that is shared between several components, or a "global app state" - should be moved to the "Global State" object.
+Every Sprout component has a `state` property - representing its **local state**. The local state should only represent state related to that component. Anything that is related to a state that is shared between several components, or a "global app state" - should be moved to the ["Global State" object](#global-state).
 
-To initialize a local state object, you can define an object under the `state` property in the Runtime Object of a component.
+To initialize a local state object, you can define an object under the `state` property in the [Runtime Object of a component](#runtime-js).
 
 ### Global State
 The global state is an object representing the "app state". Any "state" value that is not specific to a single component, or is shared between several components should be used in the global state.
@@ -100,7 +100,6 @@ You can prefix a state property name with `is_` to check for "equality", compari
 Using this syntax is a "shortcut" in a way - "syntactic sugar" - as it will actually define a new getter function on the state object, called e.g. `is_currentFilterNameActive` - that returns the equality condition result.
 It will also auto define the dependency between `currentFilterName` and `is_currentFilterName` - so it saves the overhead you get if you define the getter function yourself.
 For more complex state eqaulity check - you can still define getter functions or define SSHs directly on the state object.
-
 
 ### Reading from state
 #### `getState(stateProperty, [getStateObject: boolean])`
