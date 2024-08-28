@@ -281,9 +281,9 @@ export function handleStateChange(stateManager, stateProp) {
     const state = stateManager.state;
 
     // Run on[stateProp]Change hooks
-    if (state.hasOwnProperty(`on${stateProp}Change`)) {
-        if (typeof state[`on${stateProp}Change`] === "function")
-            state[`on${stateProp}Change`].call(state);
+    if (state.hasOwnProperty(`on_${stateProp}Change`)) {
+        if (typeof state[`on_${stateProp}Change`] === "function")
+            state[`on_${stateProp}Change`].call(state);
     }
 
     const stateDependencies = stateManager.stateDependencies[stateProp];

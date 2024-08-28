@@ -122,6 +122,11 @@ export const StateHandler = function(stateObj, appScope = window) {
                                 stateObj[setStateProp] = func.call(stateObj);
                             }
                         }
+                        else {
+                            if (value?.[3]) {
+                                stateObj[setStateProp] = value[3]
+                            }
+                        }
                     }
                     else if (!value?.[0]?._stateManager) {
                         descriptor.value = new StatefulArray(descriptor.value, stateObj, stateProp, false, appScope);

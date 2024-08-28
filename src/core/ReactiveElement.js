@@ -150,14 +150,14 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             });
             const clickRefNames = Object.keys(clickActions);
             const globalState = appScope[GLOBAL_STATE_FUNCTION_NAME]();
-            this.#eventHandler = function(event, eventsObject, refNames) {
+            this.#eventHandler = function(event, eventsObject) {
                 const elementsPath = event.composedPath();
                 let target;
                 if (elementsPath) {
-                    target = elementsPath.find(element => element.hasAttribute && element.hasAttribute('ref') && refNames.includes(element.getAttribute('ref')));
+                    target = elementsPath.find(element => element.hasAttribute && element.hasAttribute('ref') && element.getAttribute('ref') in eventsObject);
                 }
                 else {
-                    target = event.target.hasAttribute && event.target.hasAttribute('ref') && refNames.includes(event.target.getAttribute('ref')) ? event.target : null;
+                    target = (event.target.hasAttribute && event.target.hasAttribute('ref') && event.target.getAttribute('ref') in eventsObject) ? event.target : null;
                 }
                 if (target) {
                     const ref = target.getAttribute('ref');
@@ -168,15 +168,14 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             const thiselement = this;
             if (Object.keys(clickActions).length) {
                 thiselement.addEventListener('click', (event)=> {
-                    this.#eventHandler(event, clickActions, clickRefNames);
+                    this.#eventHandler(event, clickActions);
                 }, false);
                 this.#boundEventNames.push('click');
             }
             const eventNames = Object.keys(otherActions);
             for (const eventName of eventNames) {
-                const eventRefNames = Object.keys(otherActions[eventName]);
                 thiselement.addEventListener(eventName, (event)=> {
-                    this.#eventHandler(event, otherActions[eventName], eventRefNames);
+                    this.#eventHandler(event, otherActions[eventName]);
                 }, false);
             }
             this.#boundEventNames.push(...eventNames);

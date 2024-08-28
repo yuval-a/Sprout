@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-core": "webpack --config webpack.core.config.js",
-    "build-build": "webpack --config webpack.build.config.js",
-    "build": "npm run build-core & npm run build-build",
+    "build": "webpack --config webpack.core.config.js",
     "build-todo-app": "node ./sprout-build-app.mjs ./demos/todo-list-src ./demos/todo-list-build --app todo_list",
     "build-todomvc-app": "node ./sprout-build-app.mjs ./demos/todo-mvc-src ./demos/todo-mvc-build --app todo_mvc",
     "build-ttt-app": "node ./sprout-build-app.mjs ./demos/tic-tac-toe-src ./demos/tic-tac-toe-build --app tic_tac_toe",

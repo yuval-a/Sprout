@@ -1522,6 +1522,10 @@ var StateHandler = function StateHandler(stateObj) {
               if (func && typeof func === "function") {
                 stateObj[setStateProp] = func.call(stateObj);
               }
+            } else {
+              if (value !== null && value !== void 0 && value[3]) {
+                stateObj[setStateProp] = value[3];
+              }
             }
           } else if (!(value !== null && value !== void 0 && (_value$ = value[0]) !== null && _value$ !== void 0 && _value$._stateManager)) {
             descriptor.value = new _StatefulArray_js__WEBPACK_IMPORTED_MODULE_2__["default"](descriptor.value, stateObj, stateProp, false, appScope);
@@ -1652,6 +1656,7 @@ var setStateAttribute = function setStateAttribute(attrName, stateProp) {
       },
       enumerable: true
     });
+    theState._stateManager.addStateDependency(stateProp, conditionalStateProp);
     stateVal = theState[conditionalStateProp];
     stateProp = conditionalStateProp;
   }
@@ -1873,8 +1878,8 @@ function handleStateChange(stateManager, stateProp) {
   var state = stateManager.state;
 
   // Run on[stateProp]Change hooks
-  if (state.hasOwnProperty("on".concat(stateProp, "Change"))) {
-    if (typeof state["on".concat(stateProp, "Change")] === "function") state["on".concat(stateProp, "Change")].call(state);
+  if (state.hasOwnProperty("on_".concat(stateProp, "Change"))) {
+    if (typeof state["on_".concat(stateProp, "Change")] === "function") state["on_".concat(stateProp, "Change")].call(state);
   }
   var stateDependencies = stateManager.stateDependencies[stateProp];
   if (stateDependencies) {

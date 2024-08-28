@@ -23,20 +23,6 @@ class StatefulArray extends Array {
         delete this.$$operation;
         return result;
     }
-    /*
-    push(...args) {
-        this.$$operation = "push";
-        const result = super.push(...args);
-        delete this.$$operation;
-        return result;
-    }
-    pop(...args) {
-        this.$$operation = "pop";
-        const result = super.pop(...args);
-        delete this.$$operation;
-        return result;
-    }
-    */
     shift(...args) {
         this.$$operation = "shift";
         const result = super.shift(...args);
