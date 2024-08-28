@@ -60,3 +60,86 @@ For each type of event that exists on the `events` object - a "wrapper" event li
 
 #### `onMount` call
 Call `onMount` function if defined on the runtime, passing the class instance itself as the `this` context, and the global state as the first argument.
+
+# `StateManager` class
+The `StateManager` class is responsible for handling the actual "reactivity" of state changes.
+## Important class properties:
+### `privateState`
+An object that saves state values - which getter functions get values from and setter functions set values into it.
+### `stateDependencies` 
+An object that maps dependencies between different state properties.
+### `stateNodes`
+An object where the keys are state properties and the values are arrays of actual associated "State Attributes" (actual attribute nodes).
+### `stateArrayMaps`
+This is an object used to preserve "State Maps" - which are arrays of objects used with the `_map` command to render new custom elements from each state object in the array.
+The keys are state property names, and the values are arrays of objects, each having: `customElementName` - the name of the component that is rendered from each state, `parentElement` - 
+### `parentStateProp`, `parentStateManager`
+These are relevant if the state is part of a "StatefulArray", then `parentStateProp` is equal to the state property name that contains the array, and `parentStateManager` the actual StateManager instance that contains the state with the array.
+### `state`
+This is the actual "public" state that is exposed to other places. It is assigned a new Proxy instance, with a `StateHandler` from `proxy_handlers`
+#### `StateHandler`
+The state handler handles some of the state reactivity. it has these "trap handlers":
+##### `defineProperty`
+This handler handles the following:
+1. It has a mechanism to "capture" and save the dependencies of each state property. It works by temporarily defining a new Proxy with a "get" handler for each newly defined property, whose purpose it to detect if that property is called from other state getters.
+2. If the value is a normal array - it is assigned a "StatefulArray" instead.
+3. If the value is an SSH array it adds the appropriate dependencies, and also calls the SSH function if the third item is `true`.
+4. It calls the `handleStateChange` - as this is the first time a value is assigned to that state property - it is still considered as a "state change" trigger.
+##### `get`
+This handler has a mechanism to detect dependencies between local state and global state, and also it handles "negation properties" (e.g. `!something`).
+# `StatefulArray` class
+This class is used to create "Stateful Arrays" from normal arrays assigned as values in a state object.
+A stateful array is basically an array (it extends the `Array` class), where the constructor:
+* Turns objects in the array into "State Objects".
+* Override relevant Array methods to calll `handleStateChange` when neccesary.
+StatefulArray instance is returned as a proxy, with a `StatefulArrayHandler` from `proxy_handlers`
+## StatefulArrayHandler
+The handler has the following "trap" handlers:
+### set
+* If the length of an array is changed it called `handleStateChange` for the entire array.
+* If the same value is assigned to an index - it just returns true.
+* If a new object is assigned to an index - turn that object into a State Object.
+* If the array is in the middle of an "operation" (one of the array methods is called, which can internally change its content) - do not call `handleStateChange` until it finishes - otherwise,
+  if a value is added to the array or one of indexes is changed - call `handleStateChange`
+
+# `handleStateChange`
+This function is the main function that gets called to handle state changes. It is in `state_utils` module. It received a `stateManager` instance and a state property name: `stateProp`.
+The function calls the `generateStateNodeActions` functions with the `stateManager` and `stateProp`
+## `nodeActionsMap`
+This is a global "map" that is populated with the next pending "Node Actions" (an abstract representation of actions that are later translated into "DOM actions").
+The `nodeActionsMap` is a `Map` object, where keys are actual Nodes and the values are objects.
+* If the node is attribute node (a "State Attribute"), the object can have a `setAttribute` property with a string value.
+* If the node is a text node, the object can have a `textContent` property with a string value.
+* If the node is an HTML element, then the value is set to an object like this:
+```
+{
+    append: new Map(),
+    replace: new Map(),
+    after: new Map(),
+    remove: new Set()
+}
+```
+
+- `append` is then a map where if new elements needs to be appended to the HTML element (the "parent" element), then a key which is a State Object is set, and the value is a "custom element" - later on this will be translated into a new custom element created from that state object, and appended to the parent element.
+- `replace` is a map where keys are existing children elements of the parent, and values are **new** elements - that are custom elements created from a new state object (by callong `stateToElement` on `state_utils`).
+- `remove` is simply a set of child elements to remove from parent child.
+- `after` is a map where a key can be a child element, and the value a new custom element that should be added after it (this is currently **unused**!).
+These are usually triggered from changes to "State Maps" -- Arrays of state objects used for a `_map` command.
+
+## `on_${stateProp}Change`
+If an `on_${stateProp}Change` is defined - it is triggered/called.
+
+## Dependencies
+If `stateManager.stateDependencies[stateProp]` has any dependencies, they are iterated:
+* If a dependency is an SSH - its function is called.
+* `generateStateNodeActions` is called, this time for the dependency state property.
+* if `on_${stateProp}Change` is defined for the dependency state property - it is called.
+
+## Global state dependencies
+If the state is the global state, then the above is done for any dependency in `stateManager.globalStateDependencies[stateProp]`.
+
+# `doUpdateDOM`
+`doUpdateDOM` is a function that is periodically called on each `requestAnimationFrame` and is what actually commits DOM changes. It calls `resolveNodeActionsMapToDOMActions` to actually translate the content of `nodeActionsMap` to DOM actions. The DOM actions are run, and `nodeActionsMap` is reset.
+
+# Commands
+Commands are run by the methods defined in `commands.js`
