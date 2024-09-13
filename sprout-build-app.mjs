@@ -206,7 +206,7 @@ if (!process.argv.includes("--component")) {
 <head>
 ${styleContent ? `<style app="${appName}">` + styleContent + '</style>' : ""}
 ${global_runtime_script}
-<script src="lib/sprout-core.js"></script>
+<script src="lib/sprout-core.js" ${process.argv.includes("--allowAppScopeAccess") ? 'allowappscopeaccess' : ''}></script>
 <script>const build_${appName}App = SproutInitApp("${appName}");</script>
 ${templates.join("\n")}
 ${headContent}
@@ -223,7 +223,7 @@ else {
 `<div>
 ${styleContent ? `<style for="${appName}">` + styleContent + '</style>' : ""}
 ${global_runtime_script}
-<script src="lib/sprout-core.js"></script>
+<script src="lib/sprout-core.js" ${process.argv.includes("--allowAppScopeAccess") ? 'allowappscopeaccess' : ''}></script>
 <script>const build_${appName}App = SproutInitApp("${appName}");</script>
 ${templates.join("\n")}
 <script>build_${appName}App();</script>

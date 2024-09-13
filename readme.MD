@@ -209,7 +209,8 @@ You will usually develop your app in a "development environment". Sprout supplie
 
 ### App Scope
 Sprout maintains everything related to your app, including its own runtime script in a separate "scope", this also allows you to run several different "apps" in the same page.
-Tags related to your app that sits within the `<head>` part of the "compiled" HTML file supports the `app` attribute, where you can specifiy a name for your app (Again, those are added automatically by the 'builder script "compiler"'. Tags having the same value for the `app` attribute, are all "part of the same app".
+Tags related to your app that sits within the `<head>` part of the "compiled" HTML file supports the `app` attribute, where you can specifiy a name for your app (Again, those are added automatically by the 'builder script "compiler"'). Tags having the same value for the `app` attribute, are all "part of the same app".
+For debugging purposes - you may "expose" access to the app scopes of existing sprout apps on your page, by including the `allowappscopeaccess` attribute on the `<script>` element that loads `sprout-core.js`. To add this attribute automatically when building using the app builder script, add the command line argument `--allowAppScopeAccess`.
 
 ### Global App Elements
 "Global App Elements" can include a `<style>` element containing the global style declrations of your app, and a `<script>` tag containing the global runtime code of your app - where the logic is returned from a "self invoking function".

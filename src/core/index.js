@@ -6,6 +6,7 @@ import SproutBuild from '../build';
 import { putObjectInDebugMode } from "./debug_utils.js";
 import { DEBUG_MODE } from "./consts.js";
 
+const allowAppScopeAccess = document.currentScript.hasAttribute("allowappscopeaccess");
 
 globalThis.SproutInitApp = function(appName) {
     
@@ -22,18 +23,9 @@ globalThis.SproutInitApp = function(appName) {
         })
     }
     */
-    let config;
-    if (document.currentScript) {
-        config = {
-            useShadow: true, // Always use shadow DOM for now, may add configurability later
-            allowAppScopeAccess: document.currentScript.getAttribute("allowAppScopeAccess") === "true" ? true : false
-        }
-    }
-    else {
-        config = {
-            useShadow: true,
-            allowAppScopeAccess: false
-        }
+    const config = {
+        useShadow: true, // Always use shadow DOM for now, may add configurability later
+        allowAppScopeAccess: allowAppScopeAccess
     }
 
     if (config.allowAppScopeAccess) {
