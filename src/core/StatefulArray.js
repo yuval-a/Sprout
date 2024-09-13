@@ -75,12 +75,23 @@ class StatefulArray extends Array {
         return result;
     }
 
+    /*
+    clone() {
+        this.$$operation = "clone";
+        const result = this.map(item=> item);
+        delete this.$$operation;
+        return result;
+    }
+    */
     toArray() {
         this.$$operation = "toArray";
+        /*
         const result = [];
         for (let i = 0, len=this.length; i<len; i++) {
             result.push(Object.assign({}, this[i]));
         }
+        */
+        const result = this.rawArray;
         delete this.$$operation;
         return result;
     }
@@ -108,7 +119,8 @@ class StatefulArray extends Array {
 
         this.parentStateObject = parentStateObject;
         this.arrayStateProp = arrayStateProp;
- 
+        this.rawArray = rawArray;
+
         statefulArray = new Proxy(this, StatefulArrayHandler(parentStateObject?._stateManager, arrayStateProp, appScope));
         return statefulArray;
     }

@@ -1,7 +1,8 @@
 export default {
     events: {
         jumpToBtn(_, host, global) {
-            global.jumpTo(host.getState('move'));
+            const jumpToMove = Number(this.getAttribute('move'));
+            global.jumpTo(jumpToMove);
         }
     }
 }

@@ -4,7 +4,7 @@ export default {
             const squares = this._global.currentSquares;
             return squares.slice(0,3);
         },
-       get row2() { 
+        get row2() { 
             const squares = this._global.currentSquares;
             return squares.slice(3,6);
         },
@@ -13,5 +13,4 @@ export default {
             return squares.slice(6,9);
         }
     }
-
 }

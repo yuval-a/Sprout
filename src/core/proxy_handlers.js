@@ -102,7 +102,7 @@ export const StateHandler = function(stateObj, appScope = window) {
                     return Reflect.get(...arguments);
                 }
             });
-            if (descriptor?.value) {
+            if (typeof descriptor?.value !== "undefined") {
                 const value = descriptor.value;
                 // Could already be a StatefulArray (needs to find better way to detect this)
                 if (Array.isArray(value)) {
@@ -115,7 +115,7 @@ export const StateHandler = function(stateObj, appScope = window) {
                             dependencies.add(depProp);
                         });
                         // Third item can be a boolean stating if to run the setter on initialization
-                        if (value?.[2]) {
+                        if (value?.[2] === true) {
                             setStateProp = stateProp.substring(4);
                             const func = value?.[0];
                             if (func && typeof func === "function") {

@@ -5,38 +5,6 @@ const initState = {
     ],
     currentMove: 0,
     
-    set_xIsNext: [function() { 
-        return this.currentMove % 2 === 0 
-    }, ["currentMove"], true],
-
-    set_currentSquares: [function() { 
-        return [...this.history[this.currentMove]]; 
-    }, ["currentMove"], true],
-
-    set_status: [function() {
-        const winner = this.calculateWinner();
-        let status;
-        if (winner) {
-            status = 'Winner: ' + winner;
-        } else {
-            status = 'Next player: ' + (this.xIsNext ? 'X' : 'O');
-        }
-        return status;
-    }, ["currentSquares"], true],
-    set_moves: [function() {
-        return this.history.map((_, move) => {
-            let description;
-            if (move > 0) {
-                description = 'Go to move #' + move;
-            } else {
-                description = 'Go to game start';
-            }
-            return  {
-                move,
-                description
-            };
-        });
-    }, ["history"]],
     calculateWinner() {
         const lines = [
             [0, 1, 2],
@@ -68,7 +36,41 @@ const initState = {
     },
     jumpTo(nextMove) {
         this.currentMove = nextMove;
-    }
+    },
+
+    set_xIsNext: [function() { 
+        return this.currentMove % 2 === 0 
+    }, ["currentMove"], true],
+
+    set_currentSquares: [function() { 
+        return this.history[this.currentMove]; 
+    }, ["currentMove"], true],
+
+    set_status: [function() {
+        const winner = this.calculateWinner();
+        let status;
+        if (winner) {
+            status = 'Winner: ' + winner;
+        } else {
+            status = 'Next player: ' + (this.xIsNext ? 'X' : 'O');
+        }
+        return status;
+    }, ["currentSquares"], true],
+    set_moves: [function() {
+        return this.history.map((_, move) => {
+            let description;
+            if (move > 0) {
+                description = 'Go to move #' + move;
+            } else {
+                description = 'Go to game start';
+            }
+            return  {
+                move,
+                description
+            };
+        });
+    }, ["history"], true]
+
 }
 
 this.setGlobalState(initState);

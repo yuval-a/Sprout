@@ -1,4 +1,5 @@
-var TASK_ID = 0;
+// We start with 3 demo todos, so next one is 3
+var TASK_ID = 3;
 
 // Call the functions with a this context containing
 // a state property with a state value

@@ -121,13 +121,8 @@ export const setStateText = function(stateProp) {
 // Convert a stateObject to a custom element, used in State Map Arrays
 export function stateToElement(stateObject, elemName) {
     const customElementInstance = document.createElement(elemName);
+    // customElementInstance.setActiveStateFromStateObject(stateObject);
     customElementInstance.setInitialState(stateObject);
-    /*
-    for (let key of Object.keys(stateObject)) {
-        if (key.indexOf('$') === 0 || key.indexOf('!') === 0) continue;
-        customElementInstance.initialSetAttribute(key, '$'+key); // stateObject[key]);
-    }
-        */
     return customElementInstance;
 }
 

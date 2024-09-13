@@ -90,13 +90,24 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
         }
 
         setInitialState(initState) {
-            this.initialState = initState;
+            if (this.initialState) {
+                Object.assign(this.initialState, initState);
+            }
+            else {
+                this.initialState = initState;
+            }
+        }
+
+        // This gets a "raw" state object and immediately creates a StateManager from it
+        setActiveStateFromStateObject(stateObj) {
+            this.state = new StateManager(stateObj, undefined, undefined, false, appScope).state;
         }
         
         #setActiveStateFromInitialState() {
-            const initialState = this.initialState || {};
-            if (initialState?._stateManager) {
-                this.state = initialState?._stateManager.state;
+            if (!this.initialState) return;
+            const initialState = this.initialState;
+            if (initialState._stateManager) {
+                this.state = initialState._stateManager.state;
             }
             else {
                 this.state = new StateManager(initialState, undefined, undefined, false, appScope).state;
@@ -148,16 +159,15 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                     });
                 }
             });
-            const clickRefNames = Object.keys(clickActions);
             const globalState = appScope[GLOBAL_STATE_FUNCTION_NAME]();
             this.#eventHandler = function(event, eventsObject) {
                 const elementsPath = event.composedPath();
                 let target;
                 if (elementsPath) {
-                    target = elementsPath.find(element => element.hasAttribute && element.hasAttribute('ref') && element.getAttribute('ref') in eventsObject);
+                    target = elementsPath.find(element => element.hasAttribute && element.hasAttribute('ref') && (element.getAttribute('ref') in eventsObject));
                 }
                 else {
-                    target = (event.target.hasAttribute && event.target.hasAttribute('ref') && event.target.getAttribute('ref') in eventsObject) ? event.target : null;
+                    target = (event.target.hasAttribute && event.target.hasAttribute('ref') && (event.target.getAttribute('ref') in eventsObject)) ? event.target : null;
                 }
                 if (target) {
                     const ref = target.getAttribute('ref');

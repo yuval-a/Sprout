@@ -19,9 +19,10 @@ export default {
     },
     events: {
         'todo-edit-save': (event, host, global)=> {
-            const newName = host.getAttribute("newName");
+            const newName = host.state["newName"];
             if (!newName.length || !/\S/.test(newName)) return;
-            editTask.call({state: global}, host.getAttribute('id'), newName);
+            editTask.call({state: global}, host.state.id, newName);
+            host.findElement('todo-edit-input').value = "";
             host.state.newName = "";
             host.state.isEditing = false;
         },
@@ -32,10 +33,10 @@ export default {
             host.state.isEditing = false;
         },
         'todo-delete-btn': (event, host, global)=> {
-            deleteTask.call({state: global}, host.getAttribute('id'));
+            deleteTask.call({state: global}, host.state.id);
         },
         'todo-checkbox': (event, host, global)=> {
-            toggleTaskCompleted.call({state: global}, host.getAttribute('id'));
+            toggleTaskCompleted.call({state: global}, host.state.id);
         }
     }
 }

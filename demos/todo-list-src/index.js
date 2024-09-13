@@ -36,7 +36,8 @@ const initState = {
     get tasksNoun() {
       return this.tasksCount !== 1 ? "tasks" : "task";
     },
-
-
 }
+
+// Tasks should also have an empty "newName" property (for edit logic)
+initState.tasks = initState.tasks.map(task=> ({...task, newName: ""}));
 this.setGlobalState(initState);

@@ -34,7 +34,6 @@ class StateManager {
     // changes on the parentStateProp
     // host is the host element that the state is attached to
     constructor(initialState, parentStateProp, parentStateManager, isGlobal = false, appScope=window) {
-
         this.parentStateProp = parentStateProp;
         this.parentStateManager = parentStateManager;
 
@@ -43,7 +42,7 @@ class StateManager {
             value: this,
             configurable: false,
             writable: DEBUG_MODE ? true : false,
-            enumerable: false
+            enumerable: true
         });
         
         // Initialize a proxy on the "public state"

@@ -11,6 +11,7 @@ globalThis.SproutInitApp = function(appName) {
     
     let appScope = (function() { return { window, document: window?.document }})(window);
 
+    /*
     if (DEBUG_MODE) {
         appScope = putObjectInDebugMode(appScope, "appScope");
     }
@@ -20,17 +21,33 @@ globalThis.SproutInitApp = function(appName) {
             writable: false
         })
     }
+    */
     let config;
     if (document.currentScript) {
         config = {
             useShadow: true, // Always use shadow DOM for now, may add configurability later
+            allowAppScopeAccess: document.currentScript.getAttribute("allowAppScopeAccess") === "true" ? true : false
         }
     }
     else {
         config = {
             useShadow: true,
+            allowAppScopeAccess: false
         }
     }
+
+    if (config.allowAppScopeAccess) {
+        Object.defineProperty(globalThis, "sproutApps", {
+            value: {},
+            writable: false
+        });
+        Object.defineProperty(globalThis.sproutApps, appName, {
+            value: appScope,
+            writable: false
+        });
+        
+    }
+
     appScope.SPROUT_CONFIG = Object.seal(config);
 
     // Prevent "hasOwnProperty" shenanigans
@@ -78,4 +95,6 @@ globalThis.SproutInitApp = function(appName) {
         requestAnimationFrame(doUpdateDOM);
     }.bind(appScope);
 }
+
+
 
