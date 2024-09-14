@@ -187,16 +187,19 @@ Another important core feature in Sprout are "**Commands**", commands can be dec
 These are the commands currently supported:
 
 ### `_text`
+#### Expected value syntax: `<state property name>`
 Pass the name of a state property to the `_text` command (**without** a dollar sign prefix). The text content of that element will be bound to that state property, so whenever that state property will be changed to a different string, the text content will automatically change to reflect it.
 
 ### `_bind`
+#### Expected value syntax: `<attribute-name>:<state-property-name>`
 `_bind` can be used for "reversed binding". It binds "normal" attribute values (not State Attributes) into the value of state properties. <br>
 The syntax of the value is `<attribute-name>:<state-property-name>` - the name of a normal attribute followed by a colon character and then the name of a state property name.
 ** Be careful when using this command. You shouldn't specifiy a State Attribute as the attribute name, this could lead to "infinite loops".
 
 ### `_map`
+#### Expected value syntax: `<state property name>:<custom element name>`.
 `_map` maps an array of state objects to rendered components.
-The syntax of the value is `"<state property name>:<custom element name>"`. <br>
+The syntax of the value is `<state property name>:<custom element name>`. <br>
 The state property should contain an array of "state objects", and "custom element name" is the name of the custom element to render to.
 You can set the `_map` command on the "parent element". The rendered elements mapped from the state objects array will be appended to that parent element.
 
