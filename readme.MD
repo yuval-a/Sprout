@@ -6,7 +6,7 @@ by using the native [Web Components API](https://developer.mozilla.org/en-US/doc
 ## ReactiveElement
 At the heart of Sprout is the `ReactiveElement` class, this is a base class, extending the `HTMLElement` class, effectivily extending HTML Elements with the features Sprout supports.
 
-"Building" an app with Sprout initially entails defining "Components" (where the "compiled form" uses `<template>` elements), that encapsulates within them the three aspects of a component: the UI (HTML), the styling (its look - CSS), and the logic (Javascript). Sprout's core library passes this information to a new instance of a `ReactiveElement`, and then defines a new "Custom Element" based off of this. When you use that custom element in your HTML structure - it already supports Sprout's features. 
+"Building" an app with Sprout initially entails defining "Components", that eventually uses `<template>` elements, that encapsulates within them the three aspects of a component: the UI (HTML), the styling (its look - CSS), and the logic (Javascript). Sprout's core library passes this information to a new instance of a `ReactiveElement`, and then defines a new "Custom Element" based off of this. When you use that custom element in your HTML structure - it already supports Sprout's features. When working on an app in a **[development environment"](#development-environment)** and using the [App Builder Script](#app-builder-script) - these `<template>` elements will be automatically generated for you (amongst other things the builder script does).
 
 ### Reactive Native HTML Elements, using the `is` attribute
 Other than "custom elements" - Sprout also makes sure to extend ALL native HTML elements subclasses with the `ReactiveElement` class, this allows you to enable Sprouts features even for native HTML elements, you do this by using the [`is`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is) attribute on a native element - the value of the attribute should be in the form of: `reactive-[tag-name]` where `[tag-name]` is the name of the element's tag (lower-cased). So, for example: for a `<div>` element you would use `is="reactive-div"`, for a `<span>`: `is="reactive-span"`, for a `<ul>`: `is="reactive-ul"`, for an `<input>`: `is="reactive-input` and so on.
@@ -203,6 +203,7 @@ You can set the `_map` command on the "parent element". The rendered elements ma
 
 # App development
 
+## Development Environment
 You will usually develop your app in a "development environment". Sprout supplies a "builder" script - that will eventually consolidate all the app "parts" into a single "compiled  HTML" file. The next section will describe how this "compiled" file is structured - you will usually won't need to create that structure "manually" yourself, as mentioned, as you can use the automatic builder script to create it for you (along with minification, bundling and so on), but we will still describe it here, for clarity, you SHOULD go over it, to understand the structure of how a "compiled app" looks like, and also to know about concepts such as "app scope".
 
 ## Compiled HTML
