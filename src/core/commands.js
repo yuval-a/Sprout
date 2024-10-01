@@ -2,6 +2,7 @@ import { mapStateArrayToElements } from "./state_utils.js";
 import { SUPPORTED_ATTRIBUTES_FOR_BINDING, SUPPORTED_PROPERTIES_FOR_BINDING, SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING } from "./consts.js";
 import { putObjectInDebugMode } from "./debug_utils.js";
 import { DEBUG_MODE } from "./consts.js";
+import { isElementAList } from "./browser_utils.js";
 
 function mapStateToElements(stateItemsPropertyName, customElementName, parentElement) {
     const [stateItemsArray, theState] = parentElement.getState(stateItemsPropertyName, true);
@@ -9,7 +10,8 @@ function mapStateToElements(stateItemsPropertyName, customElementName, parentEle
         console.warn ("state value for _map is not an array, in state property: " + stateItemsPropertyName);
         return null;
     }
-    const elements = mapStateArrayToElements(stateItemsArray, customElementName);
+    const wrapInElement = isElementAList(parentElement) ? "li" : undefined;
+    const elements = mapStateArrayToElements(stateItemsArray, customElementName, wrapInElement);
     parentElement.innerHTML = "";
     if (elements.length) parentElement.append(...elements);
     return theState;

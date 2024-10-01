@@ -121,7 +121,7 @@ The `nodeActionsMap` is a `Map` object, where keys are actual Nodes and the valu
 ```
 
 - `append` is then a map where if new elements needs to be appended to the HTML element (the "parent" element), then a key which is a State Object is set, and the value is a "custom element" - later on this will be translated into a new custom element created from that state object, and appended to the parent element.
-- `replace` is a map where keys are existing children elements of the parent, and values are **new** elements - that are custom elements created from a new state object (by callong `stateToElement` on `state_utils`).
+- `replace` is a map where keys are existing children elements of the parent, and values are **new** elements - that are custom elements created from a new state object (by calling `stateToElement` on `state_utils`).
 - `remove` is simply a set of child elements to remove from parent child.
 - `after` is a map where a key can be a child element, and the value a new custom element that should be added after it (this is currently **unused**!).
 These are usually triggered from changes to "State Maps" -- Arrays of state objects used for a `_map` command.

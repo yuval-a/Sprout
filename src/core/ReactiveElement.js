@@ -290,7 +290,8 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
 
             if (attributeName === "ref") {
                 const host = this.isNativeElement ? this.host : this;
-                host.ref.set(newValue, this);
+                const refValue = newValue;
+                host.ref[refValue] = this;
             }
 
             if (attributeName in this.#boundAttributesToState) {
@@ -306,13 +307,20 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             let theState;
             // If this is a reactive element inside a reactive web component - the host should be the containing web component - 
             // we should reference its state, if host is null - it is most likely the host web component
-            let thisInstance = this.isNativeElement ? this.host : this;
-            let stateVal = thisInstance.state?.[stateProp];
+            let thisInstance = this.isNativeElement && this.host ? this.host : this;
+            // if (!thisInstance) return returnStateObject ? [undefined, undefined] : undefined;
+
+            let stateVal;
+            if (thisInstance && thisInstance.state) {
+                stateVal = thisInstance.state?.[stateProp];
+            }
+
             let globalState = false;
-            while (stateVal === undefined && thisInstance.host !== null && thisInstance.host !== undefined) {
+            while (stateVal === undefined && typeof thisInstance.host !== 'undefined' && thisInstance.host !== null) {
                 thisInstance = thisInstance.host;
                 stateVal = thisInstance.state?.[stateProp];
             }
+
             if (stateVal !== undefined) theState = thisInstance.state;
             else {
                 globalState = appScope[GLOBAL_STATE_FUNCTION_NAME]();

@@ -1,3 +1,4 @@
+import { isElementAList } from "./browser_utils.js";
 import { BOOLEAN_ATTRIBUTES, BUILT_IN_STATE_PROPS, getNewNodeActionsObject, MAP_ACTIONS, NODES_STATE } from "./consts.js";
 
 if (typeof HTMLElement === 'undefined') {
@@ -119,14 +120,22 @@ export const setStateText = function(stateProp) {
 }
 
 // Convert a stateObject to a custom element, used in State Map Arrays
-export function stateToElement(stateObject, elemName) {
+export function stateToElement(stateObject, elemName, wrapInElement) {
     const customElementInstance = document.createElement(elemName);
     // customElementInstance.setActiveStateFromStateObject(stateObject);
     customElementInstance.setInitialState(stateObject);
-    return customElementInstance;
+    let returnElement;
+    if (wrapInElement) {
+        returnElement = document.createElement(wrapInElement);
+        returnElement.appendChild(customElementInstance);
+    }
+    else {
+        returnElement = customElementInstance;
+    }
+    return returnElement;
 }
 
-export function mapStateArrayToElements(stateItems, elemName) {
+export function mapStateArrayToElements(stateItems, elemName, wrapInElement) {
     // Each state item should be a stateManager
     return stateItems.map(stateItem => {
         if (stateItem.hasOwnProperty('state')) stateItem = stateItem.state;
@@ -134,7 +143,7 @@ export function mapStateArrayToElements(stateItems, elemName) {
             console.warn("item in State array for _map is not an object: ", stateItem);
             return {};
         }
-        return stateToElement(stateItem, elemName);
+        return stateToElement(stateItem, elemName, wrapInElement);
     });
 }
 
@@ -195,7 +204,7 @@ function resolveNodeActionsMapToDOMActions() {
                 }
             });
             nodeActions.append.forEach((customElementName, stateItem)=> {
-                batchActions.push(()=> node.appendChild(stateToElement(stateItem, customElementName)));
+                batchActions.push(()=> node.appendChild(stateToElement(stateItem, customElementName, isElementAList(node) ? "li" : undefined)));
             });
         }
     });
@@ -238,7 +247,7 @@ function generateStateNodeActions(stateManager, stateProp) {
                         nodeActions.remove.add(childElement);
                     }
                     else if (childElement.state !== stateItem) {
-                        nodeActions.replace.set(childElement, stateToElement(stateItem, customElementName));
+                        nodeActions.replace.set(childElement, stateToElement(stateItem, customElementName, isElementAList(parentElement) ? "li" : undefined));
                     }
                     currentStateMapArrayIndex = currentIndex;
                 });
