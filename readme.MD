@@ -1,5 +1,5 @@
 # Introduction
-Sprout is a client-side Javascript framework that introduces "state" management and "reactivity" into HTML elements, 
+Sprout is a client-side Javascript framework that introduces **state** management and **reactivity** into native HTML elements, 
 by using the native [Web Components API](https://developer.mozilla.org/en-US/docs/Web/API/Web_components), extending the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) class, adding additional capabilities to it, allowing you to define "[custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)" that reacts to state changes, using native browser features such as the [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) element, while also adding these capabilities to exisiting native HTML elements.
 
 # Main Concepts
@@ -9,21 +9,21 @@ At the heart of Sprout is the `ReactiveElement` class, this is a base class, ext
 "Building" an app with Sprout initially entails defining "Components", that eventually uses `<template>` elements, that encapsulates within them the three aspects of a component: the UI (HTML), the styling (its look - CSS), and the logic (Javascript). Sprout's core library passes this information to a new instance of a `ReactiveElement`, and then defines a new "Custom Element" based off of this. When you use that custom element in your HTML structure - it already supports Sprout's features. When working on an app in a **[development environment](#development-environment)** and using the [App Builder Script](#app-builder-script) - these `<template>` elements will be automatically generated for you (amongst other things the builder script does).
 
 ### Reactive Native HTML Elements, using the `is` attribute
-Other than "custom elements" - Sprout also makes sure to extend ALL native HTML elements subclasses with the `ReactiveElement` class, this allows you to enable Sprouts features even for native HTML elements, you do this by using the [`is`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is) attribute on a native element - the value of the attribute should be in the form of: `reactive-[tag-name]` where `[tag-name]` is the name of the element's tag (lower-cased). So, for example: for a `<div>` element you would use `is="reactive-div"`, for a `<span>`: `is="reactive-span"`, for a `<ul>`: `is="reactive-ul"`, for an `<input>`: `is="reactive-input` and so on.
+Other than "custom elements" - Sprout also makes sure to extend ALL native HTML elements subclasses with the `ReactiveElement` class, this allows you to enable Sprout's features even for native HTML elements, you do this by using the [`is`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is) attribute on a native element - the value of the attribute should be in the form of: `reactive-[tag-name]` where `[tag-name]` is the name of the element's tag (lower-cased). So, for example: for a `<div>` element you would use `is="reactive-div"`, for a `<span>`: `is="reactive-span"`, for a `<ul>`: `is="reactive-ul"`, for an `<input>`: `is="reactive-input` and so on.
 
-**Note**: Safari still doesn't support the `is` attribute - next versions of Sprout will go around this by automatically converting any native HTML element with `is` to an actual custom element (and will make sure to define it), so `<input is="reactive-input" />` will become `<reactive-input />`.
+**Note**: Safari browsers still doesn't support extending specific native HTML elements and the `is` attribute ("custom native elements"). This is auto detected by the framework and a polyfill script is automatically added in these cases, to allow the same usage.
 
-You can use "native reactive HTML elements" within the templates of your components - and you will most likely do that quite a lot when building your app - so whenever you use a Sprout feature on an element - **remember** to put an `is` attribute on it -- otherwise it will be treated as a "normal" HTML element, and using features like State Attributes or Commands - won't work.
+You can use "native reactive HTML elements" within the templates of your components - and you will most likely do that when building your app - so whenever you use a Sprout feature on an element - **remember** to put an `is` attribute on it -- otherwise it will be treated as a "normal" HTML element, and using features like State Attributes or Commands - won't work.
 
-HTML elements within a component are rendered into the "Shadow DOM" of a rendered custom element.
+HTML elements within a component are rendered into the ["Shadow DOM"](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM) of a rendered custom element.
 
 Note, since eventually you use custom elements, and the Web Components API, it is also possible to make use of ["Slots"](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_templates_and_slots) in your templates - allowing for "loosely coupled" templates, where certain parts of it can be "plugged into" with different kinds of other elements.
 
 ## State Attributes
-One of Sprout's core features is the concept of **State Attributes** which is supported on any HTML element which is part of a component's template (and has an `is="reactive..."` attribute), and also on custom elements defined using Sprout. <br>
+One of Sprout's core features is the concept of **State Attributes** which is supported on any HTML element which is part of a component's template (and has an `is="reactive..."` attribute), and also on custom elements ("components") defined using Sprout. <br>
 A State Attribute is an attribute specified on an element as part of a component's **template** (which represents the "prototype" of a component - the  "unrendered" form of a component) - the values of a State Attribute is a string that always start with a Dollar sign (`$`) (and this is what will make Sprout treat it as a State Attribute). State attributes are **bound** to **State Properties** (See [State Objects](#state-objects) for more information), the string value after the dollar sign should be equal to an existing state property. This creates a **binding** between the value of that attribute - on the rendered component - and the value of a state property.
 So, whenever the value of that **state property** changes --- the value of the bound State Attribute will also automatically change to reflect the change (it will "react to the state change").
-You can use any attribute that you can normally use on an element as a State Attribute - simply by specifing a state property prefixed with a dollar sign as its value. This includes, for example, attributes such as `hidden` - giving a state property that returns a truthy or falsy value -  will enable you to easily control the visibility of an element, via the component state. (Sprout knows how to treat "boolean attributes" corretly, for example, with `hidden` - a truthy value will set `hidden=""`, and a falsy value will remove the `hidden` attribute from the element (but the association/binding will **still remain**, changing the state value back to `true` will bring back `hidden=""` to the element. 
+You can use any attribute that you can normally use on an element as a State Attribute - simply by specifing a state property prefixed with a dollar sign as its value. This includes, for example, attributes such as `hidden` - giving a state property that returns a truthy or falsy value -  will enable you to easily control the visibility of an element, via the component state. (Sprout knows how to treat "boolean attributes" corretly, for example, with `hidden` - a truthy value will set `hidden=""`, and a falsy value will remove the `hidden` attribute from the element (but the association/binding will **still remain**, changing the state value back to `true` will bring back `hidden=""` to the element)). 
 
 **NOTE**: the values of State Attributes should **never** be written to directly. Their goal is to be completely controlled by manipulating the state objects.
 
@@ -53,11 +53,11 @@ To be decided / tested...
 
 #### Getter functions
 You can use getter functions in a state object, like you would normally use with any object (e.g. `get tasksCount() { return this.tasks.length; });`)
-Using `this` inside a getter function will reference the actual live state object itself. This will also create a "dependency" between the getter property and the other state property value it accesses. **Sprout knows to analyze these dependencies**, and remember the binding between them - so, for example if the value of the `tasks` state property is changed - Sprout will know to call the `getter` function again in all the appropriate places.
+Using `this` inside a getter function will reference the actual live state object itself. This will also create a "dependency" between the getter property and the other state property value it accesses. **Sprout knows to analyze these dependencies**, and remember the bindings between them - so, for example if the value of the `tasks` state property is changed - Sprout will know to call the `getter` function again in all the appropriate places.
 
 Note that the dependency check goes "one level deep" - so, even if, like in the example above, the function accesses `this.tasks.length` - whenever `tasks` is changed or manipulated - the getter will be recalled - **even if the length property itself won't change**.
 
-Also note, that as part of this "dependency analysis" - Sprout will call state getter functions as part of the initialization process. This will add a little bit of an overhead to the initialization.
+Also note, that as part of this "dependency analysis" - Sprout will call state getter functions as part of the initialization process. 
 
 Because of these aspects, it is recommended to use ["State Setter Hooks"](#state-setter-hooks) (SSHs) - which allow for finer control over state dependencies.
 
@@ -141,10 +141,10 @@ this.setGlobalState(initState);
 ```
 
 #### Special state values on State Attributes
-When you specify values on State Attributes, there some special "operators" you can use within the value:
+When you specify values on State Attributes, there are some special "operators" you can use within the value:
 
 ##### Negation operator (`!`):
-You can use the `!` char before a state property name (e.g. `$!isSomething`) - this will return a boolean `true` if `isSomething` resolves to a "falsy" value, or `true` if it's "truey"
+You can use the `!` character before a state property name (e.g. `$!isSomething`) - this will return a boolean `true` if `isSomething` resolves to a "falsy" value, or `true` if it's "truthy"
 
 ##### Eqaulity operator (`is_`)
 You can prefix a state property name with `is_` to check for "equality", comparing one state value to another, the two state property names should be separated by a colon (`:`) character, so `$is_currentFilterName:Active` will return true if the state value of `currentFilterName` is equal (`===`) to the string `"Active"`. For now only strings are supported for the equality check value, but it might be extended in the future.
