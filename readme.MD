@@ -5,7 +5,7 @@ by using the native [Web Components API](https://developer.mozilla.org/en-US/doc
 # Quick Usage Highlights
 
 ## State Attributes
-```javascript
+```html
 <div 
     is="reactive-div" 
     ref="todo-item" 
@@ -17,7 +17,7 @@ by using the native [Web Components API](https://developer.mozilla.org/en-US/doc
 ```
 
 Might be rendered to:
-```javascript
+```html
 <div
     is="reactive-div" 
     ref="todo-item" 
@@ -35,7 +35,7 @@ The `is` attribute is part of the Web Components / Custom Elements API.
 The `ref` attribute is a Sprout attribute that is used to create associations between elements and event handlers.
 
 ### Special operators in State Attributes
-```
+```html
 <div is="reactive-div" hidden="$!editMode"></div>
 ```
 
@@ -50,12 +50,12 @@ These are attribute names starting with an underscore (<copde>_`) character. Com
 
 ### `_map`
 
-```
+```html
 <ul is="reactive-ul" class="todo-list" _map="todos:todo-item"></ul>
 ```
 
 Might render to:
-```
+```html
 <ul is="reactive-ul" class="todo-list" _map="todos:todo-item">
     <li><todo-item> &lt!-- Shadow DOM of the todo-item component instance here --< </todo-item></li>
     <li><todo-item> &lt!-- Shadow DOM of the todo-item component instance here --< </todo-item></li>
@@ -68,12 +68,12 @@ custom element components. Each of the array items - an object - will be used as
 
 ### `_text`
 
-```
+```html
 <span is="reactive-span" _text="$todo-title"></span>
 ```
 
 Might be rendered as:
-```
+```html
 <span is="reactive-span" _text="$todo-title">The value of toto-title property as the text content here</span>
 ```
 
