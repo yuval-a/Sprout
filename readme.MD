@@ -5,7 +5,7 @@ by using the native [Web Components API](https://developer.mozilla.org/en-US/doc
 # Quick Usage Highlights
 
 ## State Attributes
-```
+```javascript
 <div 
     is="reactive-div" 
     ref="todo-item" 
@@ -17,7 +17,7 @@ by using the native [Web Components API](https://developer.mozilla.org/en-US/doc
 ```
 
 Might be rendered to:
-```
+```javascript
 <div
     is="reactive-div" 
     ref="todo-item" 
