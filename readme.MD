@@ -2,6 +2,85 @@
 Sprout is a client-side Javascript framework that introduces **state** management and **reactivity** into native HTML elements, 
 by using the native [Web Components API](https://developer.mozilla.org/en-US/docs/Web/API/Web_components), extending the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) class, adding additional capabilities to it, allowing you to define "[custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)" that reacts to state changes, using native browser features such as the [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) element, while also adding these capabilities to exisiting native HTML elements.
 
+# Quick Usage Highlights
+
+## State Attributes
+```
+<div 
+    is="reactive-div" 
+    ref="todo-item" 
+    class="todo-item" 
+    completed="$completed" 
+    editing="$editMode"
+    title="$title">
+</div>
+```
+
+Might be rendered to:
+```
+<div
+    is="reactive-div" 
+    ref="todo-item" 
+    class="todo-item" 
+    completed 
+    title="The value of the title State property here">
+</div>
+```
+`completed`, `editing`, and `title` attributes becomes **State Attributes** when their values start with a Dollar sign (`$`). Now they are **reactively bound** to the State properties: `completed`, `editing` and `title` respectively. Their values will always **automatically reflect** the values of those properties within an associated State object; changing the values in the State object - will automatically change the values in the attributes.
+In this specific example, they are both boolean values, Sprout knows how to handle that accordingly, e.g. if `editing` is `true` it will simply appear on the element as `editing`, where if it's `false` it will not be included as an attribute on the element.
+The `title` value in the example is a string, and will auto reflect the value of the State property `title`.
+**Notice the usage of the `is="reactive-div"`** attribute. Specifying the attribute `is`, is what enables the **reactive behavior** on the element. 
+The `is` attribute is part of the Web Components / Custom Elements API.
+
+The `ref` attribute is a Sprout attribute that is used to create associations between elements and event handlers.
+
+### Special operators in State Attributes
+```
+<div is="reactive-div" hidden="$!editMode"></div>
+```
+
+If the result of the value of `hidden` resolves to `true` then the `div` element will be hidden.
+
+the `!` operator is used as a **negation operator** ("not editMode"). The value will be `true` if `editMode` is falsy
+and `false` if it's truthy. The hidden attribute is a native built-in attribute in HTML, but using a State value on it, also turns it to a
+State attribute. This is an example for how you can easily **control the visibility of an element** via **State**.
+
+## Command Attributes
+These are attribute names starting with an underscore (<copde>_`) character. Commands can be used to influence the UI according to State properties.
+
+### `_map`
+
+```
+<ul is="reactive-ul" class="todo-list" _map="todos:todo-item"></ul>
+```
+
+Might render to:
+```
+<ul is="reactive-ul" class="todo-list" _map="todos:todo-item">
+    <li><todo-item> &lt!-- Shadow DOM of the todo-item component instance here --< </todo-item></li>
+    <li><todo-item> &lt!-- Shadow DOM of the todo-item component instance here --< </todo-item></li>
+    ...
+</ul>
+```
+
+The `_map` command will "map" the objects inside the array assigned to the State property `todos` to `<todo-item>`
+custom element components. Each of the array items - an object - will be used as the State Object for the `<todo-item>` component.
+
+### `_text`
+
+```
+<span is="reactive-span" _text="$todo-title"></span>
+```
+
+Might be rendered as:
+```
+<span is="reactive-span" _text="$todo-title">The value of toto-title property as the text content here</span>
+```
+
+The `_text` command controls the textual content of an element, associating it to a state property, reactively binding them.
+
+Read on to learn further...
+
 # Main Concepts
 ## ReactiveElement
 At the heart of Sprout is the `ReactiveElement` class, this is a base class, extending the `HTMLElement` class, effectivily extending HTML Elements with the features Sprout supports.

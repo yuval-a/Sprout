@@ -2,3 +2,5 @@ node_modules
 dist
 package-lock.json
 demos/*-build
+website
+.DS_Store

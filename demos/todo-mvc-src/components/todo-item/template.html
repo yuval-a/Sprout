@@ -1,4 +1,4 @@
-<li is="reactive-li" ref="todo-item" class="todo-item" completed="$completed" editing="$editMode">
+<div is="reactive-div" ref="todo-item" class="todo-item" completed="$completed" editing="$editMode">
     <div is="reactive-div" class="view" hidden="$editMode">
         <input is="reactive-input" ref="task-completed-checkbox" id="task-completed-checkbox" class="toggle" type="checkbox" checked="$completed" />
         <label is="reactive-label" for="task-completed-checkbox" _text="title"></label>
@@ -15,4 +15,4 @@
             />
         </div>
     </div>
-</li>
+</div>
