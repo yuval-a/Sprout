@@ -38,9 +38,9 @@ If the attribute is a normal attriute - the value is simply set. If the attribut
 
 ##### Handling State Attributes
 1. It makes sure the state has the property defined with a value.
-2. If the value is an "state equality condition" it creates a new equilavent state getterl, and assigns a dependency using `StateManager.addStateDependency`
-3. A new Attribute Node is created, is added to the StateManager by calling `addStateNode` - this adds the attribute node to the StateManager, and also creates the binding between them by using `privateState`, and a setter function in an `Object.defineProperty` that also calls `handleStateChange` (defined in `state_utils`).
-4. It also handles the "negation" variation of a state property (one prefixed with `!` if applicable).
+2. If the value is a "state equality condition" it creates a new equivalent state getter, and assigns a dependency using `StateManager.addStateDependency`
+3. A new Attribute Node is created, is added to the StateManager instance by calling `addStateNode` - this adds the attribute node to the StateManager, and also creates the binding between them by using `privateState`, and a setter function in an `Object.defineProperty` that also calls `handleStateChange` (defined in `state_utils`).
+4. It also handles the "negation" variation of a state property (one prefixed with `!`) if applicable).
 
 ##### Handling Command Attributes
 Command attributes are handled one by one by calling the equalivent method from the `commands.js` module.
@@ -53,7 +53,7 @@ Both "local" and "global" stylings are applied to the component's Shadow DOM.
 
 #### Binding Events
 Event handlers are bound to relevant elements of the component.
-The binding leverages "event bubbling".
+The binding leverages "event bubbling":
 One "main" event handler is defined on the custom element - 
 that handler checks the target element, and if an event handler function was defined for it on the `events` object - it is called.
 For each type of event that exists on the `events` object - a "wrapper" event listener is defined - which calls that "main event handler" with the relevant arguments.
