@@ -107,7 +107,8 @@ This function is the main function that gets called to handle state changes. It 
 The function calls the `generateStateNodeActions` functions with the `stateManager` and `stateProp`
 ## `nodeActionsMap`
 This is a global "map" that is populated with the next pending "Node Actions" (an abstract representation of actions that are later translated into "DOM actions").
-The `nodeActionsMap` is a `Map` object, where keys are actual Nodes and the values are objects.
+The `nodeActionsMap` is a `Map` object, where keys are actual (DOM) Nodes (Elements, Attributes or Text) and the values are objects with pending DOM actions waiting to be performed on the key Node.
+
 * If the node is attribute node (a "State Attribute"), the object can have a `setAttribute` property with a string value.
 * If the node is a text node, the object can have a `textContent` property with a string value.
 * If the node is an HTML element, then the value is set to an object like this:
