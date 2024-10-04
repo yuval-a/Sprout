@@ -57,8 +57,8 @@ These are attribute names starting with an underscore (<copde>_`) character. Com
 Might render to:
 ```html
 <ul is="reactive-ul" class="todo-list" _map="todos:todo-item">
-    <li><todo-item> &lt!-- Shadow DOM of the todo-item component instance here --< </todo-item></li>
-    <li><todo-item> &lt!-- Shadow DOM of the todo-item component instance here --< </todo-item></li>
+    <li><todo-item> <!-- Shadow DOM of the todo-item component instance here --> </todo-item></li>
+    <li><todo-item> <!-- Shadow DOM of the todo-item component instance here --> </todo-item></li>
     ...
 </ul>
 ```
