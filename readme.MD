@@ -159,9 +159,9 @@ Here is an explanation about each of these items, in order:
 
 Here is an example of an SSH defined on a State object:
 ```javascript
-    set_tasksFiltered: [function() {
-        return this.tasks.filter(FILTER_MAP[this.filter]);
-    }, ["tasks", "filter"], true]
+set_tasksFiltered: [function() {
+    return this.tasks.filter(FILTER_MAP[this.filter]);
+}, ["tasks", "filter"], true]
 ```
 
 In this example `FILTER_MAP` can be an object with "filter functions", mapped to names, where the state `filter` property is a string representing the currently selected name, and `tasks` is an array of "tasks" objects in a "Todo List" app.
@@ -174,10 +174,10 @@ You can also declare functions on the state object, named like `on_[stateProp]Ch
 Here is an example of the initial local state of a `todo-item` component, from the [Todo List App demo]:
 
 ```javascript
-    state: {
-        isEditing: false,
-        newName: ""
-    }
+state: {
+    isEditing: false,
+    newName: ""
+}
 ```
 
 In here is an example of the global state of the Todo List App demo, showing the usage of more advanced features of it:
