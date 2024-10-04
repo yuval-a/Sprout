@@ -69,12 +69,12 @@ custom element components. Each of the array items - an object - will be used as
 ### `_text`
 
 ```html
-<span is="reactive-span" _text="$todo-title"></span>
+<span is="reactive-span" _text="todo-title"></span>
 ```
 
 Might be rendered as:
 ```html
-<span is="reactive-span" _text="$todo-title">The value of toto-title property as the text content here</span>
+<span is="reactive-span" _text="todo-title">The value of toto-title property as the text content here</span>
 ```
 
 The `_text` command controls the textual content of an element, associating it to a state property, reactively binding them.
