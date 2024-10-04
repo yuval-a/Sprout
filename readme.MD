@@ -588,7 +588,7 @@ There are also .sh (bash) files for each of the demos, running each will:
 2. Build the demo app from source.
 3. Serve it on a localhost Webpack server.
 
-The files are: `serve-todo-app.sh`, `serve-todomvc-app.sh`, `serve-ttt-app.sh`
+The files are: `serve-todo-app.sh`, `serve-todomvc-app.sh`, `serve-ttt-app.sh` <br>
 Enjoy!
 
 # Contributing
