@@ -79,7 +79,7 @@ Might be rendered as:
 
 The `_text` command controls the textual content of an element, associating it to a state property, reactively binding them.
 
-Read on to learn further...
+Read on to learn further, or watch some [demos](#demos).
 
 # Main Concepts
 ## ReactiveElement
