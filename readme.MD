@@ -46,7 +46,7 @@ and `false` if it's truthy. The hidden attribute is a native built-in attribute 
 State attribute. This is an example for how you can easily **control the visibility of an element** via **State**.
 
 ## Command Attributes
-These are attribute names starting with an underscore (<copde>_`) character. Commands can be used to influence the UI according to State properties.
+These are attribute names starting with an underscore (`_`) character. Commands can be used to influence the UI according to State properties.
 
 ### `_map`
 
