@@ -555,12 +555,18 @@ These are the demos included:
 
 ### Tic-Tac-Toe game (`demos/tic-tac-toe-src`)
 This is an implementation based on the Tic-Tac-Toe game app from [React's tutorial](https://react.dev/learn/tutorial-tic-tac-toe) - including the "time travel" feature - which allows you to "go back" to any previous move in the game. Comparing this Sprout implementation to the React implementation might help you grasp the attitude and concepts of Sprout - especially if you are familiar with React and its concepts and have used it before.
+#### Live Version
+[Link to live version](https://jssprout.com/demos/tictactoe/)
 
 ### Todo List (`demos/todo-list-src`)
 This is a "Todo List" app implementation based on [MDN's implementation of a Todo List app in React](https://github.com/mdn/todo-react) (the result of [this tutorial](https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks/React_todo_list_beginning).
+#### Live Version
+[Link to live version](https://jssprout.com/demos/todo-list/)
 
 ### Todo MVC (`demos/todo-mvc-src`)
 This is an implentation of the "Todo List app" that can be seen on https://todomvc.com/ - a popular site that compares between frameworks by showing implementations of a Todo List app - in different frameworks 
+#### Live Version
+[Link to live version](https://jssprout.com/demos/todo-mvc/)
 
 ## Building and compiling
 `package.json` defines some npm scripts you can run for building and compiling both the runtime and core parts of Sprout and/or the included app demos. Use `npm run [script-name]` to run a script.
