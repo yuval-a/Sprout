@@ -593,6 +593,7 @@ Enjoy!
 
 # Contributing
 Feel free to make contributions by branching and pushing a PR.
+Read the [architecture.MD](https://github.com/yuval-a/Sprout/blob/main/architecture.MD) MD file to read about the general architecture of the framework, from a development perspective.
 
 # Contact
 For questions or queries you can open a new "issue" or send a message via Github.
