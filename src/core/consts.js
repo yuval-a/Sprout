@@ -39,25 +39,6 @@ export const BUILT_IN_STATE_PROPS = [
     '_localStateManager',
     '_stateManager'
 ]
-// This is an object used to represent pending node actions,
-// that are batched and executed in reflows (requestAnimationFrame)
-export const getNewNodeActionsObject = ()=> ({
-    // Nodes to append to the end of node's children, mapped to state Items
-    append: new Map(),
-    // Replace each key node on Map, with value node
-    replace: new Map(),
-    // Insert value node after key node in parent node's children
-    after: new Map(),
-    // Remove these nodes from the DOM
-    remove: new Set()
-})
-
-export const NODES_STATE = {
-    // This is a global object that maps abstract "DOM actions" to nodes (the nodes can be elements, text nodes, attribute nodes)
-    // It is resolved to actual DOM API functions on RequestAnimationFrame calls, and then is RESET.
-    // it is a "singleton" object
-    nodeActionsMap: new Map()
-}
 
 export const GLOBAL_STATE_VAR_NAME = "SproutGlobalState";
 export const GLOBAL_STATE_FUNCTION_NAME = "getGlobalState";

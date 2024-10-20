@@ -1,5 +1,6 @@
 import { isElementAList } from "./browser_utils.js";
-import { BOOLEAN_ATTRIBUTES, BUILT_IN_STATE_PROPS, getNewNodeActionsObject, MAP_ACTIONS, NODES_STATE } from "./consts.js";
+import { BOOLEAN_ATTRIBUTES, BUILT_IN_STATE_PROPS } from "./consts.js";
+import { setStateNodeAction, getNewNodeActionsObject, NODES_STATE, addRemoveAction, addReplaceAction, addAppendAction } from "./node_actions.js";
 
 if (typeof HTMLElement === 'undefined') {
     console.warn ("HTMLElement was not found! This probably means you are running in a non-browser environment, and can lead to unexpected results");
@@ -122,7 +123,6 @@ export const setStateText = function(stateProp) {
 // Convert a stateObject to a custom element, used in State Map Arrays
 export function stateToElement(stateObject, elemName, wrapInElement) {
     const customElementInstance = document.createElement(elemName);
-    // customElementInstance.setActiveStateFromStateObject(stateObject);
     customElementInstance.setInitialState(stateObject);
     let returnElement;
     if (wrapInElement) {
@@ -178,8 +178,8 @@ function resolveNodeActionsMapToDOMActions() {
                 }
             }
             else {
-                if (typeof value === "string" && node.value !== value) {
-                    batchActions.push (()=> node.value = value);
+                if (typeof value === "string" && node.nodeValue !== value) {
+                    batchActions.push (()=> node.nodeValue = value);
                 }
             }
         }
@@ -203,8 +203,8 @@ function resolveNodeActionsMapToDOMActions() {
                     batchActions.push(()=> node.removeChild(nodeToRemove));
                 }
             });
-            nodeActions.append.forEach((customElementName, stateItem)=> {
-                batchActions.push(()=> node.appendChild(stateToElement(stateItem, customElementName, isElementAList(node) ? "li" : undefined)));
+            nodeActions.append.values().forEach((newChildElement)=> {
+                batchActions.push(()=> node.appendChild(newChildElement));
             });
         }
     });
@@ -222,13 +222,9 @@ function generateStateNodeActions(stateManager, stateProp) {
         stateNodes.forEach(node=> {
             if (!nodeActionsMap.has(node)) nodeActionsMap.set(node, {});
             const nodeActionsObject = nodeActionsMap.get(node);
-            if (node.nodeType === Node.ATTRIBUTE_NODE)
-                nodeActionsObject["setAttribute"] = value; 
-            else if (node.nodeType === Node.TEXT_NODE)
-                nodeActionsObject["textContent"] = value;
+            setStateNodeAction(node, nodeActionsObject, value);
         });
     }
-
 
     if (stateMaps) {
         const stateMapArray = value;
@@ -244,10 +240,11 @@ function generateStateNodeActions(stateManager, stateProp) {
                     let stateItem = stateMapArray[currentIndex]; 
                     if (stateItem?.hasOwnProperty('state')) stateItem = stateItem.state;
                     if (!stateItem) {
-                        nodeActions.remove.add(childElement);
+                        addRemoveAction(nodeActions, childElement);
                     }
                     else if (childElement.state !== stateItem) {
-                        nodeActions.replace.set(childElement, stateToElement(stateItem, customElementName, isElementAList(parentElement) ? "li" : undefined));
+                        const replaceWithChild = stateToElement(stateItem, customElementName, isElementAList(parentElement) ? "li" : undefined);
+                        addReplaceAction(nodeActions, childElement, replaceWithChild);
                     }
                     currentStateMapArrayIndex = currentIndex;
                 });
@@ -259,7 +256,9 @@ function generateStateNodeActions(stateManager, stateProp) {
                 const stateItem = stateMapArray[i];
                 // New state item === new child element to append
                 if (stateItem) {
-                    nodeActions.append.set(stateItem, customElementName);
+                    // Make sure we don't already have a pending append action for the same state object
+                    const newChild = stateToElement(stateItem, customElementName, isElementAList(parentElement) ? "li" : undefined);
+                    addAppendAction(nodeActions, newChild, stateItem);
                 }
             }
         });
@@ -307,7 +306,6 @@ export function handleStateChange(stateManager, stateProp) {
                 if (typeof state[`on${depStateProp}Change`] === "function")
                     state[`on${depStateProp}Change`].call(state);
             }
-        
         });
     }
 

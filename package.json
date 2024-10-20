@@ -6,9 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.core.config.js",
+    "build-prod": "webpack --config webpack.core.prod.config.js",
     "build-todo-app": "node ./sprout-build-app.mjs ./demos/todo-list-src ./demos/todo-list-build --app todo_list",
     "build-todomvc-app": "node ./sprout-build-app.mjs ./demos/todo-mvc-src ./demos/todo-mvc-build --app todo_mvc",
     "build-ttt-app": "node ./sprout-build-app.mjs ./demos/tic-tac-toe-src ./demos/tic-tac-toe-build --app tic_tac_toe",
+    "build-todo-app-min": "node ./sprout-build-app.mjs ./demos/todo-list-src ./demos/todo-list-build --app todo_list --minify",
+    "build-todomvc-app-min": "node ./sprout-build-app.mjs ./demos/todo-mvc-src ./demos/todo-mvc-build --app todo_mvc --minify",
+    "build-ttt-app-min": "node ./sprout-build-app.mjs ./demos/tic-tac-toe-src ./demos/tic-tac-toe-build --app tic_tac_toe --minify",
     "serve-todo-app": "npx webpack serve --config webpack.server.todo-app-demo.config.js",
     "serve-todomvc-app": "npx webpack serve --config webpack.server.todomvc-app-demo.config.js",
     "serve-ttt-app": "npx webpack serve --config webpack.server.ttt-app-demo.config.js"

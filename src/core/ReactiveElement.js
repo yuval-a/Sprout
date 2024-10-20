@@ -98,11 +98,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             }
         }
 
-        // This gets a "raw" state object and immediately creates a StateManager from it
-        setActiveStateFromStateObject(stateObj) {
-            this.state = new StateManager(stateObj, undefined, undefined, false, appScope).state;
-        }
-        
         #setActiveStateFromInitialState() {
             if (!this.initialState) return;
             const initialState = this.initialState;
