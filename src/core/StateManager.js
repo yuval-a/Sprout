@@ -23,7 +23,7 @@ class StateManager {
 
 
     // Maps state props to state nodes,
-    // Keys are state props, and values are arrays of Nodes
+    // Keys are state props, and values are sets of Nodes
     stateNodes = {}
 
     // These are used when the state object is part of Stateful Array
@@ -95,10 +95,10 @@ class StateManager {
     // Node here is either an Attribute Node or a Text Node
     addStateNode(stateProp, stateNode, isBooleanStateProp=false) {
         if (!this.stateNodes.hasOwnProperty(stateProp)) {
-            this.stateNodes[stateProp] = [];
+            this.stateNodes[stateProp] = new Set();
             this.setAndBindStateProperty(stateProp, isBooleanStateProp);
         }
-        this.stateNodes[stateProp].push(stateNode);
+        this.stateNodes[stateProp].add(stateNode);
     }
     
 

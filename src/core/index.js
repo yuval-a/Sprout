@@ -1,6 +1,6 @@
 import { extendElementClassWithReactiveElementClass } from "./ReactiveElement.js";
 import StateManager from "./StateManager.js";
-import { doUpdateDOM } from "./state_utils.js";
+import { doUpdateDOM } from "./node_actions.js";
 import { GLOBAL_STATE_VAR_NAME, GLOBAL_STATE_FUNCTION_NAME, HTML_ELEMENTS_CLASSES_MAP } from "./consts.js";
 import SproutBuild from '../build';
 import { putObjectInDebugMode } from "./debug_utils.js";

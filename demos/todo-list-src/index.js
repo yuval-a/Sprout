@@ -18,13 +18,22 @@ const initState = {
     }, ["tasks", "filter"], true],
   
     set_filterButtonStates: [function() {
-      return FILTER_NAMES.map(name=> {
+      return FILTER_NAMES.map((name, index)=> {
+        // This value is used as a string value on bound attributes,
+        // without casting to string, leaving as boolean, will cause
+        // the attribute to be removed, if the value is false
+        const isOn = String(name === this.filter)
+        // This comparison can prevent redundant renders,
+        // without it - new states will be returned for all items,
+        // because of the .map call
+        if (this.filterButtonStates && 
+            this.filterButtonStates[index].name === name &&
+            this.filterButtonStates[index].isOn === isOn) {
+              return this.filterButtonStates[index];
+        }
         return {
           name,
-          // This value is used as a string value on bound attributes,
-          // without casting to string, leaving as boolean, will cause
-          // the attribute to be removed, if the value is false
-          isOn: String(name === this.filter)
+          isOn
         }
       });
     }, ["filter"], true],

@@ -109,7 +109,7 @@ The function calls the `generateStateNodeActions` functions with the `stateManag
 This is a global "map" that is populated with the next pending "Node Actions" (an abstract representation of actions that are later translated into "DOM actions").
 The `nodeActionsMap` is a `Map` object, where keys are actual (DOM) Nodes (Elements, Attributes or Text) and the values are objects with pending DOM actions waiting to be performed on the key Node.
 
-* If the node is attribute node (a "State Attribute"), the object can have a `setAttribute` property with a string value.
+* If the node is attribute node (a "State Attribute"), the object can have a `setAttribute` property with a string value. (Notice, the node in this context is AN ATTRIBUTE NODE!)
 * If the node is a text node, the object can have a `textContent` property with a string value.
 * If the node is an HTML element, then the value is set to an object like this:
 ```
@@ -121,8 +121,8 @@ The `nodeActionsMap` is a `Map` object, where keys are actual (DOM) Nodes (Eleme
 }
 ```
 
-- `append` is then a map where if new elements needs to be appended to the HTML element (the "parent" element), then a key which is a State Object is set, and the value is a "custom element" - later on this will be translated into a new custom element created from that state object, and appended to the parent element.
-- `replace` is a map where keys are existing children elements of the parent, and values are **new** elements - that are custom elements created from a new state object (by calling `stateToElement` on `state_utils`).
+- `append` is then a map where if new elements needs to be appended to the HTML element (the "parent" element), then a key which is a State Object is set, and the value is a "custom element" instance associated with thate State Object - pending to be appended to the parent element.
+- `replace` is a map where keys are existing children elements of the parent, and values are **new** elements - that are custom elements created from a new state object (by calling `stateToElement` on `state_utils`), pending to replace the "old" child elements.
 - `remove` is simply a set of child elements to remove from parent child.
 - `after` is a map where a key can be a child element, and the value a new custom element that should be added after it (this is currently **unused**!).
 These are usually triggered from changes to "State Maps" -- Arrays of state objects used for a `_map` command.
