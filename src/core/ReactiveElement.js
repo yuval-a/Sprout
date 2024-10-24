@@ -132,15 +132,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
 
         }
         #bindEvents() {
-            if (this?.tagName === "INPUT") {
-                this.#changeEventHandler = function() {
-                    const changeEvent = new Event('inputChange', { bubbles: true, composed: true });
-                    this.dispatchEvent(changeEvent);
-                }
-                // Change events does not automatically bubbles, we need to listen and bubble up a new event
-                this.addEventListener('change', this.#changeEventHandler, false);
-            }
-
             if (!this.#events) return;
             const eventRefNames = Object.keys(this.#events);
             const clickActions = {};
@@ -266,6 +257,17 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             commands.forEach(({ command, args})=> {
                 COMMAND_ATTRIBUTES[command]?.call(this, args);
             });
+
+            // Keep it here and not in bindEvents! 
+            if (this?.tagName === "INPUT") {
+                this.#changeEventHandler = function() {
+                    const changeEvent = new Event('inputChange', { bubbles: true, composed: true });
+                    this.dispatchEvent(changeEvent);
+                }
+                // Change events does not automatically bubbles, we need to listen and bubble up a new event
+                this.addEventListener('change', this.#changeEventHandler, false);
+            }
+
             if (!this.isNativeElement) {
                 if (!noRender) {
                     this.#renderTemplate();
