@@ -23,22 +23,30 @@ export function setStateNodeAction(node, nodeActionsObject, value) {
         nodeActionsObject["textContent"] = value;
 }
 
-export function addRemoveAction(nodeActions, element) {
-    nodeActions.remove.add(element);
+export function addRemoveAction(nodeActions, elementToRemove, stateIdentifier) {
+    if (!nodeActions.remove.has(stateIdentifier)) {
+        nodeActions.remove.set(stateIdentifier, new Set())
+    }
+    nodeActions.remove.get(stateIdentifier).add(elementToRemove);
 }
 export function addReplaceAction(nodeActions, oldElement, newElement) {
     nodeActions.replace.set(oldElement, newElement);
 }
-export function addAppendAction(nodeActions, nodeToAppend, stateObject) {
-    nodeActions.append.set(stateObject, nodeToAppend);
+// stateIdentifier can be a State object (for state maps),
+// or a State property (for conditionally rendered elements)
+export function addAppendAction(nodeActions, nodeToAppend, stateIdentifier) {
+    if (!nodeActions.append.has(stateIdentifier)) {
+        nodeActions.append.set(stateIdentifier, new Set());
+    }
+    nodeActions.append.get(stateIdentifier).add(nodeToAppend);
 }
 export function addStateAttributeToNode(attributeNode, value) {
     const nodeActions = getNodeActionsForNode(attributeNode);
     setStateNodeAction(attributeNode, nodeActions, value);
 }
-export function addAppendActionToNode(node, nodeToAppend, stateObject) {
+export function addAppendActionToNode(node, nodeToAppend, stateIdentifier) {
     const nodeActions = getNodeActionsForNode(node);
-    addAppendAction(nodeActions, nodeToAppend, stateObject);
+    addAppendAction(nodeActions, nodeToAppend, stateIdentifier);
 }
 
 // This is an object used to represent pending node actions,
@@ -46,14 +54,17 @@ export function addAppendActionToNode(node, nodeToAppend, stateObject) {
 export function getNewNodeActionsObject() {
     return ({
         // Nodes to append to the end of node's children, 
-        // keys are state objects, to prevent duplicate pending
+        // keys are state objects, or state props (string) 
+        // to prevent duplicate pending
         append: new Map(),
         // Replace each key node on Map, with value node
         replace: new Map(),
         // Insert value node after key node in parent node's children
         after: new Map(),
         // Remove these nodes from the DOM
-        remove: new Set()
+        // keys are state objects, or state props (string) 
+        // to prevent duplicate pending
+        remove: new Map()
     });
 }
 
@@ -64,6 +75,8 @@ export function generateStateNodeActions(stateManager, stateProp) {
     const value = stateManager.state[stateProp];
     const stateNodes = stateManager.stateNodes[stateProp];
     const stateMaps = stateManager.stateArrayMaps[stateProp];
+    // const conditionallyRenderingElements = stateManager.conditionallyRenderingElements[stateProp];
+
     if (stateNodes) {
         stateNodes.forEach(node=> {
             if (!nodeActionsMap.has(node)) nodeActionsMap.set(node, {});
@@ -112,6 +125,34 @@ export function generateStateNodeActions(stateManager, stateProp) {
             }
         });
     }
+
+    /*
+    if (conditionallyRenderingElements) {
+        debugger;
+        // Leave this as == as we check if it's truthy (doesn't have to be boolean)
+        if (value == true) {
+            conditionallyRenderingElements.forEach(element=> {
+                const parentElement = element.originalParentElement;
+                if (parentElement) {
+                    if (!nodeActionsMap.has(parentElement)) nodeActionsMap.set(parentElement, getNewNodeActionsObject());
+                    const nodeActions = nodeActionsMap.get(parentElement);
+                    addAppendAction(nodeActions, element, stateProp);
+                }
+            });
+        }
+        else {
+            conditionallyRenderingElements.forEach(element=> {
+                const parentElement = element.originalParentElement;
+                if (parentElement) {
+                    if (!nodeActionsMap.has(parentElement)) nodeActionsMap.set(parentElement, getNewNodeActionsObject());
+                    const nodeActions = nodeActionsMap.get(parentElement);
+                    addRemoveAction(nodeActions, element, stateProp);
+                }
+            });
+
+        }
+    }
+    */
 }
 
 function resolveNodeActionsMapToDOMActions() {
@@ -164,14 +205,19 @@ function resolveNodeActionsMapToDOMActions() {
                     //oldNode.replaceWith(newNode));
                     node.replaceChild(newNode, oldNode));
             });
-            nodeActions.remove.forEach(nodeToRemove=> {
-                if (nodeToRemove.parentNode && nodeToRemove.parentNode === node) {
-                    batchActions.push(()=> node.removeChild(nodeToRemove));
-                }
+            nodeActions.remove.values().forEach((removes)=> {
+                removes.forEach((nodeToRemove)=> {
+                    if (nodeToRemove.parentNode && nodeToRemove.parentNode === node) {
+                        batchActions.push(()=> node.removeChild(nodeToRemove));
+                    }
+                });
             });
-            nodeActions.append.values().forEach((newChildElement)=> {
-                batchActions.push(()=> node.appendChild(newChildElement));
+            nodeActions.append.values().forEach((appends)=> {
+                appends.forEach((newChildElement)=> {
+                    batchActions.push(()=> node.appendChild(newChildElement));
+                });
             });
+            
         }
     });
     return batchActions;
@@ -218,7 +264,6 @@ export function logNodeActions() {
 export function doUpdateDOM() {
     let { nodeActionsMap } = NODES_STATE;
     if (nodeActionsMap.size) {
-        // logNodeActions();
         const DOMActions = resolveNodeActionsMapToDOMActions(nodeActionsMap);
         DOMActions.forEach(DOMAction=> DOMAction());
         NODES_STATE.nodeActionsMap = new Map();

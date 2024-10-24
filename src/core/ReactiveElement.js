@@ -123,15 +123,24 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
         }
 
         #unbindEvents() {
+            if (this.#changeEventHandler) this.removeEventListener('change', this.#changeEventHandler);
             if (!this.#boundEventNames.length) return;
             const thiselement = this;
             this.#boundEventNames.forEach(eventName=> {
                 thiselement.removeEventListener(eventName, this.#eventHandler, false);
             });
 
-            if (this.#changeEventHandler) this.removeEventListener('change', this.#changeEventHandler);
         }
         #bindEvents() {
+            if (this?.tagName === "INPUT") {
+                this.#changeEventHandler = function() {
+                    const changeEvent = new Event('inputChange', { bubbles: true, composed: true });
+                    this.dispatchEvent(changeEvent);
+                }
+                // Change events does not automatically bubbles, we need to listen and bubble up a new event
+                this.addEventListener('change', this.#changeEventHandler, false);
+            }
+
             if (!this.#events) return;
             const eventRefNames = Object.keys(this.#events);
             const clickActions = {};
@@ -235,14 +244,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                 this.#setActiveStateFromInitialState();
             }
 
-            if (this?.tagName === "INPUT") {
-                this.#changeEventHandler = function() {
-                    const changeEvent = new Event('inputChange', { bubbles: true, composed: true });
-                    this.dispatchEvent(changeEvent);
-                }
-                // Change events does not automatically bubbles, we need to listen and bubble up a new event
-                this.addEventListener('change', this.#changeEventHandler, false);
-            }
             // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
             // It is part of the way a check is made to see if an element is part of ShadowDOM!
             // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
@@ -272,7 +273,7 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                     if (this.#stylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#stylesheet);
                     if (this.#globalStylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#globalStylesheet);
                 }
-                this.#bindEvents();
+                requestAnimationFrame(()=> this.#bindEvents());
                 if (this.#onMount) this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
             }
 

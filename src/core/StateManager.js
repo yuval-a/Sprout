@@ -16,7 +16,8 @@ class StateManager {
 
     // Saves "map" connections between a state array value and a custom element name,
     // this will enable creating/removing new custom elements when items of a state array change
-    stateArrayMaps = {}
+    stateArrayMaps = {};
+    // conditionallyRenderingElements = {};
     // A map that maps state props to "dependencies", each time a stateProp which is a key here,
     // is changed, a state change is triggered for its dependencies as well
     stateDependencies = {};
@@ -92,6 +93,16 @@ class StateManager {
         });
     }
 
+    /*
+    addConditionallyRenderingElements(stateProp, element) {
+        if (!this.conditionallyRenderingElements.hasOwnProperty(stateProp)){
+            this.conditionallyRenderingElements[stateProp] = new Set();
+        }
+        element.originalParentElement = element.parentElement || element.host?.shadowRoot;
+        this.conditionallyRenderingElements[stateProp].add(element);
+    }
+    */
+   
     // Node here is either an Attribute Node or a Text Node
     addStateNode(stateProp, stateNode, isBooleanStateProp=false) {
         if (!this.stateNodes.hasOwnProperty(stateProp)) {

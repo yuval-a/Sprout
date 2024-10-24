@@ -36,10 +36,6 @@ let COMMANDS = {
         this.initialSetText(stateProp);
     },
     bind: function(commandValue) {
-        if (!this.isReactiveElement) {
-            console.warn ("Cannot use commands on non reactive elements! (Used _bind)");
-            return;
-        }
         const [attributeName, statePropName] = commandValue.split(':');
         if (!attributeName || !statePropName) {
             console.warn ("Incorrect usage of _bind command! Please pass <attribute-name>:<state-prop-name>");
@@ -63,7 +59,21 @@ let COMMANDS = {
                 );
             }
         }
+   },
+   /*
+   "if": function(commandValue) {
+        const statePropName = commandValue;
+        const [stateValue, stateObject] = this.getState(statePropName, true);
+        if (typeof stateValue === "undefined") {
+            throw Error(`State property ${statePropName} not defined for _if command!`);
+        }
+        const stateManager = stateObject._stateManager;
+        if (stateValue == false) {
+            this.remove();
+        }
+        requestAnimationFrame(()=> stateManager.addConditionallyRenderingElements(statePropName, this));
    }
+   */
 }
 
 if (DEBUG_MODE) {
