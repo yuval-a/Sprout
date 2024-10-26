@@ -229,15 +229,14 @@ if (!process.argv.includes("--component")) {
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="preload" as="script" href=${coreScriptSrc}>
 ${injectPolyfillIfNeeded}
 ${styleContent ? `<style app="${appName}">` + styleContent + '</style>' : ""}
 ${global_runtime_script}
-<link rel="preload" as="script" href=${coreScriptSrc}>
-<script src="${coreScriptSrc}" ${process.argv.includes("--allowAppScopeAccess") ? 'allowappscopeaccess' : ''}></script>
-<script>const build_${appName}App = SproutInitApp("${appName}");</script>
 ${templates.join("\n")}
+<script onload="const build_${appName}App = SproutInitApp('${appName}'); build_${appName}App();" src="${coreScriptSrc}" ${process.argv.includes("--allowAppScopeAccess") ? 'allowappscopeaccess' : ''}></script>
+
 ${headContent}
-<script>build_${appName}App();</script>
 </head>
 <body>
 ${htmlContent}
@@ -247,15 +246,13 @@ ${htmlContent}
 }
 else {
     html =
-`${injectPolyfillIfNeeded}
+`<link rel="preload" as="script" href=${coreScriptSrc}>
+${injectPolyfillIfNeeded}
 <div>
 ${styleContent ? `<style for="${appName}">` + styleContent + '</style>' : ""}
 ${global_runtime_script}
-<link rel="preload" as="script" href=${coreScriptSrc}>
-<script src="${coreScriptSrc}" ${process.argv.includes("--allowAppScopeAccess") ? 'allowappscopeaccess' : ''}></script>
-<script>const build_${appName}App = SproutInitApp("${appName}");</script>
 ${templates.join("\n")}
-<script>build_${appName}App();</script>
+<script onload="const build_${appName}App = SproutInitApp('${appName}'); build_${appName}App();" src="${coreScriptSrc}" ${process.argv.includes("--allowAppScopeAccess") ? 'allowappscopeaccess' : ''}></script>
 ${htmlContent}
 `
 }
