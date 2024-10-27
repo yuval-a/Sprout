@@ -1,5 +1,5 @@
 import { COMMANDS as COMMAND_ATTRIBUTES } from "./commands.js";
-import { BOOLEAN_ATTRIBUTES, SUPPORTED_ATTRIBUTES_FOR_BINDING, GLOBAL_STATE_FUNCTION_NAME } from "./consts.js";
+import { BOOLEAN_ATTRIBUTES, SUPPORTED_ATTRIBUTES_FOR_BINDING, GLOBAL_STATE_FUNCTION_NAME, DEFAULT_TEMPLATE_DOM } from "./consts.js";
 import { setAttribute, setStateAttribute, setStateText } from "./state_utils.js";
 import StateManager from "./StateManager.js";
 import { putObjectInDebugMode } from "./debug_utils.js";
@@ -44,16 +44,17 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             this.isNativeElement = this.hasAttribute("is");
 
             if (!this.isNativeElement) {
-                this.#templateContent = document.createElement("div");
                 if (runtimeScript) {
                     const dynamicRuntimeFn = new Function(runtimeScript.textContent);
                     const runtime = dynamicRuntimeFn();
                     this.#setRuntime(runtime);
                 }
-    
                 // Should already be a DocumentFragment of the template
                 if (template) { 
                     this.#templateContent = template.cloneNode(true);
+                }
+                else {
+                    this.#templateContent = DEFAULT_TEMPLATE_DOM.cloneNode();
                 }
 
                 if (style) {
@@ -70,12 +71,13 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                 // for fast access.
                 this.ref = {};
             }
+
         }
 
         #setRuntime(runtime) {
             if (runtime.events) {
                 this.#events = runtime.events;
-                if (this.isConnected) this.#bindEvents();
+                if (this.isConnected) requestAnimationFrame(()=> this.#bindEvents());
             }
 
             if (runtime.state) {
@@ -112,7 +114,7 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
 
         #renderTemplate() {
             if (appScope.SPROUT_CONFIG.useShadow) {
-                (this.attachShadow({ mode: 'open' }))
+                (this.attachShadow({ mode: "open", slotAssignment: "manual" }))
                 .appendChild(this.#templateContent);
             }
             else {
@@ -212,6 +214,34 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             const [stateValue, theState] = this.getState(stateProp, true);
             if (stateValue !== newValue) theState[stateProp] = newValue;
         }
+
+        // Only for conditional slots (reactive-slot)
+        renderSlot(statePropName) {
+            if (this.tagName !== "SLOT") return;
+
+            const stateValue= this.getState(statePropName);
+            if (typeof stateValue === "undefined") {
+                throw Error(`State property ${statePropName} not defined for conditional slot rendering!`);
+            }
+    
+            const children = this?.slotChildren;
+            if (children) {
+                const nodesToAssign = [];
+                children.forEach(slotChildElement=> {
+                    const _if = slotChildElement.getAttribute('_if');
+                    if (_if) {
+                        const expectedValue = Boolean(_if === "true");
+                        if (stateValue == expectedValue) {
+                            nodesToAssign.push(slotChildElement)
+                        }
+                    }
+                });
+                if (nodesToAssign.length) {
+                    this.assign(...nodesToAssign);
+                }
+            }
+        }
+
         disconnectedCallback() {
             const host = this.host ?? this;
             const refEntries = Object.entries(host.ref);

@@ -21,7 +21,7 @@ class StateManager {
     // A map that maps state props to "dependencies", each time a stateProp which is a key here,
     // is changed, a state change is triggered for its dependencies as well
     stateDependencies = {};
-
+    conditionallyRenderingElements = {};
 
     // Maps state props to state nodes,
     // Keys are state props, and values are sets of Nodes
@@ -93,7 +93,7 @@ class StateManager {
         });
     }
 
-    /*
+
     addConditionallyRenderingElements(stateProp, element) {
         if (!this.conditionallyRenderingElements.hasOwnProperty(stateProp)){
             this.conditionallyRenderingElements[stateProp] = new Set();
@@ -101,7 +101,7 @@ class StateManager {
         element.originalParentElement = element.parentElement || element.host?.shadowRoot;
         this.conditionallyRenderingElements[stateProp].add(element);
     }
-    */
+    
    
     // Node here is either an Attribute Node or a Text Node
     addStateNode(stateProp, stateNode, isBooleanStateProp=false) {

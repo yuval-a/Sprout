@@ -115,8 +115,11 @@ export const HTML_ELEMENTS_CLASSES_MAP = [
     { class: HTMLTitleElement, element: "title" },
     { class: HTMLTrackElement, element: "track" },
     { class: HTMLUListElement, element: "ul" },
-    { class: HTMLVideoElement, element: "video" }
+    { class: HTMLVideoElement, element: "video" },
+    { class: HTMLSlotElement, element: "slot" }
 ];
 // For development purposes only,
 // turn this on to see exactly which functions in each entity are called and when.
 export const DEBUG_MODE = false;
+
+export const DEFAULT_TEMPLATE_DOM = document.createElement('div');

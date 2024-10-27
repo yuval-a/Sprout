@@ -1,7 +1,6 @@
 import { mapStateArrayToElements } from "./state_utils.js";
 import { SUPPORTED_ATTRIBUTES_FOR_BINDING, SUPPORTED_PROPERTIES_FOR_BINDING, SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING } from "./consts.js";
 import { putObjectInDebugMode } from "./debug_utils.js";
-import { DEBUG_MODE } from "./consts.js";
 import { isElementAList } from "./DOM_utils.js";
 
 function mapStateToElements(stateItemsPropertyName, customElementName, parentElement) {
@@ -13,13 +12,15 @@ function mapStateToElements(stateItemsPropertyName, customElementName, parentEle
     const wrapInElement = isElementAList(parentElement) ? "li" : undefined;
     const elements = mapStateArrayToElements(stateItemsArray, customElementName, wrapInElement);
     parentElement.innerHTML = "";
-    if (elements.length) parentElement.append(...elements);
+    if (elements.length) {
+        parentElement.append(...elements);
+    }
     return theState;
 }
 
 // Functions that run and handles "Command" attributes. Note, they should always be called
 // with the "this" context set to the custom element the command is defined on
-let COMMANDS = {
+export const COMMANDS = {
     map: function(commandValue) {
         // The command value ("argument") is "<stateProp>:<custom element name>"
         const [stateItemsPropertyName, customElementName] = commandValue.split(':');
@@ -34,6 +35,7 @@ let COMMANDS = {
     text: function(commandValue) {
         const stateProp = commandValue;
         this.initialSetText(stateProp);
+        // DO NOT CALL .normalize()! It might change the Text Nodes!
     },
     bind: function(commandValue) {
         const [attributeName, statePropName] = commandValue.split(':');
@@ -60,25 +62,22 @@ let COMMANDS = {
             }
         }
    },
-   /*
-   "if": function(commandValue) {
+   condition: function(commandValue) {
+        if (this.tagName !== "SLOT") {
+            throw Error("condition command can only be used on a slot element!");
+        }
+
         const statePropName = commandValue;
         const [stateValue, stateObject] = this.getState(statePropName, true);
         if (typeof stateValue === "undefined") {
-            throw Error(`State property ${statePropName} not defined for _if command!`);
+            throw Error(`State property ${statePropName} not defined for _condition command!`);
         }
-        const stateManager = stateObject._stateManager;
-        if (stateValue == false) {
-            this.remove();
-        }
-        requestAnimationFrame(()=> stateManager.addConditionallyRenderingElements(statePropName, this));
-   }
-   */
+        this.slotChildren = [...this.children];
+        this.slotChildren.forEach(childSlotElement=> 
+            childSlotElement.setAttribute('_condition', statePropName));
+        this.host.append(...this.slotChildren);
+        this.innerHTML = "";
+        this.renderSlot(statePropName);
+        stateObject._stateManager.addConditionallyRenderingElements(statePropName, this);
+   }  
 }
-
-if (DEBUG_MODE) {
-    COMMANDS = putObjectInDebugMode(COMMANDS, "COMMANDS");
-}
-
-export { COMMANDS };
-

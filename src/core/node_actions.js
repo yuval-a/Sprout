@@ -75,7 +75,7 @@ export function generateStateNodeActions(stateManager, stateProp) {
     const value = stateManager.state[stateProp];
     const stateNodes = stateManager.stateNodes[stateProp];
     const stateMaps = stateManager.stateArrayMaps[stateProp];
-    // const conditionallyRenderingElements = stateManager.conditionallyRenderingElements[stateProp];
+    const conditionallyRenderingElements = stateManager.conditionallyRenderingElements[stateProp];
 
     if (stateNodes) {
         stateNodes.forEach(node=> {
@@ -126,33 +126,12 @@ export function generateStateNodeActions(stateManager, stateProp) {
         });
     }
 
-    /*
     if (conditionallyRenderingElements) {
-        debugger;
-        // Leave this as == as we check if it's truthy (doesn't have to be boolean)
-        if (value == true) {
-            conditionallyRenderingElements.forEach(element=> {
-                const parentElement = element.originalParentElement;
-                if (parentElement) {
-                    if (!nodeActionsMap.has(parentElement)) nodeActionsMap.set(parentElement, getNewNodeActionsObject());
-                    const nodeActions = nodeActionsMap.get(parentElement);
-                    addAppendAction(nodeActions, element, stateProp);
-                }
-            });
-        }
-        else {
-            conditionallyRenderingElements.forEach(element=> {
-                const parentElement = element.originalParentElement;
-                if (parentElement) {
-                    if (!nodeActionsMap.has(parentElement)) nodeActionsMap.set(parentElement, getNewNodeActionsObject());
-                    const nodeActions = nodeActionsMap.get(parentElement);
-                    addRemoveAction(nodeActions, element, stateProp);
-                }
-            });
-
-        }
+        // Should be slot element
+        conditionallyRenderingElements.forEach(element=> {
+            requestAnimationFrame(()=> element.renderSlot(stateProp));
+        });
     }
-    */
 }
 
 function resolveNodeActionsMapToDOMActions() {
@@ -270,4 +249,3 @@ export function doUpdateDOM() {
     }
     requestAnimationFrame(doUpdateDOM);
 }
-
