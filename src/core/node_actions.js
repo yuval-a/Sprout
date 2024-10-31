@@ -247,5 +247,5 @@ export function doUpdateDOM() {
         DOMActions.forEach(DOMAction=> DOMAction());
         NODES_STATE.nodeActionsMap = new Map();
     }
-    requestAnimationFrame(doUpdateDOM);
+    // requestAnimationFrame(doUpdateDOM);
 }

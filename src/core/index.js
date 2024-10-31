@@ -12,17 +12,6 @@ globalThis.SproutInitApp = function(appName) {
     
     let appScope = (function() { return { window, document: window?.document }})(window);
 
-    /*
-    if (DEBUG_MODE) {
-        appScope = putObjectInDebugMode(appScope, "appScope");
-    }
-    else {
-        Object.defineProperty(globalThis, "appScope", {
-            value: appScope,
-            writable: false
-        })
-    }
-    */
     const config = {
         useShadow: true, // Always use shadow DOM for now, may add configurability later
         allowAppScopeAccess: allowAppScopeAccess
@@ -81,10 +70,10 @@ globalThis.SproutInitApp = function(appName) {
             { extends: itemDefinition.element })
         
     );
-
     return function() {
         SproutBuild(appScope, appName);
-        requestAnimationFrame(doUpdateDOM);
+        // Changed to trigger only if there are pending changes
+        // requestAnimationFrame(doUpdateDOM);
     }.bind(appScope);
 }
 

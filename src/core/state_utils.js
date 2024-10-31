@@ -1,6 +1,6 @@
 import { BOOLEAN_ATTRIBUTES, BUILT_IN_STATE_PROPS } from "./consts.js";
-import { generateStateNodeActions } from './node_actions.js';
-
+import { doUpdateDOM, generateStateNodeActions } from './node_actions.js';
+import { NODES_STATE } from "./node_actions.js";
 if (typeof HTMLElement === 'undefined') {
     console.warn ("HTMLElement was not found! This probably means you are running in a non-browser environment, and can lead to unexpected results");
 }
@@ -202,6 +202,9 @@ export function handleStateChange(stateManager, stateProp) {
             });
         });
     }
+
+    const { nodeActionsMap } = NODES_STATE;
+    if (nodeActionsMap.size) requestAnimationFrame(doUpdateDOM);
 }
 
 export function populateStateFromInitialState(state, initialState) {

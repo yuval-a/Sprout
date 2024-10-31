@@ -38,7 +38,7 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                                     .concat(Object.keys(COMMAND_ATTRIBUTES).map(command => ('_' + command.toLowerCase())));
 
 
-        constructor(template=null, runtimeScript, style, globalStyle) {
+        constructor(template=null, runtimeScript, style, globalStylesheet) {
             super();
             this.isReactiveElement = true;
             this.isNativeElement = this.hasAttribute("is");
@@ -62,9 +62,7 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                     stylesheet.replaceSync(style);
                     this.#stylesheet = stylesheet;
                 }
-                if (globalStyle) {
-                    const globalStylesheet = new CSSStyleSheet();
-                    globalStylesheet.replaceSync(globalStyle);
+                if (globalStylesheet) {
                     this.#globalStylesheet = globalStylesheet;
                 }
                 // Maps "ref names" to actual elements in the component DOM tree,
@@ -114,8 +112,11 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
 
         #renderTemplate() {
             if (appScope.SPROUT_CONFIG.useShadow) {
-                (this.attachShadow({ mode: "open", slotAssignment: "manual" }))
-                .appendChild(this.#templateContent);
+                const shadowRoot = this.attachShadow({ mode: "open", slotAssignment: "manual" });
+                this.shadowRoot.adoptedStyleSheets = [];
+                if (this.#globalStylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#globalStylesheet);
+                if (this.#stylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#stylesheet);
+                shadowRoot.appendChild(this.#templateContent);
             }
             else {
                 const fragment = new DocumentFragment();
@@ -270,6 +271,24 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
             this.host = this.getRootNode().host;
 
+            // Keep it here and not in bindEvents! 
+            if (this?.tagName === "INPUT") {
+                this.#changeEventHandler = function() {
+                    const changeEvent = new Event('inputChange', { bubbles: true, composed: true });
+                    this.dispatchEvent(changeEvent);
+                }
+                // Change events does not automatically bubbles, we need to listen and bubble up a new event
+                this.addEventListener('change', this.#changeEventHandler, false);
+            }
+
+            if (!this.isNativeElement) {
+                if (!noRender) {
+                    this.#renderTemplate();
+                }
+                requestAnimationFrame(()=> this.#bindEvents());
+                if (this.#onMount) this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
+            }
+
             const commands = [];
             for (const attrName of this.getAttributeNames()) {
                 const attrValue = this.getAttribute(attrName);
@@ -287,27 +306,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             commands.forEach(({ command, args})=> {
                 COMMAND_ATTRIBUTES[command]?.call(this, args);
             });
-
-            // Keep it here and not in bindEvents! 
-            if (this?.tagName === "INPUT") {
-                this.#changeEventHandler = function() {
-                    const changeEvent = new Event('inputChange', { bubbles: true, composed: true });
-                    this.dispatchEvent(changeEvent);
-                }
-                // Change events does not automatically bubbles, we need to listen and bubble up a new event
-                this.addEventListener('change', this.#changeEventHandler, false);
-            }
-
-            if (!this.isNativeElement) {
-                if (!noRender) {
-                    this.#renderTemplate();
-                    this.shadowRoot.adoptedStyleSheets = [];
-                    if (this.#stylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#stylesheet);
-                    if (this.#globalStylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#globalStylesheet);
-                }
-                requestAnimationFrame(()=> this.#bindEvents());
-                if (this.#onMount) this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
-            }
 
             this.#wasMounted = true;
         }
