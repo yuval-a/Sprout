@@ -4,32 +4,37 @@
 export default function(appScope, appName) {
 
     // Create custom elements from templates
-    async function defineElementFromTemplate(template, elemName, globalStyle) {
+    async function defineElementFromTemplate(template, elemName, globalStylesheet) {
         const templateContent = document.importNode(template.content, true);
         const style = templateContent.querySelector('style');
         if (style) templateContent.removeChild(style);
         const runtime = templateContent.querySelector('script');
         if (runtime) templateContent.removeChild(runtime);
+
         customElements.define(
             elemName, 
             class extends appScope.ReactiveElement {
                 constructor() {
-                    super(templateContent, runtime, style?.textContent, globalStyle?.textContent);
+                    super(templateContent, runtime, style?.textContent, globalStylesheet);
                 }
             }
         );
     }
 
     function build() {
+        let globalStylesheet;
         const globalStyle = document.querySelector(`head > style[app="${appName}"]`);
+        if (globalStyle) {
+            globalStylesheet = new CSSStyleSheet();
+            globalStylesheet.replaceSync(globalStyle.textContent);
+        }
         Array.prototype.forEach.call(document.querySelectorAll(`template[app="${appName}"]`), template => {
-            defineElementFromTemplate(template, template.getAttribute('for'), globalStyle);
+            defineElementFromTemplate(template, template.getAttribute('for'), globalStylesheet);
         });
         if (typeof globalThis[`${appName}_runtime`] === 'function') {
             const globalRuntimeFunction = globalThis[`${appName}_runtime`];
             globalRuntimeFunction.call(appScope);
         }
     }
-
     build();
 }
