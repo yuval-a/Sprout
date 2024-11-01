@@ -5,6 +5,7 @@ import { GLOBAL_STATE_VAR_NAME, GLOBAL_STATE_FUNCTION_NAME, HTML_ELEMENTS_CLASSE
 import SproutBuild from '../build';
 import { putObjectInDebugMode } from "./debug_utils.js";
 import { DEBUG_MODE } from "./consts.js";
+import { setHiddenProperty } from "./prop_utils.js";
 
 const allowAppScopeAccess = document.currentScript.hasAttribute("allowappscopeaccess");
 
@@ -33,12 +34,7 @@ globalThis.SproutInitApp = function(appName) {
 
     // Prevent "hasOwnProperty" shenanigans
     const hasOwnProperty = Object.prototype.hasOwnProperty;
-    Object.defineProperty(Object.prototype, "hasOwnProperty", {
-        value: hasOwnProperty,
-        configurable: false,
-        writable: false,
-        enumerable: false
-    });
+    setHiddenProperty(Object.prototype, "hasOwnProperty", hasOwnProperty);
 
     appScope[GLOBAL_STATE_FUNCTION_NAME] = function() {
         return {};

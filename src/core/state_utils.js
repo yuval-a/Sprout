@@ -1,6 +1,7 @@
 import { BOOLEAN_ATTRIBUTES, BUILT_IN_STATE_PROPS } from "./consts.js";
 import { doUpdateDOM, generateStateNodeActions } from './node_actions.js';
 import { NODES_STATE } from "./node_actions.js";
+import { setHiddenProperty } from "./prop_utils.js";
 if (typeof HTMLElement === 'undefined') {
     console.warn ("HTMLElement was not found! This probably means you are running in a non-browser environment, and can lead to unexpected results");
 }
@@ -58,7 +59,7 @@ export const setStateAttribute = function(attrName, stateProp) {
             get() {
                 return this[originalStateProp] === equalityValue
             },
-            enumerable: true
+            enumerable: false
         });
         theState._stateManager.addStateDependency(stateProp, conditionalStateProp);
         stateVal = theState[conditionalStateProp];
@@ -69,32 +70,35 @@ export const setStateAttribute = function(attrName, stateProp) {
     this.removeAttribute(attrName);
     // Create an "Attribute Node"
     const stateAttrNode = document.createAttribute(attrName);
-    stateAttrNode.value = valueToSet;
+    stateAttrNode.nodeValue = valueToSet;
     // Saves a readonly boolean that marks this as a "state attribute node"
-    Object.defineProperty(stateAttrNode, "isStateAttribute", {
-        writeable: false,
-        configurable: false,
-        enumerable: false
-    });
-
-
+    setHiddenProperty(stateAttrNode, "isStateAttribute", true);
     // Save ownerElement to a different property,
     // so if the attribute is removed (in case of a boolean attribute),
     // and later re-attached, we would know which element to add it back to.
-    stateAttrNode.originalOwnerElement = this;
-    theState._stateManager.addStateNode(stateProp, stateAttrNode, typeof valueToSet === "boolean");
-
+    setHiddenProperty(stateAttrNode, "originalOwnerElement", this);
+/*
+    Object.defineProperty(stateAttrNode, "stateValue", {
+        value: valueToSet,
+        writeable: true,
+        configurable: false,
+        enumerable: true
+    });
+*/
     if (typeof valueToSet === "boolean") {
         // A boolean attribute value should ALWAYS be an empty string,
         // the value itself never changes, it is removed fron the element if false, 
         // and added if true
-        stateAttrNode.value = "";
+        stateAttrNode.nodeValue = "";
     }
 
     // Adds the attribute to the element
-    if (valueToSet !== false) {
+    if (valueToSet != false) {
         this.setAttributeNode(stateAttrNode);
     }
+
+    theState._stateManager.addStateNode(stateProp, stateAttrNode, typeof valueToSet === "boolean");
+
 }
 export const setStateText = function(stateProp) {
     const [stateVal, theState] = this.getState(stateProp, true); 
@@ -109,14 +113,9 @@ export const setStateText = function(stateProp) {
     }
     const valueToSet = stateVal;
     const textNode = document.createTextNode(valueToSet);
-    Object.defineProperty(textNode, "isStateAttribute", {
-        writeable: false,
-        configurable: false,
-        enumerable: false
-    });
-
-    theState._stateManager.addStateNode(stateProp, textNode);
+    setHiddenProperty(textNode, "isStateAttribute", true);
     this.appendChild(textNode);
+    theState._stateManager.addStateNode(stateProp, textNode);
 }
 
 // Convert a stateObject to a custom element, used in State Map Arrays
@@ -204,10 +203,13 @@ export function handleStateChange(stateManager, stateProp) {
     }
 
     const { nodeActionsMap } = NODES_STATE;
-    if (nodeActionsMap.size) requestAnimationFrame(doUpdateDOM);
+    if (nodeActionsMap.size) {
+        requestAnimationFrame(doUpdateDOM);
+    }
 }
 
 export function populateStateFromInitialState(state, initialState) {
+    state._populate = true;
     const descriptors = Object.getOwnPropertyDescriptors(initialState);
     let descrp;
     for (let key in descriptors) {
@@ -237,6 +239,6 @@ export function populateStateFromInitialState(state, initialState) {
     // If state set hooks should run on initialization - 
     // they should run by the proxy handler for "defineProperty"
     Object.defineProperties(state, descriptors);
-
+    delete state._populate;
 }
 

@@ -3,6 +3,7 @@ import { StateHandler } from "./proxy_handlers.js";
 import { GLOBAL_STATE_FUNCTION_NAME } from "./consts.js";
 import { putObjectInDebugMode } from "./debug_utils.js";
 import { DEBUG_MODE } from "./consts.js";
+import { setHiddenProperty } from "./prop_utils.js";
 
 // This class actually handles "State". It returns a proxied "state" object,
 // while handling all state changes and triggers behind the scenes
@@ -39,16 +40,11 @@ class StateManager {
         this.parentStateManager = parentStateManager;
 
         // Saves the actual state manager instance to a readonly _stateManager
-        Object.defineProperty(this.state, "_stateManager", {
-            value: this,
-            configurable: false,
-            writable: DEBUG_MODE ? true : false,
-            enumerable: true
-        });
+        setHiddenProperty(this.state, "_stateManager", this, true);
         
         // Initialize a proxy on the "public state"
         this.state = new Proxy(this.state, StateHandler(this.state, appScope));
-        if (!isGlobal) this.state._global = appScope[GLOBAL_STATE_FUNCTION_NAME]();
+        if (!isGlobal) setHiddenProperty(this.state, "_global", appScope[GLOBAL_STATE_FUNCTION_NAME](), true);
         else {
             // This maps depencdies between "local" state properties to global state changes
             // The difference between the normal dependencies object, is that each depenency
@@ -71,7 +67,6 @@ class StateManager {
         }
         if (initialState) {
             populateStateFromInitialState(this.state, initialState);
-            // Object.defineProperties(this.state, Object.getOwnPropertyDescriptors(initialState));
         }
     }
 
@@ -124,14 +119,14 @@ class StateManager {
                 if (!descriptor) {
                     throw Error(`Could not bind state prop ${stateProp}. State prop ${originalStateProp} not defined!`);
                 }
-        
             }
             // Negate prop: (!something) - add a dependency between the negate prop to the original prop,
             // So anytime the original prop change, things that are dependant on the negate prop will react
-            return stateObj._stateManager.addStateDependency(originalStateProp, stateProp);
+            // return stateObj._stateManager.addStateDependency(originalStateProp, stateProp);
+            return;
         }
 
-        const descriptor = Object.getOwnPropertyDescriptor(stateObj, stateProp);
+        let descriptor = Object.getOwnPropertyDescriptor(stateObj, stateProp);
         if (!descriptor) {
             stateObj = stateObj._global;
             descriptor = Object.getOwnPropertyDescriptor(stateObj, stateProp);
@@ -148,16 +143,16 @@ class StateManager {
             if (!stateManager.privateState.hasOwnProperty(stateProp)) {
                 stateManager.privateState[stateProp] = stateObj[stateProp];
             }
-
-            Object.defineProperty(this.state, stateProp, {
+            stateObj._binding = true;
+            Object.defineProperty(stateObj, stateProp, {
                 set(value) {
                     const currentVal = stateManager.privateState[stateProp];
                     if (value === currentVal) return;
                     // Sets value to "private state"
                     stateManager.privateState[stateProp] = value;
+
                     handleStateChange(stateManager, stateProp);
                     // If this is an item in a Stateful Array, also trigger a state change for the state prop that contains the array
-
                     if (stateManager.parentStateManager) {
                         handleStateChange(stateManager.parentStateManager, stateManager.parentStateProp);
                     }
@@ -178,8 +173,12 @@ class StateManager {
                         get() {
                             return !stateManager.privateState[stateProp];
                         },
+                        set() {
+                            throw Error("Cannot directly set a negation State property!");
+                        },
                         enumerable: true,
                     });
+                    stateManager.addStateDependency(stateProp, negateStateProp);
                 }
             }
             else {
@@ -188,13 +187,17 @@ class StateManager {
                         get() {
                             return !stateManager.state[stateProp];
                         },
+                        set() {
+                            throw Error("Cannot directly set a negation State property!");
+                        },
                         enumerable: true,
                     });
+                    stateManager.addStateDependency(stateProp, negateStateProp);
                 }
-                
             }
-            stateManager.addStateDependency(stateProp, negateStateProp);
         }
+
+        delete this.state._binding;
     }
 }    
 

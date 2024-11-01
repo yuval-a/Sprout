@@ -64,7 +64,10 @@ export function getNewNodeActionsObject() {
         // Remove these nodes from the DOM
         // keys are state objects, or state props (string) 
         // to prevent duplicate pending
-        remove: new Map()
+        remove: new Map(),
+        get hasPendingActions() {
+            return (this.append.size || this.replace.size || this.after.size || this.remove.size);
+        }
     });
 }
 
@@ -77,6 +80,8 @@ export function generateStateNodeActions(stateManager, stateProp) {
     const stateMaps = stateManager.stateArrayMaps[stateProp];
     const conditionallyRenderingElements = stateManager.conditionallyRenderingElements[stateProp];
 
+    // Note, since the value change is handled by a custom setter - that setter checks if the set value is the same - 
+    // if it is - it won't call handleStateChange, and it won't reach here.
     if (stateNodes) {
         stateNodes.forEach(node=> {
             if (!nodeActionsMap.has(node)) nodeActionsMap.set(node, {});
@@ -89,8 +94,7 @@ export function generateStateNodeActions(stateManager, stateProp) {
         const stateMapArray = value;
 
         stateMaps.forEach(({ customElementName, parentElement})=> {
-            if (!nodeActionsMap.has(parentElement)) nodeActionsMap.set(parentElement, getNewNodeActionsObject());
-            const nodeActions = nodeActionsMap.get(parentElement);
+            const stateMapNodeActions = getNewNodeActionsObject();
             let currentStateMapArrayIndex = -1;
             const isParentAList = isElementAList(parentElement);
             // Compares state map arrays to actual DOM elements (by comparing state objects)
@@ -102,11 +106,11 @@ export function generateStateNodeActions(stateManager, stateProp) {
                     let stateItem = stateMapArray[currentIndex]; 
                     if (stateItem?.hasOwnProperty('state')) stateItem = stateItem.state;
                     if (!stateItem) {
-                        addRemoveAction(nodeActions, childElement);
+                        addRemoveAction(stateMapNodeActions, childElement);
                     }
                     else if (customElement.state !== stateItem) {
                         const replaceWithChild = stateToElement(stateItem, customElementName, isElementAList(parentElement) ? "li" : undefined);
-                        addReplaceAction(nodeActions, childElement, replaceWithChild);
+                        addReplaceAction(stateMapNodeActions, childElement, replaceWithChild);
                     }
                     currentStateMapArrayIndex = currentIndex;
                 });
@@ -120,8 +124,12 @@ export function generateStateNodeActions(stateManager, stateProp) {
                 if (stateItem) {
                     // Make sure we don't already have a pending append action for the same state object
                     const newChild = stateToElement(stateItem, customElementName, isElementAList(parentElement) ? "li" : undefined);
-                    addAppendAction(nodeActions, newChild, stateItem);
+                    addAppendAction(stateMapNodeActions, newChild, stateItem);
                 }
+            }
+
+            if (stateMapNodeActions.hasPendingActions) {
+                nodeActionsMap.set(parentElement, stateMapNodeActions);
             }
         });
     }
@@ -226,14 +234,12 @@ export function logNodeActions() {
             }
 
             case Node.ATTRIBUTE_NODE: {
-                console.log ("Set Attribute on", node.originalOwnerElement);
-                console.log ("Set Attribute", node.nodeName, "to", actions.setAttribute);
+                console.log ("Set Attribute", node.nodeName, "on", node.originalOwnerElement, "to", actions.setAttribute);
                 break;
             }
 
             case Node.TEXT_NODE: {
-                console.log ("Text content for", node.parentNode);
-                console.log ("Text Content", actions.textContent);
+                console.log ("Set text content for", node.parentNode, "to", actions.textContent);
                 break;
             }
         }

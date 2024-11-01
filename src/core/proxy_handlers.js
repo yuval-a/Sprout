@@ -5,9 +5,6 @@ import { BUILT_IN_STATE_PROPS, ERROR_MESSAGES } from "./consts.js";
 
 export const StatefulArrayHandler = function(parentStateManager, arrayStateProp, appScope = window) {
     return {
-        defineProperty(targetState, stateProp, descriptor) {
-            return Reflect.defineProperty(...arguments);
-        },
         set(targetArray, property, value) {
             // Return if the value is the same
             // A change in array length triggers state change in the array state prop
@@ -78,7 +75,7 @@ export const StatefulArrayHandler = function(parentStateManager, arrayStateProp,
 export const StateHandler = function(stateObj, appScope = window) {
     return {
         defineProperty(targetState, stateProp, descriptor) {
-            if (BUILT_IN_STATE_PROPS.includes(stateProp)) {
+            if (BUILT_IN_STATE_PROPS.includes(stateProp) || targetState?._binding) {
                 return Reflect.defineProperty(...arguments);
             }
             const origTargetState = targetState;
@@ -145,7 +142,8 @@ export const StateHandler = function(stateObj, appScope = window) {
             const definePropertyResult = Reflect.defineProperty(origTargetState, stateProp, descriptor);
             const stateManager = stateObj._stateManager;
             if (setStateProp) stateProp = setStateProp;
-            handleStateChange(stateManager, stateProp);
+            if (!origTargetState.hasOwnProperty("_populate"))
+                handleStateChange(stateManager, stateProp);
             return definePropertyResult;
         },
         get(targetState, property, receiver) {

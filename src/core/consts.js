@@ -37,7 +37,9 @@ export const BUILT_IN_STATE_PROPS = [
     '_global',
     '_gettingDependenciesFor',
     '_localStateManager',
-    '_stateManager'
+    '_stateManager',
+    '_binding',
+    '_populate'
 ]
 
 export const GLOBAL_STATE_VAR_NAME = "SproutGlobalState";
