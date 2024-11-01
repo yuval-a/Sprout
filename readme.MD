@@ -293,9 +293,9 @@ The command accepts a State property name. Note, you must make the `<slot>` reac
 You can put any conditional DOM content inside the `<slot>`.
 ### `_if`
 Each element inside the `<slot>` can be set to conditionally render, by putting an `_if` command attribute on it. The value of the attribute can be either `true` or `false` (as a string).
-If the value of the state property from the slot's `_condition` value is truthy, elements with `if="true"` will render, and if its falsy - elements with `_if="false"` will render.
+If the value of the state property from the slot's `_condition` value is truthy, elements with `if="true"` will render, and if it's falsy - elements with `_if="false"` will render.
 Elements without `_if` will always render.
-Note, you *DO NOT HAVE TO* mark the elements inside the slot as a reactive (you don't have to put `is="reactive-..."` - because the runtime knows they are inside a reactive slot (but you can still make them reactive for other purposes of-course).
+Note, you **DO NOT HAVE TO** mark the elements inside the slot as a reactive (you don't have to put `is="reactive-..."`) - because the runtime knows they are inside a reactive `<slot>` (but you can still make them reactive for other purposes of-course).
 
 ### Example
 Here is an example for a component that use conditional rendering:
