@@ -284,6 +284,44 @@ The syntax of the value is `<state property name>:<custom element name>`. <br>
 The state property should contain an array of "state objects", and "custom element name" is the name of the custom element to render to.
 You can set the `_map` command on the "parent element". The rendered elements mapped from the state objects array will be appended to that parent element.
 
+## Conditional Rendering.
+Conditional rendering allows you to add certain DOM elements according to the truthy or falsy values of a certain state value.
+This feature is built upon Custom Elements' (`<slot>`)[https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot].
+To use it, you need to use the `_condition` command on a `<slot>` element within your template (only <slot> elements accepts this command).
+The command accepts a State property name. Note, you must make the `<slot>` reactive, by using the `is="reactive-slot"` attribute.
+
+You can put any conditional DOM content inside the `<slot>`.
+### `_if`
+Each element inside the `<slot>` can be set to conditionally render, by putting an `_if` command attribute on it. The value of the attribute can be either `true` or `false` (as a string).
+If the value of the state property from the slot's `_condition` value is truthy, elements with `if="true"` will render, and if its falsy - elements with `_if="false"` will render.
+Elements without `_if` will always render.
+Note, you *DO NOT HAVE TO* mark the elements inside the slot as a reactive (you don't have to put `is="reactive-..."` - because the runtime knows they are inside a reactive slot (but you can still make them reactive for other purposes of-course).
+
+### Example
+Here is an example for a component that use conditional rendering:
+```javascript
+<slot is="reactive-slot" _condition="isShown">
+    <div _if="true">
+        I'm visible!
+    </div>
+    <div _if="false">
+        He's hidden!
+    </div>
+    <div _if="true">
+        I'm visible too!
+    </div>
+</slot>
+
+<button ref="btn">
+    <span is="reactive-span" hidden="$!isShown">hide</span>
+    <span is="reactive-span" hidden="$isShown">show</span>
+    It!
+</button>
+```
+
+divs with `_if="true"` will be rendered if the value of the State property: `isShown` is truthy, divs with `_if="false"` will render if it's truthy.
+The button can be set to change `isShown` value upon each click.
+
 
 # App development
 
