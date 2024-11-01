@@ -93,7 +93,7 @@ export const setStateAttribute = function(attrName, stateProp) {
     }
 
     // Adds the attribute to the element
-    if (valueToSet != false) {
+    if (valueToSet !== false) {
         this.setAttributeNode(stateAttrNode);
     }
 
