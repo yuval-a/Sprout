@@ -98,7 +98,7 @@ You can use "native reactive HTML elements" within the templates of your compone
 
 HTML elements within a component are rendered into the ["Shadow DOM"](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM) of a rendered custom element.
 
-Note, since eventually you use custom elements, and the Web Components API, it is also possible to make use of ["Slots"](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_templates_and_slots) in your templates - allowing for "loosely coupled" templates, where certain parts of it can be "plugged into" with different kinds of other elements.
+> **Note**: since eventually you use custom elements, and the Web Components API, it is also possible to make use of ["Slots"](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_templates_and_slots) in your templates - allowing for "loosely coupled" templates, where certain parts of it can be "plugged into" with different kinds of other elements.
 
 ## State Attributes
 One of Sprout's core features is the concept of **State Attributes** which is supported on any HTML element which is part of a component's template (and has an `is="reactive..."` attribute), and also on custom elements ("components") defined using Sprout. <br>
@@ -106,7 +106,7 @@ A State Attribute is an attribute specified on an element as part of a component
 So, whenever the value of that **state property** changes --- the value of the bound State Attribute will also automatically change to reflect the change (it will "react to the state change").
 You can use any attribute that you can normally use on an element as a State Attribute - simply by specifing a state property prefixed with a dollar sign as its value. This includes, for example, attributes such as `hidden` - giving a state property that returns a truthy or falsy value -  will enable you to easily control the visibility of an element, via the component state. (Sprout knows how to treat "boolean attributes" corretly, for example, with `hidden` - a truthy value will set `hidden=""`, and a falsy value will remove the `hidden` attribute from the element (but the association/binding will **still remain**, changing the state value back to `true` will bring back `hidden=""` to the element)). 
 
-**NOTE**: the values of State Attributes should **never** be written to directly. Their goal is to be completely controlled by manipulating the state objects.
+> **Note**:  the values of State Attributes should **never** be written to directly. Their goal is to be completely controlled by manipulating the state objects.
 
 ## State Objects
 ### Local State
@@ -136,10 +136,7 @@ To be decided / tested...
 You can use getter functions in a state object, like you would normally use with any object (e.g. `get tasksCount() { return this.tasks.length; });`)
 Using `this` inside a getter function will reference the actual live state object itself. This will also create a "dependency" between the getter property and the other state property value it accesses. **Sprout knows to analyze these dependencies**, and remember the bindings between them - so, for example if the value of the `tasks` state property is changed - Sprout will know to call the `getter` function again in all the appropriate places.
 
-Note that the dependency check goes "one level deep" - so, even if, like in the example above, the function accesses `this.tasks.length` - whenever `tasks` is changed or manipulated - the getter will be recalled - **even if the length property itself won't change**.
-
-Also note, that as part of this "dependency analysis" - Sprout will call state getter functions as part of the initialization process. 
-
+> **Note**: that the dependency check goes "one level deep" - so, even if, like in the example above, the function accesses `this.tasks.length` - whenever `tasks` is changed or manipulated - the getter will be recalled - **even if the length property itself won't change**. Also note, that as part of this "dependency analysis" - Sprout will call state getter functions as part of the initialization process. 
 Because of these aspects, it is recommended to use ["State Setter Hooks"](#state-setter-hooks) (SSHs) - which allow for finer control over state dependencies.
 
 #### State Setter Hooks
@@ -149,7 +146,7 @@ To define an SSH, start the name of the property with `set_`, the rest of the na
 Here is an explanation about each of these items, in order:
 
 * "Setter Function": the first item of the array should be a function - note this is **not** a "setter function" as you might normally know from Javascript objects (e.g. `set something(value) {}`). The function should return a value. The value returned by the function - is the value that will be set into the state property value. You can access the state object in the function by using the `this` context. <br>
-**NOTE** it is **important** to define the function using the `function` keyword - DO NOT use "arrow function" syntax, as the state object is passed/bound by sprout explicitely to these functions, to make it available via `this` (and using arrow functions will prevent it, since they always inherit the scope they are within).
+> **Note**: it is **important** to define the function using the `function` keyword - DO NOT use "arrow function" syntax, as the state object is passed/bound by sprout explicitely to these functions, to make it available via `this` (and using arrow functions will prevent it, since they always inherit the scope they are within).
 
 * Dependencies Array: the second item is an optional array of "dependencies". The array's items are strings representing named state properties - whenever the value of any of those state properties changes - the setter function is called again. It is the **developer**'s responsibility to define the right dependencies, Sprout will not try to auto detect them when using SSHs - this also leads to better performance as the number of times they are called is reduced.
 
@@ -249,7 +246,7 @@ Second variation, retrieve both the state property value and the state object it
 const [filter, theState] = host.getState('filter', true);
 ```
 
-**Note** Only components themselves have "state". "Native HTML elements" won't have "state" on their own (their "state" is the state of their host).
+> **Note**: Only components themselves have "state". "Native HTML elements" won't have "state" on their own (their "state" is the state of their host).
 Since you will mostly access state from event handlers - the host is passed as a second argument to Sprout's [Event Handler Definition](#events) functions, accessing its state is then just a matter of accessing `host.getState` or `host.state`.
 
 #### Reading State directly
@@ -257,7 +254,7 @@ If you know that a property exists on a local state, you can access it directly 
 
 #### Accessing global state from local state
 Whenever you have access to a local state, you can also access the global state by accessing the `_global` property which directly references the global state object.
-**Note** that if you are inside a local state SSH or getter, you can access the global state by accessing `this._global` --- **This will also create a dependency/binding between the accessed global state property and the local state property function it was accessed from**; In other words: if a local state getter or SSH accesses a global state property - whenever that global state property value changes - the getter function or the SSH function will be called again.
+> **Note**: that if you are inside a local state SSH or getter, you can access the global state by accessing `this._global` --- **This will also create a dependency/binding between the accessed global state property and the local state property function it was accessed from**; In other words: if a local state getter or SSH accesses a global state property - whenever that global state property value changes - the getter function or the SSH function will be called again.
 
 ### Writing to state
 You can directly manipulate state values by assigning to `host.state`, or `host.state._global`. In event handlers you also get the global state as the third argument, so you can simply access it (e.g. `global.stateProp = something`).
@@ -288,14 +285,15 @@ You can set the `_map` command on the "parent element". The rendered elements ma
 Conditional rendering allows you to add certain DOM elements that will be added to the DOM tree according to the truthy or falsy values of a certain State value. <br>
 This feature is built upon Custom Elements' [`<slot>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot).
 To use it, you need to use the `_condition` command on a `<slot>` element within your template (only `<slot>` elements accepts this command).
-The command accepts a State property name. Note, you must make the `<slot>` reactive, by using the `is="reactive-slot"` attribute, for this feature to work.
+The command accepts a State property name. 
+> **Note**: you must make the `<slot>` reactive, by using the `is="reactive-slot"` attribute, for this feature to work.
 
 You can put any conditional DOM content inside the `<slot>`.
 ### `_if`
 Each element inside the `<slot>` can be set to conditionally render, by putting an `_if` command attribute on it. The value of the attribute can be either `true` or `false` (as a string).
 If the value of the state property from the slot's `_condition` value is truthy, elements with `if="true"` will render, and if it's falsy - elements with `_if="false"` will render.
 Elements without `_if` will always render.
-Note, you **DO NOT HAVE TO** mark the elements inside the slot as a reactive (you don't have to put `is="reactive-..."`) - because the runtime knows they are inside a reactive `<slot>` (but you can still make them reactive for other purposes of-course).
+> **Note**: you **DO NOT HAVE TO** mark the elements inside the slot as a reactive (you don't have to put `is="reactive-..."`) - because the runtime knows they are inside a reactive `<slot>` (but you can still make them reactive for other purposes of-course).
 
 ### Example
 Here is an example for a component that use conditional rendering:
@@ -342,7 +340,8 @@ These should have an `app` attribute set to the name of your app.
 ### `<template>` elements
 The `<head>` part of the html should include a `<template>` element per each seperate reusable component in your app. Each template can encompass the style declarations for it (in a child `<style>` element), the HTML UI "prototype" description (including "unresolved" State Attributes, and Command Attributes) directly inside the `<template>` and a `<script>` tag containg the logic for that component, also saved to a variable named `<componentName (camel-cased)>Runtime` (e.g. todoItemRuntime) returned from a self invoking function.
 
-Other than the `app` attribute - `<template>` tags describing components, **must** also include a `for` attribute, where the value describes a "name" for the component that the template describes - that name will eventually be defined as the name of a custom element. Note, that those names must adhere to the naming rules of custom elements (lowercased strings with hyphens as word seperators).
+Other than the `app` attribute - `<template>` tags describing components, **must** also include a `for` attribute, where the value describes a "name" for the component that the template describes - that name will eventually be defined as the name of a custom element. 
+> **Note**: that those names must adhere to the naming rules of custom elements (lowercased strings with hyphens as word seperators).
 
 ### Sprout runtime script - `SprountInitApp` and the "Build Function"
 The `<head>` should include a script tag that loads the `sprout-core.js` library.
@@ -380,7 +379,7 @@ Within it you can put any HTML elements. Those elements supports `State Attribut
 
 #### `style.css`
 This is a CSS file where you can specify any styling rules for the component. Those styling rules will only apply in the scope of that component. <br>
-Note, that as a component is rendered as a custom element with Shadow DOM, you can also use the `:host` psuedo-class.
+> **Note**: that as a component is rendered as a custom element with Shadow DOM, you can also use the `:host` psuedo-class.
 
 #### `runtime.js`
 This file should contain the "logic" of your component. You should `export` an object as a default export (`export default`). That object can contain the following properties and values:
