@@ -288,7 +288,7 @@ You can set the `_map` command on the "parent element". The rendered elements ma
 Conditional rendering allows you to add certain DOM elements that will be added to the DOM tree according to the truthy or falsy values of a certain State value. <br>
 This feature is built upon Custom Elements' [`<slot>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot).
 To use it, you need to use the `_condition` command on a `<slot>` element within your template (only `<slot>` elements accepts this command).
-The command accepts a State property name. Note, you must make the `<slot>` reactive, by using the `is="reactive-slot"` attribute.
+The command accepts a State property name. Note, you must make the `<slot>` reactive, by using the `is="reactive-slot"` attribute, for this feature to work.
 
 You can put any conditional DOM content inside the `<slot>`.
 ### `_if`
