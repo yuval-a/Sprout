@@ -24,7 +24,6 @@ jobs:
         env:
           REMOTE_HOST: ${{ secrets.DO_HOST }}
           REMOTE_USER: ${{ secrets.DO_USER }}
-          SSH_KEY: ${{ secrets.DO_SSH_KEY }}
           REMOTE_PATH: '/var/www/jssprout.com/demos/show-hide/lib'
           SOURCE_PATH: 'dist/*'
         run: |
