@@ -15,7 +15,7 @@ jobs:
         
       - name: Set up SSH key
         env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KEY: ${{ secrets.DO_SSH_KEY }}
         run: |
           echo "$SSH_KEY" > ssh_key
           chmod 600 ssh_key
