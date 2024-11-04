@@ -2,6 +2,5 @@ node_modules
 dist
 package-lock.json
 demos/*-build
-demos/show-hide-src
 website
 .DS_Store

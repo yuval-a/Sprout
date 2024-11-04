@@ -6,6 +6,7 @@ import SproutBuild from '../build';
 import { putObjectInDebugMode } from "./debug_utils.js";
 import { DEBUG_MODE } from "./consts.js";
 import { setHiddenProperty } from "./prop_utils.js";
+import { getReactiveSlotClass } from "./ReactiveSlot.js";
 
 const allowAppScopeAccess = document.currentScript.hasAttribute("allowappscopeaccess");
 
@@ -66,6 +67,11 @@ globalThis.SproutInitApp = function(appName) {
             { extends: itemDefinition.element })
         
     );
+
+    const ReactiveSlotElementClass = extendElementClassWithReactiveElementClass(HTMLSlotElement, appScope, true);
+    const ReactiveSlotClass = getReactiveSlotClass(ReactiveSlotElementClass);
+    customElements.define('reactive-slot', ReactiveSlotClass, { extends: "slot" } );
+    
     return function() {
         SproutBuild(appScope, appName);
         // Changed to trigger only if there are pending changes

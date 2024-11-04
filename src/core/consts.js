@@ -118,7 +118,7 @@ export const HTML_ELEMENTS_CLASSES_MAP = [
     { class: HTMLTrackElement, element: "track" },
     { class: HTMLUListElement, element: "ul" },
     { class: HTMLVideoElement, element: "video" },
-    { class: HTMLSlotElement, element: "slot" }
+    // { class: HTMLSlotElement, element: "slot" } Has a different extended class for conditional rendering
 ];
 // For development purposes only,
 // turn this on to see exactly which functions in each entity are called and when.
