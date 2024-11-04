@@ -1,0 +1,25 @@
+name: Copy lib files to demo folders of landing page website
+
+on:
+  push:
+    paths:
+      - 'dist/*'
+
+jobs:
+  copy-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Copy to demo show-hide
+        env:
+          REMOTE_HOST: ${{ secrets.DO_HOST }}
+          REMOTE_USER: ${{ secrets.DO_USER }}
+          SSH_KEY: ${{ secrets.DO_SSH_KEY }}
+          REMOTE_PATH: '/var/www/jssprout.com/demos/show-hide/lib'
+        run: |
+          echo "$SSH_KEY" > ssh_key && chmod 600 ssh_key
+          scp -i ssh_key -o StrictHostKeyChecking=no path/to/your/source/file1 $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
+          # Repeat for additional files if needed
