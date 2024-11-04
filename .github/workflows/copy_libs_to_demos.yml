@@ -19,7 +19,9 @@ jobs:
         run: |
           echo "$SSH_KEY" > ssh_key
           chmod 600 ssh_key
-
+          eval "$(ssh-agent -s)"
+          ssh-add ssh_key
+          
       - name: Copy to demo show-hide
         env:
           REMOTE_HOST: ${{ secrets.DO_HOST }}
