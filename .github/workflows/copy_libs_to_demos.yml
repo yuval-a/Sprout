@@ -27,6 +27,6 @@ jobs:
           REMOTE_PATH: '/var/www/jssprout.com/demos/show-hide/lib'
           SOURCE_PATH: 'dist/*'
         run: |
-          scp -i ssh_key -o StrictHostKeyChecking=no -tt -r $SOURCE_PATH $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH
+          scp -i ssh_key -o StrictHostKeyChecking=no -tt -r "$SOURCE_PATH" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH"
 
      
