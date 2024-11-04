@@ -112,6 +112,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
 /* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
 /* harmony import */ var _debug_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./debug_utils.js */ "./src/core/debug_utils.js");
+/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -139,6 +140,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
 function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
 function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
+
 
 
 
@@ -302,9 +304,11 @@ function extendElementClassWithReactiveElementClass(elementClass) {
           if (!noRender) {
             _assertClassBrand(_ReactiveElement_brand, this, _renderTemplate).call(this);
           }
-          requestAnimationFrame(function () {
+          (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_5__.queueBindEvents)(this, function () {
             return _assertClassBrand(_ReactiveElement_brand, _this2, _bindEvents).call(_this2);
           });
+          // requestAnimationFrame(()=> this.#bindEvents());
+
           if (_classPrivateFieldGet(_onMount, this)) _classPrivateFieldGet(_onMount, this).call(this, appScope[_consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_FUNCTION_NAME]());
         }
         var commands = [];
@@ -413,9 +417,11 @@ function extendElementClassWithReactiveElementClass(elementClass) {
     var _this3 = this;
     if (runtime.events) {
       _classPrivateFieldSet(_events, this, runtime.events);
-      if (this.isConnected) requestAnimationFrame(function () {
-        return _assertClassBrand(_ReactiveElement_brand, _this3, _bindEvents).call(_this3);
-      });
+      if (this.isConnected) {
+        (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_5__.queueBindEvents)(this, function () {
+          return _assertClassBrand(_ReactiveElement_brand, _this3, _bindEvents).call(_this3);
+        });
+      }
     }
     if (runtime.state) {
       this.setInitialState(runtime.state);
@@ -1227,6 +1233,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   GLOBAL_STATE_FUNCTION_NAME: () => (/* binding */ GLOBAL_STATE_FUNCTION_NAME),
 /* harmony export */   GLOBAL_STATE_VAR_NAME: () => (/* binding */ GLOBAL_STATE_VAR_NAME),
 /* harmony export */   HTML_ELEMENTS_CLASSES_MAP: () => (/* binding */ HTML_ELEMENTS_CLASSES_MAP),
+/* harmony export */   NODES_STATE: () => (/* binding */ NODES_STATE),
 /* harmony export */   SUPPORTED_ATTRIBUTES_FOR_BINDING: () => (/* binding */ SUPPORTED_ATTRIBUTES_FOR_BINDING),
 /* harmony export */   SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING: () => (/* binding */ SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING),
 /* harmony export */   SUPPORTED_PROPERTIES_FOR_BINDING: () => (/* binding */ SUPPORTED_PROPERTIES_FOR_BINDING)
@@ -1450,6 +1457,22 @@ var HTML_ELEMENTS_CLASSES_MAP = [{
 // turn this on to see exactly which functions in each entity are called and when.
 var DEBUG_MODE = false;
 var DEFAULT_TEMPLATE_DOM = document.createElement('div');
+var NODES_STATE = {
+  // This is a global object that maps abstract "DOM actions" to nodes (the nodes can be elements, text nodes, attribute nodes)
+  // It is resolved to actual DOM API functions on RequestAnimationFrame calls, and then is RESET.
+  // it is a "singleton" object
+  nodeActionsMap: new Map(),
+  // Maps events binding functions to (custom) elements
+  eventBindingFunctions: new Map(),
+  conditionalRenders: new Map(),
+  // Save requestAnimationFrame Id, to cancel if the rAF wasn't called yet on the same frame, so DOM operations will be batched to a single frame,
+  // preventing several rAFs running for the same frame
+  paintRafId: null,
+  // Similar as above but for event bindings
+  eventBindRafId: null,
+  // Same for conditional renders
+  conditionalRenderRafId: null
+};
 
 /***/ }),
 
@@ -1510,7 +1533,6 @@ function putObjectInDebugMode(obj, name) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   NODES_STATE: () => (/* binding */ NODES_STATE),
 /* harmony export */   addAppendAction: () => (/* binding */ addAppendAction),
 /* harmony export */   addAppendActionToNode: () => (/* binding */ addAppendActionToNode),
 /* harmony export */   addRemoveAction: () => (/* binding */ addRemoveAction),
@@ -1522,8 +1544,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   logNodeActions: () => (/* binding */ logNodeActions),
 /* harmony export */   setStateNodeAction: () => (/* binding */ setStateNodeAction)
 /* harmony export */ });
-/* harmony import */ var _state_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./state_utils */ "./src/core/state_utils.js");
-/* harmony import */ var _DOM_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DOM_utils */ "./src/core/DOM_utils.js");
+/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
+/* harmony import */ var _DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DOM_utils.js */ "./src/core/DOM_utils.js");
+/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
+/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
@@ -1536,16 +1560,12 @@ function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 
 
-var NODES_STATE = {
-  // This is a global object that maps abstract "DOM actions" to nodes (the nodes can be elements, text nodes, attribute nodes)
-  // It is resolved to actual DOM API functions on RequestAnimationFrame calls, and then is RESET.
-  // it is a "singleton" object
-  nodeActionsMap: new Map()
-};
+
+
 
 // Also, if doesn't exist - create it
 function getNodeActionsForNode(node) {
-  var nodeActionsMap = NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
   if (!nodeActionsMap.has(node)) nodeActionsMap.set(node, getNewNodeActionsObject());
   var nodeActions = nodeActionsMap.get(node);
   return nodeActions;
@@ -1603,7 +1623,8 @@ function getNewNodeActionsObject() {
 
 // This *updates*/*"fills"* the nodeActionsMap!
 function generateStateNodeActions(stateManager, stateProp) {
-  var nodeActionsMap = NODES_STATE.nodeActionsMap;
+  var _this = this;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
   var value = stateManager.state[stateProp];
   var stateNodes = stateManager.stateNodes[stateProp];
   var stateMaps = stateManager.stateArrayMaps[stateProp];
@@ -1625,7 +1646,7 @@ function generateStateNodeActions(stateManager, stateProp) {
         parentElement = _ref.parentElement;
       var stateMapNodeActions = getNewNodeActionsObject();
       var currentStateMapArrayIndex = -1;
-      var isParentAList = (0,_DOM_utils__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement);
+      var isParentAList = (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement);
       // Compares state map arrays to actual DOM elements (by comparing state objects)
       if (parentElement.children.length) {
         Array.prototype.forEach.call(parentElement.children, function (childElement, currentIndex) {
@@ -1638,7 +1659,7 @@ function generateStateNodeActions(stateManager, stateProp) {
           if (!stateItem) {
             addRemoveAction(stateMapNodeActions, childElement);
           } else if (customElement.state !== stateItem) {
-            var replaceWithChild = (0,_state_utils__WEBPACK_IMPORTED_MODULE_0__.stateToElement)(stateItem, customElementName, (0,_DOM_utils__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement) ? "li" : undefined);
+            var replaceWithChild = (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.stateToElement)(stateItem, customElementName, (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement) ? "li" : undefined);
             addReplaceAction(stateMapNodeActions, childElement, replaceWithChild);
           }
           currentStateMapArrayIndex = currentIndex;
@@ -1652,7 +1673,7 @@ function generateStateNodeActions(stateManager, stateProp) {
         // New state item === new child element to append
         if (stateItem) {
           // Make sure we don't already have a pending append action for the same state object
-          var newChild = (0,_state_utils__WEBPACK_IMPORTED_MODULE_0__.stateToElement)(stateItem, customElementName, (0,_DOM_utils__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement) ? "li" : undefined);
+          var newChild = (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.stateToElement)(stateItem, customElementName, (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement) ? "li" : undefined);
           addAppendAction(stateMapNodeActions, newChild, stateItem);
         }
       }
@@ -1664,7 +1685,7 @@ function generateStateNodeActions(stateManager, stateProp) {
   if (conditionallyRenderingElements) {
     // Should be slot element
     conditionallyRenderingElements.forEach(function (element) {
-      requestAnimationFrame(function () {
+      (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_2__.queueConditionalRender)(_this, function () {
         return element.renderSlot(stateProp);
       });
     });
@@ -1672,7 +1693,7 @@ function generateStateNodeActions(stateManager, stateProp) {
 }
 function resolveNodeActionsMapToDOMActions() {
   var batchActions = [];
-  var nodeActionsMap = NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
   nodeActionsMap.forEach(function (nodeActions, node) {
     // Attribute change
     if (nodeActions.hasOwnProperty("setAttribute")) {
@@ -1748,7 +1769,7 @@ function resolveNodeActionsMapToDOMActions() {
 
 // For debugging purposes
 function logNodeActions() {
-  var nodeActionsMap = NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
   _toConsumableArray(nodeActionsMap.entries()).map(function (_ref2) {
     var _ref3 = _slicedToArray(_ref2, 2),
       node = _ref3[0],
@@ -1783,17 +1804,69 @@ function logNodeActions() {
     }
   });
 }
-// This function runs periodically on requestAnimationFrame to run pending Node actions
+// This function runs on requestAnimationFrame to run pending Node actions
 function doUpdateDOM() {
-  var nodeActionsMap = NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
   if (nodeActionsMap.size) {
     var DOMActions = resolveNodeActionsMapToDOMActions(nodeActionsMap);
     DOMActions.forEach(function (DOMAction) {
       return DOMAction();
     });
-    NODES_STATE.nodeActionsMap = new Map();
+    _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap = new Map();
   }
   // requestAnimationFrame(doUpdateDOM);
+}
+
+/***/ }),
+
+/***/ "./src/core/paint_utils.js":
+/*!*********************************!*\
+  !*** ./src/core/paint_utils.js ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   queueBindEvents: () => (/* binding */ queueBindEvents),
+/* harmony export */   queueConditionalRender: () => (/* binding */ queueConditionalRender),
+/* harmony export */   queuePaint: () => (/* binding */ queuePaint)
+/* harmony export */ });
+/* harmony import */ var _node_actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_actions */ "./src/core/node_actions.js");
+/* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./consts */ "./src/core/consts.js");
+
+
+var paintRafId = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.paintRafId,
+  eventBindingFunctions = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.eventBindingFunctions,
+  eventBindRafId = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.eventBindRafId,
+  conditionalRenderRafId = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.conditionalRenderRafId,
+  conditionalRenders = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.conditionalRenders;
+function queueBindEvents(element, bindFunction) {
+  if (eventBindRafId) cancelAnimationFrame(eventBindRafId);
+  eventBindingFunctions.set(element, bindFunction);
+  eventBindRafId = requestAnimationFrame(function () {
+    eventBindRafId = null;
+    eventBindingFunctions.forEach(function (bindFn) {
+      return bindFn();
+    });
+    eventBindingFunctions = new Map();
+  });
+}
+function queuePaint() {
+  if (paintRafId) cancelAnimationFrame(paintRafId);
+  paintRafId = requestAnimationFrame(function () {
+    paintRafId = null;
+    (0,_node_actions__WEBPACK_IMPORTED_MODULE_0__.doUpdateDOM)();
+  });
+}
+function queueConditionalRender(element, renderFunction) {
+  if (conditionalRenderRafId) cancelAnimationFrame(conditionalRenderRafId);
+  conditionalRenderRafId = requestAnimationFrame(function () {
+    conditionalRenderRafId = null;
+    conditionalRenders.forEach(function (renderFn) {
+      return renderFn();
+    });
+    conditionalRenders = new Map();
+  });
 }
 
 /***/ }),
@@ -2025,6 +2098,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
 /* harmony import */ var _node_actions_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./node_actions.js */ "./src/core/node_actions.js");
 /* harmony import */ var _prop_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prop_utils.js */ "./src/core/prop_utils.js");
+/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -2036,6 +2110,8 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
+
+var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap;
 if (typeof HTMLElement === 'undefined') {
   console.warn("HTMLElement was not found! This probably means you are running in a non-browser environment, and can lead to unexpected results");
 } else {
@@ -2226,9 +2302,8 @@ function handleStateChange(stateManager, stateProp) {
       });
     });
   }
-  var nodeActionsMap = _node_actions_js__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.nodeActionsMap;
   if (nodeActionsMap.size) {
-    requestAnimationFrame(_node_actions_js__WEBPACK_IMPORTED_MODULE_1__.doUpdateDOM);
+    (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_3__.queuePaint)();
   }
 }
 function populateStateFromInitialState(state, initialState) {
@@ -2406,8 +2481,6 @@ globalThis.SproutInitApp = function (appName) {
   });
   return function () {
     (0,_build__WEBPACK_IMPORTED_MODULE_4__["default"])(appScope, appName);
-    // Changed to trigger only if there are pending changes
-    // requestAnimationFrame(doUpdateDOM);
   }.bind(appScope);
 };
 /******/ })()

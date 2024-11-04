@@ -125,3 +125,20 @@ export const HTML_ELEMENTS_CLASSES_MAP = [
 export const DEBUG_MODE = false;
 
 export const DEFAULT_TEMPLATE_DOM = document.createElement('div');
+
+export const NODES_STATE = {
+    // This is a global object that maps abstract "DOM actions" to nodes (the nodes can be elements, text nodes, attribute nodes)
+    // It is resolved to actual DOM API functions on RequestAnimationFrame calls, and then is RESET.
+    // it is a "singleton" object
+    nodeActionsMap: new Map(),
+    // Maps events binding functions to (custom) elements
+    eventBindingFunctions: new Map(),
+    conditionalRenders: new Map(),
+    // Save requestAnimationFrame Id, to cancel if the rAF wasn't called yet on the same frame, so DOM operations will be batched to a single frame,
+    // preventing several rAFs running for the same frame
+    paintRafId: null,
+    // Similar as above but for event bindings
+    eventBindRafId: null,
+    // Same for conditional renders
+    conditionalRenderRafId: null,
+}

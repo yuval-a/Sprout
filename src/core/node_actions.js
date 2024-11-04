@@ -1,12 +1,7 @@
-import { stateToElement } from "./state_utils";
-import { isElementAList } from "./DOM_utils";
-
-export const NODES_STATE = {
-    // This is a global object that maps abstract "DOM actions" to nodes (the nodes can be elements, text nodes, attribute nodes)
-    // It is resolved to actual DOM API functions on RequestAnimationFrame calls, and then is RESET.
-    // it is a "singleton" object
-    nodeActionsMap: new Map()
-}
+import { stateToElement } from "./state_utils.js";
+import { isElementAList } from "./DOM_utils.js";
+import { queueConditionalRender } from "./paint_utils.js";
+import { NODES_STATE } from "./consts.js";
 
 // Also, if doesn't exist - create it
 function getNodeActionsForNode(node) {
@@ -137,7 +132,7 @@ export function generateStateNodeActions(stateManager, stateProp) {
     if (conditionallyRenderingElements) {
         // Should be slot element
         conditionallyRenderingElements.forEach(element=> {
-            requestAnimationFrame(()=> element.renderSlot(stateProp));
+            queueConditionalRender(this, ()=> element.renderSlot(stateProp));
         });
     }
 }
@@ -245,7 +240,7 @@ export function logNodeActions() {
         }
     });
 }
-// This function runs periodically on requestAnimationFrame to run pending Node actions
+// This function runs on requestAnimationFrame to run pending Node actions
 export function doUpdateDOM() {
     let { nodeActionsMap } = NODES_STATE;
     if (nodeActionsMap.size) {

@@ -4,6 +4,7 @@ import { setAttribute, setStateAttribute, setStateText } from "./state_utils.js"
 import StateManager from "./StateManager.js";
 import { putObjectInDebugMode } from "./debug_utils.js";
 import { DEBUG_MODE } from "./consts.js";
+import { queueBindEvents } from "./paint_utils.js";
 
 export function extendElementClassWithReactiveElementClass(elementClass, appScope = window, noRender = false) {
     class ReactiveElement extends elementClass {
@@ -75,9 +76,10 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
         #setRuntime(runtime) {
             if (runtime.events) {
                 this.#events = runtime.events;
-                if (this.isConnected) requestAnimationFrame(()=> this.#bindEvents());
+                if (this.isConnected) {
+                    queueBindEvents(this, ()=> this.#bindEvents());
+                }
             }
-
             if (runtime.state) {
                 this.setInitialState(runtime.state);
                 // If this is not mounted yet, #setStateFromInitialState will be called from onConnected callback
@@ -258,7 +260,9 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                 if (!noRender) {
                     this.#renderTemplate();
                 }
-                requestAnimationFrame(()=> this.#bindEvents());
+                queueBindEvents(this, ()=> this.#bindEvents());
+                // requestAnimationFrame(()=> this.#bindEvents());
+                
                 if (this.#onMount) this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
             }
 

@@ -74,8 +74,6 @@ globalThis.SproutInitApp = function(appName) {
     
     return function() {
         SproutBuild(appScope, appName);
-        // Changed to trigger only if there are pending changes
-        // requestAnimationFrame(doUpdateDOM);
     }.bind(appScope);
 }
 

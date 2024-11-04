@@ -10,9 +10,8 @@ the `index.js` of the `core` folder defines the global `SproutIntiApp` which rec
 1. Define the new app scope.
 2. Define the "config" object (which may be exposed in the future for new configuration options).
 3. Define the `setGlobalState` function, which can receive a "state object' and turn it into a live `StateManager` instance.
-4. Extend `HTMLElement` and all other HTML elements subclasses with `ReactiveElement`
+4. Extend `HTMLElement` and all other HTML elements subclasses with `ReactiveElement` (`HTMLSlotElement` also has an extra `renderSlot` method)
 5. Return the `SproutBuild` function.
-6. Start the `requestAnimationFrame` "loop" that periodically checks for pending DOM changes and commits them.
 
 ## Build
 At this stage, the `SproutBuild` function is called, which is defined in the `index.js` file of the `build` folder. This function:
@@ -41,6 +40,8 @@ If the attribute is a normal attriute - the value is simply set. If the attribut
 2. If the value is a "state equality condition" it creates a new equivalent state getter, and assigns a dependency using `StateManager.addStateDependency`
 3. A new Attribute Node is created, is added to the StateManager instance by calling `addStateNode` - this adds the attribute node to the StateManager, and also creates the binding between them by using `privateState`, and a setter function in an `Object.defineProperty` that also calls `handleStateChange` (defined in `state_utils`).
 4. It also handles the "negation" variation of a state property (one prefixed with `!`) if applicable).
+
+
 
 ##### Handling Command Attributes
 Command attributes are handled one by one by calling the equalivent method from the `commands.js` module.
@@ -140,7 +141,10 @@ If `stateManager.stateDependencies[stateProp]` has any dependencies, they are it
 If the state is the global state, then the above is done for any dependency in `stateManager.globalStateDependencies[stateProp]`.
 
 # `doUpdateDOM`
-`doUpdateDOM` is a function that is periodically called on each `requestAnimationFrame` and is what actually commits DOM changes. It calls `resolveNodeActionsMapToDOMActions` to actually translate the content of `nodeActionsMap` to DOM actions. The DOM actions are run, and `nodeActionsMap` is reset.
+`doUpdateDOM` is run within a "debounced" `requestAnimationFrame` (if there are pending DOM actions, and the next 
+`requestAnimatioFrame` hasn't been called yet - the last call is canceled and a new one is made - this makes sure
+that only one `requestAnimationFrame` for paint events is run per frame.
+It calls `resolveNodeActionsMapToDOMActions` to actually translate the content of `nodeActionsMap` to DOM actions. The DOM actions are run, and `nodeActionsMap` is reset.
 
 # Commands
 Commands are run by the methods defined in `commands.js`

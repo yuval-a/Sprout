@@ -1,7 +1,13 @@
 {
   "name": "sproutjs",
-  "version": "1.0.0",
-  "description": "Sprout JS",
+  "version": "1.0.5",
+  "description": "Sprout JS - A client side Javascript framework that gives state management and reactivity to HTML elements, using Web Components and Custom Elements",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yuval-a/Sprout"
+  },
+  "author": "Yuval Aloni",
+  "homepage": "https://jssprout.com",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,7 +23,6 @@
     "serve-todomvc-app": "npx webpack serve --config webpack.server.todomvc-app-demo.config.js",
     "serve-ttt-app": "npx webpack serve --config webpack.server.ttt-app-demo.config.js"
   },
-  "author": "",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.24.5",
