@@ -260,16 +260,9 @@ function extendElementClassWithReactiveElementClass(elementClass) {
       value: function disconnectedCallback() {
         var _this$host;
         var host = (_this$host = this.host) !== null && _this$host !== void 0 ? _this$host : this;
-        var refEntries = Object.entries(host.ref);
-        // Delete this element from ref object of host
-        for (var i = 0, len = refEntries.length; i < len; i++) {
-          var _refEntries$i = _slicedToArray(refEntries[i], 2),
-            refName = _refEntries$i[0],
-            refElem = _refEntries$i[1];
-          if (refElem === this) {
-            delete host.ref[refName];
-            break;
-          }
+        if (host.ref) {
+          var thisRefName = this.getAttribute('ref');
+          if (thisRefName) delete host.ref[thisRefName];
         }
         _classPrivateFieldSet(_boundAttributesToState, this, {});
         _assertClassBrand(_ReactiveElement_brand, this, _unbindEvents).call(this);
@@ -300,16 +293,8 @@ function extendElementClassWithReactiveElementClass(elementClass) {
           // Change events does not automatically bubbles, we need to listen and bubble up a new event
           this.addEventListener('change', _classPrivateFieldGet(_changeEventHandler, this), false);
         }
-        if (!this.isNativeElement) {
-          if (!noRender) {
-            _assertClassBrand(_ReactiveElement_brand, this, _renderTemplate).call(this);
-          }
-          (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_5__.queueBindEvents)(this, function () {
-            return _assertClassBrand(_ReactiveElement_brand, _this2, _bindEvents).call(_this2);
-          });
-          // requestAnimationFrame(()=> this.#bindEvents());
-
-          if (_classPrivateFieldGet(_onMount, this)) _classPrivateFieldGet(_onMount, this).call(this, appScope[_consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_FUNCTION_NAME]());
+        if (!this.isNativeElement && !noRender) {
+          _assertClassBrand(_ReactiveElement_brand, this, _renderTemplate).call(this);
         }
         var commands = [];
         var _iterator = _createForOfIteratorHelper(this.getAttributeNames()),
@@ -342,6 +327,14 @@ function extendElementClassWithReactiveElementClass(elementClass) {
             args = _ref.args;
           (_COMMAND_ATTRIBUTES$c = _commands_js__WEBPACK_IMPORTED_MODULE_0__.COMMANDS[command]) === null || _COMMAND_ATTRIBUTES$c === void 0 || _COMMAND_ATTRIBUTES$c.call(_this2, args);
         });
+        if (!this.isNativeElement) {
+          (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_5__.queueBindEvents)(this, function () {
+            return _assertClassBrand(_ReactiveElement_brand, _this2, _bindEvents).call(_this2);
+          });
+          if (_classPrivateFieldGet(_onMount, this)) queueMicrotask(function () {
+            return _classPrivateFieldGet(_onMount, _this2).call(_this2, appScope[_consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_FUNCTION_NAME]());
+          });
+        }
         _classPrivateFieldSet(_wasMounted, this, true);
       }
     }, {
@@ -1204,10 +1197,8 @@ var COMMANDS = {
     if (typeof stateValue === "undefined") {
       throw Error("State property ".concat(statePropName, " not defined for _condition command!"));
     }
+    debugger;
     this.slotChildren = _toConsumableArray(this.children);
-    this.slotChildren.forEach(function (childSlotElement) {
-      return childSlotElement.setAttribute('_condition', statePropName);
-    });
     (_this$host = this.host).append.apply(_this$host, _toConsumableArray(this.slotChildren));
     this.innerHTML = "";
     this.renderSlot(statePropName);
@@ -1860,6 +1851,7 @@ function queuePaint() {
 }
 function queueConditionalRender(element, renderFunction) {
   if (conditionalRenderRafId) cancelAnimationFrame(conditionalRenderRafId);
+  conditionalRenders.set(element, renderFunction);
   conditionalRenderRafId = requestAnimationFrame(function () {
     conditionalRenderRafId = null;
     conditionalRenders.forEach(function (renderFn) {

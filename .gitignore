@@ -1,5 +1,6 @@
 node_modules
 package-lock.json
+demos/default-app
 demos/*-build
 website
 .DS_Store

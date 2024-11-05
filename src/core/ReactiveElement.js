@@ -43,7 +43,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             super();
             this.isReactiveElement = true;
             this.isNativeElement = this.hasAttribute("is");
-
             if (!this.isNativeElement) {
                 if (runtimeScript) {
                     const dynamicRuntimeFn = new Function(runtimeScript.textContent);
@@ -220,16 +219,10 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
 
         disconnectedCallback() {
             const host = this.host ?? this;
-            const refEntries = Object.entries(host.ref);
-            // Delete this element from ref object of host
-            for (let i = 0, len = refEntries.length; i < len; i++ ) {
-                const [refName, refElem] = refEntries[i];
-                if (refElem === this) {
-                    delete (host.ref[refName]);
-                    break;
-                }
+            if (host.ref) {
+                const thisRefName = this.getAttribute('ref');
+                if (thisRefName) delete host.ref[thisRefName];
             }
-
             this.#boundAttributesToState = {};
             this.#unbindEvents();
         }
@@ -256,14 +249,8 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                 this.addEventListener('change', this.#changeEventHandler, false);
             }
 
-            if (!this.isNativeElement) {
-                if (!noRender) {
-                    this.#renderTemplate();
-                }
-                queueBindEvents(this, ()=> this.#bindEvents());
-                // requestAnimationFrame(()=> this.#bindEvents());
-                
-                if (this.#onMount) this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
+            if (!this.isNativeElement && !noRender) {
+                this.#renderTemplate();
             }
 
             const commands = [];
@@ -284,6 +271,10 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                 COMMAND_ATTRIBUTES[command]?.call(this, args);
             });
 
+            if (!this.isNativeElement) {
+                queueBindEvents(this, ()=> this.#bindEvents());
+                if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
+            }
             this.#wasMounted = true;
         }
 

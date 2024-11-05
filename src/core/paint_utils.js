@@ -27,6 +27,7 @@ export function queuePaint() {
 }
 export function queueConditionalRender(element, renderFunction) {
     if (conditionalRenderRafId) cancelAnimationFrame(conditionalRenderRafId);
+    conditionalRenders.set(element, renderFunction);
     conditionalRenderRafId = requestAnimationFrame(()=> {
         conditionalRenderRafId = null;
         conditionalRenders.forEach(renderFn=> renderFn());

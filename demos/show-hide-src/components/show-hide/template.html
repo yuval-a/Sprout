@@ -1,13 +1,13 @@
-<slot is="reactive-slot" _condition="isShown">
-    <div _if="true">
+<slot is="reactive-slot" name="show-hide" _condition="isShown">
+    <div is="reactive-div" slot="show-hide" _if="true">
         I'm visible!
     </div>
-    <div _if="false">
+    <div is="reactive-div" slot="show-hide" _if="false">
         He's hidden!
     </div>
-    <div _if="true">
+    <div is="reactive-div" slot="show-hide" _if="true">
         I'm visible too!
-    </div>
+    </div>      
 </slot>
 
 <button ref="btn">

@@ -73,8 +73,6 @@ export const COMMANDS = {
             throw Error(`State property ${statePropName} not defined for _condition command!`);
         }
         this.slotChildren = [...this.children];
-        this.slotChildren.forEach(childSlotElement=> 
-            childSlotElement.setAttribute('_condition', statePropName));
         this.host.append(...this.slotChildren);
         this.innerHTML = "";
         this.renderSlot(statePropName);
