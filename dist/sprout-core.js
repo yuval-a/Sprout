@@ -1197,7 +1197,6 @@ var COMMANDS = {
     if (typeof stateValue === "undefined") {
       throw Error("State property ".concat(statePropName, " not defined for _condition command!"));
     }
-    debugger;
     this.slotChildren = _toConsumableArray(this.children);
     (_this$host = this.host).append.apply(_this$host, _toConsumableArray(this.slotChildren));
     this.innerHTML = "";
