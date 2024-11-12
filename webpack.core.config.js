@@ -7,6 +7,18 @@ module.exports = {
     filename: 'sprout-core.js',
     path: path.resolve(__dirname, 'dist')
   },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    }
+  },
   module: {
     rules: [
       {

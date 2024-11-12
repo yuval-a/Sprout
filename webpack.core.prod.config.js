@@ -1,5 +1,6 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin'); // Import TerserPlugin
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   mode: 'production',  // Switch to production mode to enable minification
@@ -45,11 +46,28 @@ module.exports = {
             comments: false, // Remove comments
           },
           compress: {
-            drop_console: false, // Optionally drop console logs in production
+            drop_console: true, // Optionally drop console logs in production
           },
         },
         extractComments: false,  // Don't generate a separate comments file
       }),
     ],
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    }
   },
+  plugins: [
+    new CompressionPlugin({
+      algorithm: 'gzip',
+      test: /\.(js|css|html|svg)$/,
+      threshold: 8192,
+    }),
+  ],
 };

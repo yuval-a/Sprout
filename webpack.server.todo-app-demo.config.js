@@ -1,4 +1,5 @@
 const path = require('path');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -44,5 +45,13 @@ module.exports = {
     hot: true,
     watchFiles: ['src/**/*.js', 'src/**/*.mjs'],  // Watch the src directory for changes
   },
-  devtool: 'source-map',  // Use 'source-map' for detailed source maps
+  devtool: 'source-map',  // Use 'source-map' for detailed source maps,
+  plugins: [
+    new CompressionPlugin({
+      algorithm: 'gzip',
+      test: /\.(js|css|html|svg)$/,
+      threshold: 8192,
+    }),
+  ],
+
 };

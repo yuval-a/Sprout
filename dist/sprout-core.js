@@ -107,12 +107,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   extendElementClassWithReactiveElementClass: () => (/* binding */ extendElementClassWithReactiveElementClass)
 /* harmony export */ });
-/* harmony import */ var _commands_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./commands.js */ "./src/core/commands.js");
-/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
-/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
+/* harmony import */ var _commands_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./commands.js */ "./src/core/commands.js");
+/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
+/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
 /* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
-/* harmony import */ var _debug_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./debug_utils.js */ "./src/core/debug_utils.js");
-/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
+/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -206,7 +205,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
         if (template) {
           _classPrivateFieldSet(_templateContent, _this, template.cloneNode(true));
         } else {
-          _classPrivateFieldSet(_templateContent, _this, _consts_js__WEBPACK_IMPORTED_MODULE_1__.DEFAULT_TEMPLATE_DOM.cloneNode());
+          _classPrivateFieldSet(_templateContent, _this, _consts_js__WEBPACK_IMPORTED_MODULE_0__.DEFAULT_TEMPLATE_DOM.cloneNode());
         }
         if (style) {
           var stylesheet = new CSSStyleSheet();
@@ -325,14 +324,14 @@ function extendElementClassWithReactiveElementClass(elementClass) {
           var _COMMAND_ATTRIBUTES$c;
           var command = _ref.command,
             args = _ref.args;
-          (_COMMAND_ATTRIBUTES$c = _commands_js__WEBPACK_IMPORTED_MODULE_0__.COMMANDS[command]) === null || _COMMAND_ATTRIBUTES$c === void 0 || _COMMAND_ATTRIBUTES$c.call(_this2, args);
+          (_COMMAND_ATTRIBUTES$c = _commands_js__WEBPACK_IMPORTED_MODULE_1__.COMMANDS[command]) === null || _COMMAND_ATTRIBUTES$c === void 0 || _COMMAND_ATTRIBUTES$c.call(_this2, args);
         });
         if (!this.isNativeElement) {
-          (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_5__.queueBindEvents)(this, function () {
+          (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_2__.queueBindEvents)(this, function () {
             return _assertClassBrand(_ReactiveElement_brand, _this2, _bindEvents).call(_this2);
           });
           if (_classPrivateFieldGet(_onMount, this)) queueMicrotask(function () {
-            return _classPrivateFieldGet(_onMount, _this2).call(_this2, appScope[_consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_FUNCTION_NAME]());
+            return _classPrivateFieldGet(_onMount, _this2).call(_this2, appScope[_consts_js__WEBPACK_IMPORTED_MODULE_0__.GLOBAL_STATE_FUNCTION_NAME]());
           });
         }
         _classPrivateFieldSet(_wasMounted, this, true);
@@ -378,7 +377,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
         }
         if (stateVal !== undefined) theState = thisInstance.state;else {
           var _globalState;
-          globalState = appScope[_consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_FUNCTION_NAME]();
+          globalState = appScope[_consts_js__WEBPACK_IMPORTED_MODULE_0__.GLOBAL_STATE_FUNCTION_NAME]();
           stateVal = (_globalState = globalState) === null || _globalState === void 0 ? void 0 : _globalState[stateProp];
           if (stateVal !== undefined) theState = globalState;
         }
@@ -411,7 +410,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
     if (runtime.events) {
       _classPrivateFieldSet(_events, this, runtime.events);
       if (this.isConnected) {
-        (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_5__.queueBindEvents)(this, function () {
+        (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_2__.queueBindEvents)(this, function () {
           return _assertClassBrand(_ReactiveElement_brand, _this3, _bindEvents).call(_this3);
         });
       }
@@ -483,7 +482,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
         });
       }
     });
-    var globalState = appScope[_consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_FUNCTION_NAME]();
+    var globalState = appScope[_consts_js__WEBPACK_IMPORTED_MODULE_0__.GLOBAL_STATE_FUNCTION_NAME]();
     _classPrivateFieldSet(_eventHandler, this, function (event, eventsObject) {
       var elementsPath = event.composedPath();
       var target;
@@ -521,7 +520,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
   }
   function _updateStateFromAttribute(attributeName) {
     var newValue = this.getAttribute(attributeName);
-    if (_consts_js__WEBPACK_IMPORTED_MODULE_1__.BOOLEAN_ATTRIBUTES.includes(attributeName)) {
+    if (_consts_js__WEBPACK_IMPORTED_MODULE_0__.BOOLEAN_ATTRIBUTES.includes(attributeName)) {
       if (newValue === null) newValue = false;else newValue = true;
     }
     var stateProp = _classPrivateFieldGet(_boundAttributesToState, this)[attributeName];
@@ -531,11 +530,11 @@ function extendElementClassWithReactiveElementClass(elementClass) {
       theState = _this$getState4[1];
     if (stateValue !== newValue) theState[stateProp] = newValue;
   }
-  _defineProperty(ReactiveElement, "observedAttributes", ["ref"].concat(_consts_js__WEBPACK_IMPORTED_MODULE_1__.SUPPORTED_ATTRIBUTES_FOR_BINDING).concat(Object.keys(_commands_js__WEBPACK_IMPORTED_MODULE_0__.COMMANDS).map(function (command) {
+  _defineProperty(ReactiveElement, "observedAttributes", ["ref"].concat(_consts_js__WEBPACK_IMPORTED_MODULE_0__.SUPPORTED_ATTRIBUTES_FOR_BINDING).concat(Object.keys(_commands_js__WEBPACK_IMPORTED_MODULE_1__.COMMANDS).map(function (command) {
     return '_' + command.toLowerCase();
   })));
   ReactiveElement.prototype.initialSetText = function (stateProp) {
-    _state_utils_js__WEBPACK_IMPORTED_MODULE_2__.setStateText.call(this, stateProp);
+    _state_utils_js__WEBPACK_IMPORTED_MODULE_4__.setStateText.call(this, stateProp);
   };
   ReactiveElement.prototype.initialSetAttribute = function (attributeName, attributeValue) {
     attributeValue = String(attributeValue);
@@ -543,11 +542,11 @@ function extendElementClassWithReactiveElementClass(elementClass) {
     // "State attribute"
     if (attributeValue.indexOf('$') === 0 && attributeName.indexOf('_') !== 0 && this.isConnected) {
       var stateProp = attributeValue.substring(1);
-      _state_utils_js__WEBPACK_IMPORTED_MODULE_2__.setStateAttribute.call(this, attributeName, stateProp);
+      _state_utils_js__WEBPACK_IMPORTED_MODULE_4__.setStateAttribute.call(this, attributeName, stateProp);
     }
     // normal attribute
     else {
-      _state_utils_js__WEBPACK_IMPORTED_MODULE_2__.setAttribute.call(this, attributeName, valueToSet);
+      _state_utils_js__WEBPACK_IMPORTED_MODULE_4__.setAttribute.call(this, attributeName, valueToSet);
     }
   };
 
@@ -646,11 +645,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
+/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
 /* harmony import */ var _proxy_handlers_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./proxy_handlers.js */ "./src/core/proxy_handlers.js");
 /* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
-/* harmony import */ var _debug_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./debug_utils.js */ "./src/core/debug_utils.js");
-/* harmony import */ var _prop_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./prop_utils.js */ "./src/core/prop_utils.js");
+/* harmony import */ var _debug_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./debug_utils.js */ "./src/core/debug_utils.js");
+/* harmony import */ var _prop_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./prop_utils.js */ "./src/core/prop_utils.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
@@ -700,11 +699,11 @@ var StateManager = /*#__PURE__*/function () {
     this.parentStateManager = parentStateManager;
 
     // Saves the actual state manager instance to a readonly _stateManager
-    (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_4__.setHiddenProperty)(this.state, "_stateManager", this, true);
+    (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_0__.setHiddenProperty)(this.state, "_stateManager", this, true);
 
     // Initialize a proxy on the "public state"
     this.state = new Proxy(this.state, (0,_proxy_handlers_js__WEBPACK_IMPORTED_MODULE_1__.StateHandler)(this.state, appScope));
-    if (!isGlobal) (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_4__.setHiddenProperty)(this.state, "_global", appScope[_consts_js__WEBPACK_IMPORTED_MODULE_2__.GLOBAL_STATE_FUNCTION_NAME](), true);else {
+    if (!isGlobal) (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_0__.setHiddenProperty)(this.state, "_global", appScope[_consts_js__WEBPACK_IMPORTED_MODULE_2__.GLOBAL_STATE_FUNCTION_NAME](), true);else {
       // This maps depencdies between "local" state properties to global state changes
       // The difference between the normal dependencies object, is that each depenency
       // also includes a state object (which is the state context of the property),
@@ -725,7 +724,7 @@ var StateManager = /*#__PURE__*/function () {
       };
     }
     if (initialState) {
-      (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.populateStateFromInitialState)(this.state, initialState);
+      (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_3__.populateStateFromInitialState)(this.state, initialState);
     }
   }
   return _createClass(StateManager, [{
@@ -812,10 +811,10 @@ var StateManager = /*#__PURE__*/function () {
             if (value === currentVal) return;
             // Sets value to "private state"
             stateManager.privateState[stateProp] = value;
-            (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.handleStateChange)(stateManager, stateProp);
+            (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_3__.handleStateChange)(stateManager, stateProp);
             // If this is an item in a Stateful Array, also trigger a state change for the state prop that contains the array
             if (stateManager.parentStateManager) {
-              (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.handleStateChange)(stateManager.parentStateManager, stateManager.parentStateProp);
+              (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_3__.handleStateChange)(stateManager.parentStateManager, stateManager.parentStateProp);
             }
           },
           get: function get() {
@@ -861,7 +860,7 @@ var StateManager = /*#__PURE__*/function () {
   }]);
 }();
 if (_consts_js__WEBPACK_IMPORTED_MODULE_2__.DEBUG_MODE) {
-  StateManager = (0,_debug_utils_js__WEBPACK_IMPORTED_MODULE_3__.putObjectInDebugMode)(StateManager, 'StateManager');
+  StateManager = (0,_debug_utils_js__WEBPACK_IMPORTED_MODULE_4__.putObjectInDebugMode)(StateManager, 'StateManager');
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (StateManager);
 
@@ -880,8 +879,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
 /* harmony import */ var _proxy_handlers_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./proxy_handlers.js */ "./src/core/proxy_handlers.js");
 /* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
-/* harmony import */ var _debug_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./debug_utils.js */ "./src/core/debug_utils.js");
-/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
+/* harmony import */ var _debug_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./debug_utils.js */ "./src/core/debug_utils.js");
+/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -1082,8 +1081,8 @@ var StatefulArray = /*#__PURE__*/function (_Array) {
     }
   }]);
 }( /*#__PURE__*/_wrapNativeSuper(Array));
-if (_consts_js__WEBPACK_IMPORTED_MODULE_4__.DEBUG_MODE) {
-  StatefulArray = (0,_debug_utils_js__WEBPACK_IMPORTED_MODULE_3__.putObjectInDebugMode)(StatefulArray, "StatefulArray");
+if (_consts_js__WEBPACK_IMPORTED_MODULE_3__.DEBUG_MODE) {
+  StatefulArray = (0,_debug_utils_js__WEBPACK_IMPORTED_MODULE_4__.putObjectInDebugMode)(StatefulArray, "StatefulArray");
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (StatefulArray);
 
@@ -1099,10 +1098,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   COMMANDS: () => (/* binding */ COMMANDS)
 /* harmony export */ });
-/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
-/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
-/* harmony import */ var _debug_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./debug_utils.js */ "./src/core/debug_utils.js");
-/* harmony import */ var _DOM_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DOM_utils.js */ "./src/core/DOM_utils.js");
+/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
+/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
+/* harmony import */ var _DOM_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOM_utils.js */ "./src/core/DOM_utils.js");
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
@@ -1126,8 +1124,8 @@ function mapStateToElements(stateItemsPropertyName, customElementName, parentEle
     console.warn("state value for _map is not an array, in state property: " + stateItemsPropertyName);
     return null;
   }
-  var wrapInElement = (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_3__.isElementAList)(parentElement) ? "li" : undefined;
-  var elements = (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.mapStateArrayToElements)(stateItemsArray, customElementName, wrapInElement);
+  var wrapInElement = (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_0__.isElementAList)(parentElement) ? "li" : undefined;
+  var elements = (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_1__.mapStateArrayToElements)(stateItemsArray, customElementName, wrapInElement);
   parentElement.innerHTML = "";
   if (elements.length) {
     parentElement.append.apply(parentElement, _toConsumableArray(elements));
@@ -1167,13 +1165,13 @@ var COMMANDS = {
       console.warn("Incorrect usage of _bind command! Please pass <attribute-name>:<state-prop-name>");
       return;
     }
-    if (!attributeName in _consts_js__WEBPACK_IMPORTED_MODULE_1__.SUPPORTED_ATTRIBUTES_FOR_BINDING) {
+    if (!attributeName in _consts_js__WEBPACK_IMPORTED_MODULE_2__.SUPPORTED_ATTRIBUTES_FOR_BINDING) {
       console.warn("Attribute ".concat(attributeName, " is not supported for _bind command!"));
       return;
     }
     this.bindAttributeToState(attributeName, statePropName);
-    if (_consts_js__WEBPACK_IMPORTED_MODULE_1__.SUPPORTED_PROPERTIES_FOR_BINDING.includes(attributeName)) {
-      if (attributeName === "value" && this.tagName === "INPUT" && _consts_js__WEBPACK_IMPORTED_MODULE_1__.SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING.includes(this.getAttribute('type'))) {
+    if (_consts_js__WEBPACK_IMPORTED_MODULE_2__.SUPPORTED_PROPERTIES_FOR_BINDING.includes(attributeName)) {
+      if (attributeName === "value" && this.tagName === "INPUT" && _consts_js__WEBPACK_IMPORTED_MODULE_2__.SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING.includes(this.getAttribute('type'))) {
         this.addEventListener("input", function () {
           return _this.updateStateFromProperty("value");
         });
@@ -1534,10 +1532,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   logNodeActions: () => (/* binding */ logNodeActions),
 /* harmony export */   setStateNodeAction: () => (/* binding */ setStateNodeAction)
 /* harmony export */ });
-/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
+/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
 /* harmony import */ var _DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DOM_utils.js */ "./src/core/DOM_utils.js");
-/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
-/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
+/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
+/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
@@ -1555,7 +1553,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
 
 // Also, if doesn't exist - create it
 function getNodeActionsForNode(node) {
-  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap;
   if (!nodeActionsMap.has(node)) nodeActionsMap.set(node, getNewNodeActionsObject());
   var nodeActions = nodeActionsMap.get(node);
   return nodeActions;
@@ -1614,7 +1612,7 @@ function getNewNodeActionsObject() {
 // This *updates*/*"fills"* the nodeActionsMap!
 function generateStateNodeActions(stateManager, stateProp) {
   var _this = this;
-  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap;
   var value = stateManager.state[stateProp];
   var stateNodes = stateManager.stateNodes[stateProp];
   var stateMaps = stateManager.stateArrayMaps[stateProp];
@@ -1649,7 +1647,7 @@ function generateStateNodeActions(stateManager, stateProp) {
           if (!stateItem) {
             addRemoveAction(stateMapNodeActions, childElement);
           } else if (customElement.state !== stateItem) {
-            var replaceWithChild = (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.stateToElement)(stateItem, customElementName, (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement) ? "li" : undefined);
+            var replaceWithChild = (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_2__.stateToElement)(stateItem, customElementName, (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement) ? "li" : undefined);
             addReplaceAction(stateMapNodeActions, childElement, replaceWithChild);
           }
           currentStateMapArrayIndex = currentIndex;
@@ -1663,7 +1661,7 @@ function generateStateNodeActions(stateManager, stateProp) {
         // New state item === new child element to append
         if (stateItem) {
           // Make sure we don't already have a pending append action for the same state object
-          var newChild = (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.stateToElement)(stateItem, customElementName, (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement) ? "li" : undefined);
+          var newChild = (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_2__.stateToElement)(stateItem, customElementName, (0,_DOM_utils_js__WEBPACK_IMPORTED_MODULE_1__.isElementAList)(parentElement) ? "li" : undefined);
           addAppendAction(stateMapNodeActions, newChild, stateItem);
         }
       }
@@ -1675,7 +1673,7 @@ function generateStateNodeActions(stateManager, stateProp) {
   if (conditionallyRenderingElements) {
     // Should be slot element
     conditionallyRenderingElements.forEach(function (element) {
-      (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_2__.queueConditionalRender)(_this, function () {
+      (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_3__.queueConditionalRender)(_this, function () {
         return element.renderSlot(stateProp);
       });
     });
@@ -1683,7 +1681,7 @@ function generateStateNodeActions(stateManager, stateProp) {
 }
 function resolveNodeActionsMapToDOMActions() {
   var batchActions = [];
-  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap;
   nodeActionsMap.forEach(function (nodeActions, node) {
     // Attribute change
     if (nodeActions.hasOwnProperty("setAttribute")) {
@@ -1759,7 +1757,7 @@ function resolveNodeActionsMapToDOMActions() {
 
 // For debugging purposes
 function logNodeActions() {
-  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap;
   _toConsumableArray(nodeActionsMap.entries()).map(function (_ref2) {
     var _ref3 = _slicedToArray(_ref2, 2),
       node = _ref3[0],
@@ -1796,13 +1794,13 @@ function logNodeActions() {
 }
 // This function runs on requestAnimationFrame to run pending Node actions
 function doUpdateDOM() {
-  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap;
+  var nodeActionsMap = _consts_js__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap;
   if (nodeActionsMap.size) {
     var DOMActions = resolveNodeActionsMapToDOMActions(nodeActionsMap);
     DOMActions.forEach(function (DOMAction) {
       return DOMAction();
     });
-    _consts_js__WEBPACK_IMPORTED_MODULE_3__.NODES_STATE.nodeActionsMap = new Map();
+    _consts_js__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap = new Map();
   }
   // requestAnimationFrame(doUpdateDOM);
 }
@@ -1821,15 +1819,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   queueConditionalRender: () => (/* binding */ queueConditionalRender),
 /* harmony export */   queuePaint: () => (/* binding */ queuePaint)
 /* harmony export */ });
-/* harmony import */ var _node_actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_actions */ "./src/core/node_actions.js");
-/* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./consts */ "./src/core/consts.js");
+/* harmony import */ var _node_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./node_actions */ "./src/core/node_actions.js");
+/* harmony import */ var _consts__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./consts */ "./src/core/consts.js");
 
 
-var paintRafId = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.paintRafId,
-  eventBindingFunctions = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.eventBindingFunctions,
-  eventBindRafId = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.eventBindRafId,
-  conditionalRenderRafId = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.conditionalRenderRafId,
-  conditionalRenders = _consts__WEBPACK_IMPORTED_MODULE_1__.NODES_STATE.conditionalRenders;
+var paintRafId = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.paintRafId,
+  eventBindingFunctions = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.eventBindingFunctions,
+  eventBindRafId = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.eventBindRafId,
+  conditionalRenderRafId = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.conditionalRenderRafId,
+  conditionalRenders = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.conditionalRenders;
 function queueBindEvents(element, bindFunction) {
   if (eventBindRafId) cancelAnimationFrame(eventBindRafId);
   eventBindingFunctions.set(element, bindFunction);
@@ -1845,7 +1843,7 @@ function queuePaint() {
   if (paintRafId) cancelAnimationFrame(paintRafId);
   paintRafId = requestAnimationFrame(function () {
     paintRafId = null;
-    (0,_node_actions__WEBPACK_IMPORTED_MODULE_0__.doUpdateDOM)();
+    (0,_node_actions__WEBPACK_IMPORTED_MODULE_1__.doUpdateDOM)();
   });
 }
 function queueConditionalRender(element, renderFunction) {
@@ -1896,10 +1894,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   StateHandler: () => (/* binding */ StateHandler),
 /* harmony export */   StatefulArrayHandler: () => (/* binding */ StatefulArrayHandler)
 /* harmony export */ });
-/* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
-/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
-/* harmony import */ var _StatefulArray_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./StatefulArray.js */ "./src/core/StatefulArray.js");
-/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
+/* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
+/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
+/* harmony import */ var _StatefulArray_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./StatefulArray.js */ "./src/core/StatefulArray.js");
+/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 
 
@@ -1913,7 +1911,7 @@ var StatefulArrayHandler = function StatefulArrayHandler(parentStateManager, arr
       // A change in array length triggers state change in the array state prop
       if (property === "length") {
         var setResult = Reflect.set(targetArray, property, value);
-        (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_1__.handleStateChange)(parentStateManager, arrayStateProp);
+        (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.handleStateChange)(parentStateManager, arrayStateProp);
         return setResult;
       }
       if (targetArray[property] === value) return true;
@@ -1922,7 +1920,7 @@ var StatefulArrayHandler = function StatefulArrayHandler(parentStateManager, arr
         // Check if the property is a numeric index
         // If we set it to a new object, convert it to a state object
         if (_typeof(value) === 'object' && !value.hasOwnProperty('_stateManager') && !value.hasOwnProperty('state')) {
-          value = new _StateManager_js__WEBPACK_IMPORTED_MODULE_0__["default"](value, arrayStateProp, parentStateManager, false, appScope);
+          value = new _StateManager_js__WEBPACK_IMPORTED_MODULE_1__["default"](value, arrayStateProp, parentStateManager, false, appScope);
         }
         // Make sure state values are always state manager values
         // Sometimes they can be state objects (because of the custom get handler in the Proxy)
@@ -1941,7 +1939,7 @@ var StatefulArrayHandler = function StatefulArrayHandler(parentStateManager, arr
           // if it's a new item, it will already be handled on the "length" property set
           // Without this check we will have a redundant state check
           if (doStateChangeHandle) {
-            (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_1__.handleStateChange)(parentStateManager, arrayStateProp);
+            (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.handleStateChange)(parentStateManager, arrayStateProp);
           }
           return _setResult;
         }
@@ -1976,7 +1974,7 @@ var StateHandler = function StateHandler(stateObj) {
   return {
     defineProperty: function defineProperty(targetState, stateProp, descriptor) {
       var _targetState;
-      if (_consts_js__WEBPACK_IMPORTED_MODULE_3__.BUILT_IN_STATE_PROPS.includes(stateProp) || (_targetState = targetState) !== null && _targetState !== void 0 && _targetState._binding) {
+      if (_consts_js__WEBPACK_IMPORTED_MODULE_2__.BUILT_IN_STATE_PROPS.includes(stateProp) || (_targetState = targetState) !== null && _targetState !== void 0 && _targetState._binding) {
         return Reflect.defineProperty.apply(Reflect, arguments);
       }
       var origTargetState = targetState;
@@ -1989,7 +1987,7 @@ var StateHandler = function StateHandler(stateObj) {
             target._global._gettingDependenciesFor = stateProp;
             target._global._localStateManager = target._stateManager;
           }
-          if (_consts_js__WEBPACK_IMPORTED_MODULE_3__.BUILT_IN_STATE_PROPS.includes(property)) {
+          if (_consts_js__WEBPACK_IMPORTED_MODULE_2__.BUILT_IN_STATE_PROPS.includes(property)) {
             return Reflect.get.apply(Reflect, arguments);
           }
           if (Array.isArray(target[property])) {
@@ -2007,7 +2005,7 @@ var StateHandler = function StateHandler(stateObj) {
           // Setter Hook
           if (stateProp.indexOf('set_') === 0) {
             var deps = value === null || value === void 0 ? void 0 : value[1];
-            if (!deps) throw Error(_consts_js__WEBPACK_IMPORTED_MODULE_3__.ERROR_MESSAGES.NO_DEPENDENCIES_ARRAY_IN_SET_HOOK(stateProp));
+            if (!deps) throw Error(_consts_js__WEBPACK_IMPORTED_MODULE_2__.ERROR_MESSAGES.NO_DEPENDENCIES_ARRAY_IN_SET_HOOK(stateProp));
             // Second item should be an array of dependencies
             value === null || value === void 0 || value[1].forEach(function (depProp) {
               dependencies.add(depProp);
@@ -2025,7 +2023,7 @@ var StateHandler = function StateHandler(stateObj) {
               }
             }
           } else if (!(value !== null && value !== void 0 && (_value$ = value[0]) !== null && _value$ !== void 0 && _value$._stateManager)) {
-            descriptor.value = new _StatefulArray_js__WEBPACK_IMPORTED_MODULE_2__["default"](descriptor.value, stateObj, stateProp, false, appScope);
+            descriptor.value = new _StatefulArray_js__WEBPACK_IMPORTED_MODULE_3__["default"](descriptor.value, stateObj, stateProp, false, appScope);
           }
         }
       } else if (typeof (descriptor === null || descriptor === void 0 ? void 0 : descriptor.get) === "function") {
@@ -2041,7 +2039,7 @@ var StateHandler = function StateHandler(stateObj) {
       var definePropertyResult = Reflect.defineProperty(origTargetState, stateProp, descriptor);
       var stateManager = stateObj._stateManager;
       if (setStateProp) stateProp = setStateProp;
-      if (!origTargetState.hasOwnProperty("_populate")) (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_1__.handleStateChange)(stateManager, stateProp);
+      if (!origTargetState.hasOwnProperty("_populate")) (0,_state_utils_js__WEBPACK_IMPORTED_MODULE_0__.handleStateChange)(stateManager, stateProp);
       return definePropertyResult;
     },
     get: function get(targetState, property, receiver) {
@@ -2087,8 +2085,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   stateToElement: () => (/* binding */ stateToElement)
 /* harmony export */ });
 /* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
-/* harmony import */ var _node_actions_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./node_actions.js */ "./src/core/node_actions.js");
-/* harmony import */ var _prop_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prop_utils.js */ "./src/core/prop_utils.js");
+/* harmony import */ var _node_actions_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_actions.js */ "./src/core/node_actions.js");
+/* harmony import */ var _prop_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./prop_utils.js */ "./src/core/prop_utils.js");
 /* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -2170,11 +2168,11 @@ var setStateAttribute = function setStateAttribute(attrName, stateProp) {
   var stateAttrNode = document.createAttribute(attrName);
   stateAttrNode.nodeValue = valueToSet;
   // Saves a readonly boolean that marks this as a "state attribute node"
-  (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_2__.setHiddenProperty)(stateAttrNode, "isStateAttribute", true);
+  (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_1__.setHiddenProperty)(stateAttrNode, "isStateAttribute", true);
   // Save ownerElement to a different property,
   // so if the attribute is removed (in case of a boolean attribute),
   // and later re-attached, we would know which element to add it back to.
-  (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_2__.setHiddenProperty)(stateAttrNode, "originalOwnerElement", this);
+  (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_1__.setHiddenProperty)(stateAttrNode, "originalOwnerElement", this);
   /*
       Object.defineProperty(stateAttrNode, "stateValue", {
           value: valueToSet,
@@ -2211,7 +2209,7 @@ var setStateText = function setStateText(stateProp) {
   }
   var valueToSet = stateVal;
   var textNode = document.createTextNode(valueToSet);
-  (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_2__.setHiddenProperty)(textNode, "isStateAttribute", true);
+  (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_1__.setHiddenProperty)(textNode, "isStateAttribute", true);
   this.appendChild(textNode);
   theState._stateManager.addStateNode(stateProp, textNode);
 };
@@ -2245,7 +2243,7 @@ function mapStateArrayToElements(stateItems, elemName, wrapInElement) {
 function handleStateChange(stateManager, stateProp) {
   if (_consts_js__WEBPACK_IMPORTED_MODULE_0__.BUILT_IN_STATE_PROPS.includes(stateProp)) return;
   // Populate the next Node Actions to perform
-  (0,_node_actions_js__WEBPACK_IMPORTED_MODULE_1__.generateStateNodeActions)(stateManager, stateProp);
+  (0,_node_actions_js__WEBPACK_IMPORTED_MODULE_2__.generateStateNodeActions)(stateManager, stateProp);
   var state = stateManager.state;
 
   // Run on[stateProp]Change hooks
@@ -2264,7 +2262,7 @@ function handleStateChange(stateManager, stateProp) {
           return;
         }
       }
-      (0,_node_actions_js__WEBPACK_IMPORTED_MODULE_1__.generateStateNodeActions)(stateManager, depStateProp);
+      (0,_node_actions_js__WEBPACK_IMPORTED_MODULE_2__.generateStateNodeActions)(stateManager, depStateProp);
       if (state.hasOwnProperty("on".concat(depStateProp, "Change"))) {
         if (typeof state["on".concat(depStateProp, "Change")] === "function") state["on".concat(depStateProp, "Change")].call(state);
       }
@@ -2286,7 +2284,7 @@ function handleStateChange(stateManager, stateProp) {
             return;
           }
         }
-        (0,_node_actions_js__WEBPACK_IMPORTED_MODULE_1__.generateStateNodeActions)(depStateManager, depStateProp);
+        (0,_node_actions_js__WEBPACK_IMPORTED_MODULE_2__.generateStateNodeActions)(depStateManager, depStateProp);
         if (state.hasOwnProperty("on".concat(depStateProp, "Change"))) {
           if (typeof state["on".concat(depStateProp, "Change")] === "function") depState["on".concat(depStateProp, "Change")].call(depState);
         }
@@ -2392,14 +2390,12 @@ var __webpack_exports__ = {};
   !*** ./src/core/index.js ***!
   \***************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ReactiveElement_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ReactiveElement.js */ "./src/core/ReactiveElement.js");
-/* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
-/* harmony import */ var _node_actions_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_actions.js */ "./src/core/node_actions.js");
-/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
-/* harmony import */ var _build__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../build */ "./src/build/index.js");
-/* harmony import */ var _debug_utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./debug_utils.js */ "./src/core/debug_utils.js");
-/* harmony import */ var _prop_utils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./prop_utils.js */ "./src/core/prop_utils.js");
-/* harmony import */ var _ReactiveSlot_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ReactiveSlot.js */ "./src/core/ReactiveSlot.js");
+/* harmony import */ var _ReactiveElement_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ReactiveElement.js */ "./src/core/ReactiveElement.js");
+/* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
+/* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
+/* harmony import */ var _build__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../build */ "./src/build/index.js");
+/* harmony import */ var _prop_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./prop_utils.js */ "./src/core/prop_utils.js");
+/* harmony import */ var _ReactiveSlot_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ReactiveSlot.js */ "./src/core/ReactiveSlot.js");
 
 
 
@@ -2437,41 +2433,41 @@ globalThis.SproutInitApp = function (appName) {
 
   // Prevent "hasOwnProperty" shenanigans
   var hasOwnProperty = Object.prototype.hasOwnProperty;
-  (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_6__.setHiddenProperty)(Object.prototype, "hasOwnProperty", hasOwnProperty);
-  appScope[_consts_js__WEBPACK_IMPORTED_MODULE_3__.GLOBAL_STATE_FUNCTION_NAME] = function () {
+  (0,_prop_utils_js__WEBPACK_IMPORTED_MODULE_0__.setHiddenProperty)(Object.prototype, "hasOwnProperty", hasOwnProperty);
+  appScope[_consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_FUNCTION_NAME] = function () {
     return {};
   };
   // If initialState is passed - also sets it to global state
   appScope.setGlobalState = function () {
     var initialState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    var globalState = new _StateManager_js__WEBPACK_IMPORTED_MODULE_1__["default"](initialState, undefined, undefined, true, appScope).state;
-    var globalStateVarName = _consts_js__WEBPACK_IMPORTED_MODULE_3__.GLOBAL_STATE_VAR_NAME;
+    var globalState = new _StateManager_js__WEBPACK_IMPORTED_MODULE_2__["default"](initialState, undefined, undefined, true, appScope).state;
+    var globalStateVarName = _consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_VAR_NAME;
     Object.defineProperty(appScope, globalStateVarName, {
       value: globalState,
-      writable: _consts_js__WEBPACK_IMPORTED_MODULE_3__.DEBUG_MODE ? true : false,
+      writable: _consts_js__WEBPACK_IMPORTED_MODULE_1__.DEBUG_MODE ? true : false,
       configurable: false
     });
-    Object.defineProperty(appScope, _consts_js__WEBPACK_IMPORTED_MODULE_3__.GLOBAL_STATE_FUNCTION_NAME, {
+    Object.defineProperty(appScope, _consts_js__WEBPACK_IMPORTED_MODULE_1__.GLOBAL_STATE_FUNCTION_NAME, {
       value: function value() {
         return appScope[globalStateVarName];
       }
     });
   };
-  appScope.ReactiveElement = (0,_ReactiveElement_js__WEBPACK_IMPORTED_MODULE_0__.extendElementClassWithReactiveElementClass)(HTMLElement, appScope);
+  appScope.ReactiveElement = (0,_ReactiveElement_js__WEBPACK_IMPORTED_MODULE_3__.extendElementClassWithReactiveElementClass)(HTMLElement, appScope);
 
   // Extend specific HTMLElement classes to enable reactivity (use it by adding an "is" attribute to an element)
-  _consts_js__WEBPACK_IMPORTED_MODULE_3__.HTML_ELEMENTS_CLASSES_MAP.forEach(function (itemDefinition) {
-    return customElements.define("reactive-".concat(itemDefinition.element), (0,_ReactiveElement_js__WEBPACK_IMPORTED_MODULE_0__.extendElementClassWithReactiveElementClass)(itemDefinition["class"], appScope, true), {
+  _consts_js__WEBPACK_IMPORTED_MODULE_1__.HTML_ELEMENTS_CLASSES_MAP.forEach(function (itemDefinition) {
+    return customElements.define("reactive-".concat(itemDefinition.element), (0,_ReactiveElement_js__WEBPACK_IMPORTED_MODULE_3__.extendElementClassWithReactiveElementClass)(itemDefinition["class"], appScope, true), {
       "extends": itemDefinition.element
     });
   });
-  var ReactiveSlotElementClass = (0,_ReactiveElement_js__WEBPACK_IMPORTED_MODULE_0__.extendElementClassWithReactiveElementClass)(HTMLSlotElement, appScope, true);
-  var ReactiveSlotClass = (0,_ReactiveSlot_js__WEBPACK_IMPORTED_MODULE_7__.getReactiveSlotClass)(ReactiveSlotElementClass);
+  var ReactiveSlotElementClass = (0,_ReactiveElement_js__WEBPACK_IMPORTED_MODULE_3__.extendElementClassWithReactiveElementClass)(HTMLSlotElement, appScope, true);
+  var ReactiveSlotClass = (0,_ReactiveSlot_js__WEBPACK_IMPORTED_MODULE_4__.getReactiveSlotClass)(ReactiveSlotElementClass);
   customElements.define('reactive-slot', ReactiveSlotClass, {
     "extends": "slot"
   });
   return function () {
-    (0,_build__WEBPACK_IMPORTED_MODULE_4__["default"])(appScope, appName);
+    (0,_build__WEBPACK_IMPORTED_MODULE_5__["default"])(appScope, appName);
   }.bind(appScope);
 };
 /******/ })()

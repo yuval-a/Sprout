@@ -1,5 +1,7 @@
 const path = require('path');
+const CompressionPlugin = require('compression-webpack-plugin');
 const demoAppBuildPath = 'demos/tic-tac-toe-build';
+
 module.exports = {
   mode: 'development',
   entry: './src/core/index.js',
@@ -45,4 +47,11 @@ module.exports = {
     watchFiles: ['src/**/*.js', 'src/**/*.mjs'],  // Watch the src directory for changes
   },
   devtool: 'source-map',  // Use 'source-map' for detailed source maps
+  plugins: [
+    new CompressionPlugin({
+      algorithm: 'gzip',
+      test: /\.(js|css|html|svg)$/,
+      threshold: 8192,
+    }),
+  ]
 };
