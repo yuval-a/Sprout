@@ -1434,6 +1434,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   GLOBAL_STATE_FUNCTION_NAME: () => (/* binding */ GLOBAL_STATE_FUNCTION_NAME),
 /* harmony export */   GLOBAL_STATE_VAR_NAME: () => (/* binding */ GLOBAL_STATE_VAR_NAME),
 /* harmony export */   HTML_ELEMENTS_CLASSES_MAP: () => (/* binding */ HTML_ELEMENTS_CLASSES_MAP),
+/* harmony export */   MAX_OPERATIONS_PER_ANIMATION_FRAME: () => (/* binding */ MAX_OPERATIONS_PER_ANIMATION_FRAME),
 /* harmony export */   NODES_STATE: () => (/* binding */ NODES_STATE),
 /* harmony export */   SUPPORTED_ATTRIBUTES_FOR_BINDING: () => (/* binding */ SUPPORTED_ATTRIBUTES_FOR_BINDING),
 /* harmony export */   SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING: () => (/* binding */ SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING),
@@ -1709,6 +1710,7 @@ var NODES_STATE = {
   conditionalRenderRafId: null
 };
 var CONDITIONAL_OPERATORS = ['=', '==', '!=', '!==', '<', '<=', '>', '>='];
+var MAX_OPERATIONS_PER_ANIMATION_FRAME = 100;
 
 /***/ }),
 
@@ -2050,7 +2052,6 @@ function doUpdateDOM() {
     });
     _consts_js__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap = new Map();
   }
-  // requestAnimationFrame(doUpdateDOM);
 }
 
 /***/ }),
@@ -2075,10 +2076,12 @@ var paintRafId = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.paintRafId,
   eventBindingFunctions = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.eventBindingFunctions,
   eventBindRafId = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.eventBindRafId,
   conditionalRenderRafId = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.conditionalRenderRafId,
-  conditionalRenders = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.conditionalRenders;
+  conditionalRenders = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.conditionalRenders,
+  nodeActionsMap = _consts__WEBPACK_IMPORTED_MODULE_0__.NODES_STATE.nodeActionsMap;
 function queueBindEvents(element, bindFunction) {
-  if (eventBindRafId) cancelAnimationFrame(eventBindRafId);
   eventBindingFunctions.set(element, bindFunction);
+  if (eventBindingFunctions.size + 1 >= _consts__WEBPACK_IMPORTED_MODULE_0__.MAX_OPERATIONS_PER_ANIMATION_FRAME) return;
+  if (eventBindRafId) cancelAnimationFrame(eventBindRafId);
   eventBindRafId = requestAnimationFrame(function () {
     eventBindRafId = null;
     eventBindingFunctions.forEach(function (bindFn) {
@@ -2088,6 +2091,7 @@ function queueBindEvents(element, bindFunction) {
   });
 }
 function queuePaint() {
+  if (nodeActionsMap.size + 1 >= _consts__WEBPACK_IMPORTED_MODULE_0__.MAX_OPERATIONS_PER_ANIMATION_FRAME) return;
   if (paintRafId) cancelAnimationFrame(paintRafId);
   paintRafId = requestAnimationFrame(function () {
     paintRafId = null;
@@ -2095,8 +2099,9 @@ function queuePaint() {
   });
 }
 function queueConditionalRender(element, renderFunction) {
-  if (conditionalRenderRafId) cancelAnimationFrame(conditionalRenderRafId);
   conditionalRenders.set(element, renderFunction);
+  if (conditionalRenders.size >= _consts__WEBPACK_IMPORTED_MODULE_0__.MAX_OPERATIONS_PER_ANIMATION_FRAME) return;
+  if (conditionalRenderRafId) cancelAnimationFrame(conditionalRenderRafId);
   conditionalRenderRafId = requestAnimationFrame(function () {
     conditionalRenderRafId = null;
     conditionalRenders.forEach(function (renderFn) {
@@ -2682,6 +2687,8 @@ export function resolveStateMapToDocumentFragment({ customElementName, parentEle
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
+(() => {
 /*!***************************!*\
   !*** ./src/core/index.js ***!
   \***************************/
@@ -2689,7 +2696,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ReactiveElement_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ReactiveElement.js */ "./src/core/ReactiveElement.js");
 /* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
 /* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
-/* harmony import */ var _build__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../build */ "./src/build/index.js");
+/* harmony import */ var _build_index_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../build/index.js */ "./src/build/index.js");
 /* harmony import */ var _prop_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./prop_utils.js */ "./src/core/prop_utils.js");
 /* harmony import */ var _ConditionalElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ConditionalElement.js */ "./src/core/ConditionalElement.js");
 
@@ -2760,9 +2767,11 @@ globalThis.SproutInitApp = function (appName) {
   var ConditionalElementClass = (0,_ConditionalElement_js__WEBPACK_IMPORTED_MODULE_4__.getConditionalElementClass)(ReactiveConditionalElementClass);
   customElements.define('conditional-render', ConditionalElementClass);
   return function () {
-    (0,_build__WEBPACK_IMPORTED_MODULE_5__["default"])(appScope, appName);
+    (0,_build_index_js__WEBPACK_IMPORTED_MODULE_5__["default"])(appScope, appName);
   }.bind(appScope);
 };
+})();
+
 /******/ })()
 ;
 //# sourceMappingURL=sprout-core.js.map
