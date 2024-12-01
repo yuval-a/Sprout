@@ -1,0 +1,69 @@
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+:root {
+    font-family: Roboto, 'Segoe UI', 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    line-height: 2.5rem;
+    background-color: #000;
+    color: #fff;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    padding: 4rem;
+    min-width: 360px;
+    text-align: center;
+}
+
+h1 {
+    margin: 0.25rem 0;
+}
+
+p {
+    margin: 0.5rem 0 0;
+}
+
+button {
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: block;
+    margin: 1rem auto;
+}
+
+pre {
+    background-color: rgba(0, 0, 0, 0.75);
+    text-align: left;
+    padding: 1rem;
+    border: 6px solid darkolivegreen;
+}
+code {
+    font-family: monospace;
+    background-color: rgba(0,0,0,0.25);
+    padding: 6px;
+    white-space: pre-wrap;
+}
+
+.example div[is^="reactive-"] {
+    border: 1px solid #eee;
+    margin: 1.5rem 0;
+    padding: 2rem;
+}
+.example span[is^="reactive-"] {
+    font-weight: bold;
+}
+.example h4 {
+    margin: 2rem 0 0.5rem;
+}
+.example input {
+    display: block;
+    width: 100%;
+    font: 1.1rem;
+    padding: 0.25rem;
+}
