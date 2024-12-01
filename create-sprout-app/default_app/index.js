@@ -12,5 +12,6 @@ const initState = {
 
     ],
     isHidden: true,
+    showSecond: false
 }
 this.setGlobalState(initState);

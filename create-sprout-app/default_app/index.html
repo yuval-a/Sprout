@@ -7,8 +7,8 @@
         <h3 slot="headline">Dynamic text content</h3>
 
         <div slot="exampleContent" class="example">
-            <div is="reactive-div" _text="dynamicText">
-                <counter-button></counter-button>
+            <div is="reactive-div" _text="dynamicText" style="white-space: pre-line;">
+                <counter-button type="increase"></counter-button>
             </div>
             <p>The app was built using the debug option <code>--allowAppScopeAccess</code> <br>
                 allowing you to access the global State object of the app via the console <br>
@@ -133,6 +133,43 @@ export default {
     }
 }
             </code></pre>
+        </div>
+    </example-block>
+
+    <example-block>
+        <h3 slot="headline">Conditional Rendering, Custom Properties</h3>
+
+        <div slot="exampleContent" class="example">
+            <p>Conditional rendering allows you to render elements according to a state conditions</p>
+            <p>There is a <code>&lt;conditional-render&gt;</code> element here,
+            with conditions related to the value of the same <code>counter</code> from above.</p>
+            <p>Try to increase or decrease the counter, see what happens when it becomes 10, see what happens when it's higher than 10</p>
+
+            <p>The two buttons below are instances of the same component, customizable by a <code>type</code> property</p>
+            The counter value is: <span is="reactive-span" _text="counter"></span>
+
+            <counter-button type="increase"></counter-button>
+            <counter-button type="decrease"></counter-button>
+            <conditional-demo></conditional-demo>
+        </div>
+
+        <div slot="codeSnippet">
+            <pre><code>
+// html
+&lt;counter-button type="increase"&gt;&lt;/counter-button&gt;
+&lt;counter-button type="decrease"&gt;&lt;/counter-button&gt;
+&lt;conditional-demo&gt;&lt;/conditional-demo&gt;
+
+// conditional-demo: template.html
+&lt;div class="framed">
+    &lt;conditional-render _condition="counter"&gt;
+        &lt;div _if="&lt;10"&gt;This is only shown if the counter is smaller than 10&lt;/div&gt;
+        &lt;div _if="10">This is only shown if the counter is exactly equal to 10&lt;/div&gt;
+        &lt;div _if="&gt;10">This is only shown if the counter is higher than 10&lt;/div&gt;
+        &lt;div&gt;This is always shown&lt;/div&gt;
+    &lt;/conditional-render&gt;
+&lt;/div&gt;
+</code></pre>
         </div>
     </example-block>
 

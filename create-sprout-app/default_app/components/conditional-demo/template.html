@@ -1,0 +1,8 @@
+<div class="framed">
+    <conditional-render _condition="counter">
+        <div _if="<10">This is only shown if the counter is smaller than 10</div>
+        <div _if="10">This is only shown if the counter is exactly equal to 10</div>
+        <div _if=">10">This is only shown if the counter is higher than 10</div>
+        <div>This is always shown</div>
+    </conditional-render>
+</div>

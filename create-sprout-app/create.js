@@ -51,7 +51,7 @@ async function createSproutAppTemplate() {
 
     try {
         // Copy default-app contents to the new project directory
-        const defaultAppPath = path.join(__dirname, 'default-app');
+        const defaultAppPath = path.join(__dirname, 'default_app');
         await fs.copy(defaultAppPath, path.join(projectPath, '/src'));
         await fs.copy(path.join(__dirname, 'vite.config.js'), path.join(projectPath, 'vite.config.js'));
         console.log(`\nSuccess! Created ${projectName} at ${projectPath}`);
