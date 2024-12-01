@@ -1,0 +1,12 @@
+{
+  "name": "sprout-build-app",
+  "version": "1.3.3",
+  "main": "sprout-build-app.mjs",
+  "keywords": [
+    "SproutJS",
+    "components"
+  ],
+  "author": "Yuval Aloni",
+  "license": "ISC",
+  "description": "The Sprout app builder script"
+}

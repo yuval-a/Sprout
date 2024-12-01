@@ -1,0 +1,22 @@
+{
+  "name": "create-sprout-app",
+  "version": "1.0.3",
+  "main": "create.js",
+  "bin": {
+    "create-sprout-app": "./create.js"
+  },
+  "keywords": [
+    "Web Components",
+    "Javascript",
+    "client-side",
+    "framework"
+  ],
+  "author": "Yuval Aloni",
+  "license": "ISC",
+  "description": "Official 'Create Sprout App' npx",
+  "dependencies": {
+    "@inquirer/prompts": "^7.0.1",
+    "fs-extra": "^11.2.0"
+  },
+  "type": "module"
+}

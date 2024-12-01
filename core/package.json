@@ -1,0 +1,47 @@
+{
+  "name": "jssprout",
+  "version": "1.3.1",
+  "description": "Sprout JS - A client side Javascript framework that gives state management and reactivity to HTML elements, using Web Components and Custom Elements",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yuval-a/Sprout"
+  },
+  "author": "Yuval Aloni",
+  "homepage": "https://jssprout.com",
+  "sideEffects": false,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.core.config.js",
+    "build-prod": "webpack --config webpack.core.prod.config.js",
+    "build-todo-app": "node ./sprout-build-app.mjs ./demos/todo-list-src ./demos/todo-list-build --app todo_list",
+    "build-todomvc-app": "node ./sprout-build-app.mjs ./demos/todo-mvc-src ./demos/todo-mvc-build --app todo_mvc",
+    "build-ttt-app": "node ./sprout-build-app.mjs ./demos/tic-tac-toe-src ./demos/tic-tac-toe-build --app tic_tac_toe",
+    "build-todo-app-min": "node ./sprout-build-app.mjs ./demos/todo-list-src ./demos/todo-list-build --app todo_list --minify",
+    "build-todomvc-app-min": "node ./sprout-build-app.mjs ./demos/todo-mvc-src ./demos/todo-mvc-build --app todo_mvc --minify",
+    "build-ttt-app-min": "node ./sprout-build-app.mjs ./demos/tic-tac-toe-src ./demos/tic-tac-toe-build --app tic_tac_toe --minify",
+    "serve-todo-app": "npx webpack serve --config webpack.server.todo-app-demo.config.js",
+    "serve-todomvc-app": "npx webpack serve --config webpack.server.todomvc-app-demo.config.js",
+    "serve-ttt-app": "npx webpack serve --config webpack.server.ttt-app-demo.config.js"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@rollup/plugin-terser": "^0.4.4",
+    "babel-loader": "^9.1.3",
+    "compression-webpack-plugin": "^11.1.0",
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.31.3",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
+  },
+  "dependencies": {
+    "@rollup/plugin-alias": "^5.1.0",
+    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-dynamic-import-vars": "^2.1.2",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-virtual": "^3.0.2",
+    "rollup": "^4.18.0"
+  }
+}

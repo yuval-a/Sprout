@@ -1,0 +1,139 @@
+<header>
+    <h1>This app was created with "create-sprout-app"</h1>
+    <h2>Here are examples for some of Sprout app features:</h2>
+</header>
+<main>
+    <example-block>
+        <h3 slot="headline">Dynamic text content</h3>
+
+        <div slot="exampleContent" class="example">
+            <div is="reactive-div" _text="dynamicText">
+                <counter-button></counter-button>
+            </div>
+            <p>The app was built using the debug option <code>--allowAppScopeAccess</code> <br>
+                allowing you to access the global State object of the app via the console <br>
+                To see <em>reactivity</em> in action:
+            </p>
+            <p>Open the console. <br>
+                Type: <code>const state = sproutApps.[Your project name (with underscores instead of dashes/spaces)].getGlobalState() </code> <br>
+                <code>state</code> variable now contains the global state object. <br>
+                Type: <code> state.dynamicText = "Hello dynamic text!"</code>. Click enter, and watch how the text above automagically change.
+            </p>
+
+            <h4>
+                This input field is bound to the 'dynamicText' state value.
+                Start writing text in it, to see the dynamic text above changes accordingly:
+            </h4>
+            <input id="dynamicInput" is="reactive-input" _bind="value:dynamicText" />
+        </div>
+
+        <div slot="codeSnippet">
+            <pre><code>
+// html
+&lt;div is="reactive-div" _text="dynamicText"&gt;
+    &lt;counter-button&gt;&lt;/counter-button&gt;
+&lt;/div&gt;
+&lt;input id="dynamicInput" is="reactive-input" _bind="value:dynamicText" /&gt;
+
+// counter-button template.html
+&lt;button is="reactive-button" ref="btn-counter"&gt;Increase Counter&lt;/button&gt;
+
+// counter-button runtime.js
+export default {
+    events: {
+        "btn-counter": function(event, host, global) {
+            global.counter++;
+        }
+    }
+}
+
+// Global index.js
+const initState = {
+    counter: 0,
+    set_dynamicText: [function() { 
+        return `This text is dynamic! \n It is bound to the 'dynamicText' State property.
+        It can even use template strings, referencing another State value in them,
+        like this counter: \n ${this.counter} \n`;
+    }, ["counter"], true],
+    list: [
+        { key: 0 },
+        { key: 2 },
+        { key: 3 },
+
+    ],
+    isHidden: true,
+}
+this.setGlobalState(initState);
+            </code></pre>
+        </div>
+    </example-block>
+
+    <example-block>
+        <h3 slot="headline">Mapping State Arrays to Lists of Custom Components</h3>
+        <div slot="exampleContent" class="example">
+            <p>The following div has a <code>"_map"</code> command that maps an array of State objects to 
+                <code>&lt;list-item&gt;</code> custom components:
+            </p>
+            <div is="reactive-div" _map="list:list-item"></div>
+        </div>
+        <div slot="codeSnippet">
+            <pre><code>
+// html
+&lt;div is="reactive-div" _map="list:list-item"&gt;&lt;/div&gt;
+
+// global index.js
+const initState = {
+    counter: 0,
+    set_dynamicText: [function() { 
+        return `This text is dynamic! \n It is bound to the 'dynamicText' State property.
+        It can even use template strings, referencing another State value in them,
+        like this counter: \n ${this.counter} \n`;
+    }, ["counter"], true],
+    list: [
+        { key: 0 },
+        { key: 2 },
+        { key: 3 },
+
+    ],
+    isHidden: true,
+}
+this.setGlobalState(initState);
+            </code></pre>
+        </div>
+    </example-block>
+
+    <example-block>
+        <h3 slot="headline">State Attributes</h3>
+
+        <div slot="exampleContent" class="example">
+            <p>There is a hidden div here, with its hidden attribute bound to an <code>isHidden</code> State value.
+            Click the button to toggle that state.</p>
+            <div is="reactive-div" hidden="$isHidden">This was hidden!</div>
+            <show-hide></show-hide>
+        </div>
+
+        <div slot="codeSnippet">
+            <pre><code>
+//html 
+&lt;div is="reactive-div" hidden="$isHidden"&gt;This was hidden!&lt;/div&gt;
+&lt;show-hide>&lt;/show-hide&gt;
+
+// show-hide template.html
+&lt;button is="reactive-button" ref="show-hide-btn"&gt;
+    &lt;span is="reactive-span" hidden="$!isHidden">Show&lt;/span&gt;
+    &lt;span is="reactive-span" hidden="$isHidden">Hide&lt;/span&gt;
+    &lt;/button&gt;
+
+// show-hide runtime.js
+export default {
+    events: {
+        "show-hide-btn": function(event, host, global) {
+            global.isHidden = global.isHidden ? false : true
+        }
+    }
+}
+            </code></pre>
+        </div>
+    </example-block>
+
+</main>  

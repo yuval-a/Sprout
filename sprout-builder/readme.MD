@@ -1,0 +1,1 @@
+This is meant to contain the `sprout-build-app` script that is used by several parts SproutJS framework.
