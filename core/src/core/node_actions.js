@@ -141,6 +141,7 @@ function resolveNodeActionsMapToDOMActions() {
     const { nodeActionsMap } = NODES_STATE;
 
     nodeActionsMap.forEach((nodeActions, node)=> {
+        console.log (nodeActions);
         // Attribute change
         if (nodeActions.hasOwnProperty("setAttribute")) {
             const value = nodeActions.setAttribute;
@@ -186,19 +187,18 @@ function resolveNodeActionsMapToDOMActions() {
                     //oldNode.replaceWith(newNode));
                     node.replaceChild(newNode, oldNode));
             });
-            nodeActions.remove.values().forEach((removes)=> {
-                removes.forEach((nodeToRemove)=> {
+            for (const removes of nodeActions.remove.values()) {
+                for (const nodeToRemove of removes) {
                     if (nodeToRemove.parentNode && nodeToRemove.parentNode === node) {
                         batchActions.push(()=> node.removeChild(nodeToRemove));
                     }
-                });
-            });
-            nodeActions.append.values().forEach((appends)=> {
-                appends.forEach((newChildElement)=> {
+                }
+            }
+            for (const appends of nodeActions.append.values()) {
+                for (const newChildElement of appends) {
                     batchActions.push(()=> node.appendChild(newChildElement));
-                });
-            });
-            
+                }
+            }
         }
     });
     return batchActions;
