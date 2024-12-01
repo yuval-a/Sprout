@@ -15,8 +15,8 @@ export default function getAppPackageJson(projectName) {
             "@rollup/plugin-virtual": "^3.0.2",
             "html-minifier-terser": "^7.2.0",
             "vite": "^5.4.10",
-            "sproutjs-core": "^1.4.0",
-            "sprout-build-app": "^1.3.3"
+            "sproutjs-core": "^2.0.0",
+            "sprout-build-app": "^1.3.4"
         },
         "scripts": {
             "build": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess`,

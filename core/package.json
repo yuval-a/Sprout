@@ -1,6 +1,6 @@
 {
   "name": "jssprout",
-  "version": "1.3.1",
+  "version": "2.0.0",
   "description": "Sprout JS - A client side Javascript framework that gives state management and reactivity to HTML elements, using Web Components and Custom Elements",
   "repository": {
     "type": "git",
