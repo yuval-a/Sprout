@@ -97,10 +97,10 @@ Other than "custom elements" - Sprout also makes sure to extend ALL native HTML 
 You can use "native reactive HTML elements" within the templates of your components - and you will most likely do that when building your app - so whenever you use a Sprout feature on an element - **remember** to put an `is` attribute on it -- otherwise it will be treated as a "normal" HTML element, and using features like State Attributes or Commands - won't work.
 
 > **Note**: The following elements are NOT supported for adding an `is` attribute: 
-* `<footer>`
-* `<strong>`
-* `<em>`
-If you need to use them, add a child (e.g. `<span>` or `<div>`) and use the appropriate `is="reactive-..."` attribute on it.
+> * `<footer>`
+> * `<strong>`
+> * `<em>`
+> If you need to use them, add a child (e.g. `<span>` or `<div>`) and use the appropriate `is="reactive-..."` attribute on it.
 
 HTML elements within a component are rendered into the ["Shadow DOM"](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM) of a rendered custom element.
 
