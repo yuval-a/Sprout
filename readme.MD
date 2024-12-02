@@ -99,7 +99,7 @@ You can use "native reactive HTML elements" within the templates of your compone
 > **Note**: The following elements are NOT supported for adding an `is` attribute: 
 > * `<footer>`
 > * `<strong>`
-> * `<em>`
+> * `<em>` <br>
 > If you need to use them, add a child (e.g. `<span>` or `<div>`) and use the appropriate `is="reactive-..."` attribute on it.
 
 HTML elements within a component are rendered into the ["Shadow DOM"](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM) of a rendered custom element.
