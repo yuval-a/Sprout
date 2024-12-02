@@ -96,7 +96,8 @@ Other than "custom elements" - Sprout also makes sure to extend ALL native HTML 
 
 You can use "native reactive HTML elements" within the templates of your components - and you will most likely do that when building your app - so whenever you use a Sprout feature on an element - **remember** to put an `is` attribute on it -- otherwise it will be treated as a "normal" HTML element, and using features like State Attributes or Commands - won't work.
 
-> **Note**: The following elements are NOT supported for adding an `is` attribute: 
+> **Note**: The following elements are NOT supported for adding an `is` attribute, as they do not have their own native interface class in the DOM API (yet(?)).
+> * `<header>`
 > * `<footer>`
 > * `<strong>`
 > * `<em>` <br>
