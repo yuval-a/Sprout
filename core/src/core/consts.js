@@ -123,6 +123,7 @@ export const HTML_ELEMENTS_CLASSES_MAP = [
     { class: HTMLSlotElement, element: "slot" },
     // We can't use HTMLElement more than once, so we will use a class extending it
     { class: class extends HTMLElement{}, element: "code" }
+
     // { class: HTMLSlotElement, element: "slot" } Has a different extended class for conditional rendering
 ];
 // For development purposes only,

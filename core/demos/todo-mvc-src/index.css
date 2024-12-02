@@ -63,7 +63,9 @@ button {
 	font-style: italic;
 	font-weight: 400
 }
-
+.bold {
+	font-weight: bold;
+}
 @media screen and (-webkit-min-device-pixel-ratio:0) {
 
 	.todo-list li .toggle,

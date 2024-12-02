@@ -1687,6 +1687,7 @@ var HTML_ELEMENTS_CLASSES_MAP = [{
   }( /*#__PURE__*/_wrapNativeSuper(HTMLElement)),
   element: "code"
 }
+
 // { class: HTMLSlotElement, element: "slot" } Has a different extended class for conditional rendering
 ];
 // For development purposes only,

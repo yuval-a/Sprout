@@ -80,7 +80,7 @@ h1 {
 
 .toggle-all+label:before {
 	color: #949494;
-	content: "❯";
+	content: "\276F";
 	display: inline-block;
 	font-size: 22px;
 	padding: 10px 27px;
