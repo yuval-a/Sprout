@@ -8,6 +8,9 @@ Explore [live demos](#demos) or dive into the documentation below.
 # Quick Usage Highlights
 
 ## State Attributes
+
+Sprout introduces State Attributes that bind DOM attributes to state properties, enabling reactivity.
+
 ```html
 <div 
     is="reactive-div" 
@@ -29,27 +32,22 @@ Might be rendered to:
     title="The value of the title State property here">
 </div>
 ```
-`completed`, `editing`, and `title` attributes becomes **State Attributes** when their values start with a Dollar sign (`$`). Now they are **reactively bound** to the State properties: `completed`, `editing` and `title` respectively. Their values will always **automatically reflect** the values of those properties within an associated State object; changing the values in the State object - will automatically change the values in the attributes.
-In this specific example, they are both boolean values, Sprout knows how to handle that accordingly, e.g. if `editing` is `true` it will simply appear on the element as `editing`, where if it's `false` it will not be included as an attribute on the element.
-The `title` value in the example is a string, and will auto reflect the value of the State property `title`.
-**Notice the usage of the `is="reactive-div"`** attribute. Specifying the attribute `is`, is what enables the **reactive behavior** on the element. 
-The `is` attribute is part of the Web Components / Custom Elements API.
 
-The `ref` attribute is a Sprout attribute that is used to create associations between elements and event handlers.
+* State Binding: Attributes prefixed with a dollar sign (`$`) (e.g. `$completed`, `$editMode`) are bound to State properties and automatically update when State changes.
+* Boolean Attributes: completed and editing reflect `true` or `false` dynamically. If `editing` is false, it will be removed from the element.
+* `is` Attribute: Enables Sprout’s reactive features on native HTML elements. For example, `is="reactive-div"` transforms a `<div>` into a reactive element.
+* ref Attribute: Used to associate elements with event handlers.
 
 ### Special operators in State Attributes
+Sprout supports logical operators within State Attributes for dynamic control:
+
 ```html
 <div is="reactive-div" hidden="$!editMode"></div>
 ```
-
-If the result of the value of `hidden` resolves to `true` then the `div` element will be hidden.
-
-the `!` operator is used as a **negation operator** ("not editMode"). The value will be `true` if `editMode` is falsy
-and `false` if it's truthy. The hidden attribute is a native built-in attribute in HTML, but using a State value on it, also turns it to a
-State attribute. This is an example for how you can easily **control the visibility of an element** via **State**.
+Here, the `!` operator negates the value of `editMode`. If `editMode` is falsy, the hidden attribute is applied.
 
 ## Command Attributes
-These are attribute names starting with an underscore (`_`) character. Commands can be used to influence the UI according to State properties.
+Sprout introduces Command Attributes, prefixed with `_`, to dynamically control elements based on state.
 
 ### `_map`
 
@@ -80,7 +78,7 @@ Might be rendered as:
 <span is="reactive-span" _text="todo-title">The value of toto-title property as the text content here</span>
 ```
 
-The `_text` command controls the textual content of an element, associating it to a state property, reactively binding them.
+The `_text` command controls the textual content of an element, associating it to a State property, reactively binding them.
 
 Read on to learn further, or watch some [demos](#demos).
 
