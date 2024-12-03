@@ -63,47 +63,4 @@ export const COMMANDS = {
             }
         }
    },
-   condition: function(commandValue) {
-        if (this.tagName !== "SLOT") {
-            throw Error("_condition command can only be used on a slot element!");
-        }
-        if (!this.children || !this.children.length) {
-            throw Error("Conditional rendering slot (a reactive-slot with a _condition command) must have children! For slot: ", this);
-        }
-        const statePropName = commandValue;
-        const [stateValue, stateObject] = this.getState(statePropName, true);
-        if (typeof stateValue === "undefined") {
-            throw Error(`State property ${statePropName} not defined for _condition command!`);
-        }
-
-        const slotHost = this.host;
-        const slotChildren = [...this.children];
-        const nodesToAssign = [];
-        slotChildren.forEach(slotChildElement=> {
-            const _if = slotChildElement.getAttribute('_if');
-            if (_if) {
-                slotChildElement.host = slotHost;
-                slotChildElement.conditionalSlotChild = true;
-                const slotChildChildren = slotChildElement.querySelectorAll('*');
-                slotChildChildren.forEach((child) => {
-                    child.host = slotHost;
-                });
-                const expectedValue = attributeValueToTypedValue(_if);
-                if (stateValue === expectedValue) {
-                    nodesToAssign.push(slotChildElement);
-                }
-            }
-        });
-
-        // Slotted elements must be LIGHT DOM
-        // (directly connected to the custom element)
-        requestAnimationFrame(()=> {
-            slotHost.append(...slotChildren);
-            if (nodesToAssign.length) {
-                this.assign(...nodesToAssign);
-            }
-        });
-
-        stateObject._stateManager.addConditionallyRenderingElements(statePropName, this);
-   }  
 }

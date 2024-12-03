@@ -13,7 +13,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
         host = null
         // Callback function for when the element is connected to a DOM tree on the page
         #onMount
-        _onRender
         #wasMounted = false
         // Used for the _bind command, which allows "reverse-binding" attribute values to state props,
         // keys are attribute names, values are state prop names
@@ -220,19 +219,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             if (stateValue !== newValue) theState[stateProp] = newValue;
         }
 
-        resolveTextContentTemplateStringTag(strings, ...attributeNames) {
-            return strings.reduce((result, str, i) => {
-                const attrName = attributeNames[i] ? attributeNames[i].replaceAll(/\s/g,'') : false;
-                return result + str + (attrName ? this.host?.getAttribute(attrName) : "");
-            }, "");
-        }
-        // A template string "tag" function to use when referencing attribute values in element texts
-        #resolveTextContentTemplateString() {
-            const resolveTextContentFn = new Function(
-                "return this.resolveTextContentTemplateStringTag`" + this.textContent + "`;"
-            ).bind(this);
-            return resolveTextContentFn();
-        }
         disconnectedCallback() {
             const host = this.host ?? this;
             if (host.ref) {
@@ -241,6 +227,7 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             }
             this.#boundAttributesToState = {};
             this.#unbindEvents();
+            this.state = undefined;
         }
 
         connectedCallback() {
@@ -252,17 +239,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             this.host = this.getRootNode().host;
 
             if (!this.isNativeElement) {
-                // If this is a custom element - normal attributes are used as State Initializers,
-                // We should add to initial state from them, before making it "live"
-                const attributeNames = this.getAttributeNames();
-                let attrValue;
-                for (const attrName of attributeNames) {
-                    attrValue = this.getAttribute(attrName);
-                    if (attrValue.indexOf('@') === 0) {
-                        this.initialState ??= {};
-                        this.initialState[attrName] = attributeValueToTypedValue(attrValue.substring(1));
-                    }
-                }
                 this.#setActiveStateFromInitialState();
             }
 
@@ -303,12 +279,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             if (!this.isNativeElement) {
                 queueBindEvents(this, ()=> this.#bindEvents());
                 if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
-                if (this._onRender) this._onRender.call(this);
-            }
-            else {
-                if (this.textContent.indexOf('${') !== -1) {
-                    this.textContent = this.#resolveTextContentTemplateString();
-                }
             }
             this.#wasMounted = true;
         }

@@ -4,12 +4,15 @@ let TODO_ID = 0;
 
 const initState = {
     currentTodosFilterName: "All",
+    todos: [],
+    /*
     todos: [{
         key: TODO_ID++,
         title: "Write tests for your components framework!",
         completed: false,
         editMode: false,
     }],
+    */
     set_currentTodosFilter: [function() {
         return TODO_FILTERS[this.currentTodosFilterName];
     }, ["currentTodosFilterName"], true],

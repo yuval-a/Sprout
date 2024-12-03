@@ -271,12 +271,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   extendElementClassWithReactiveElementClass: () => (/* binding */ extendElementClassWithReactiveElementClass)
 /* harmony export */ });
-/* harmony import */ var _commands_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./commands.js */ "./src/core/commands.js");
+/* harmony import */ var _commands_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./commands.js */ "./src/core/commands.js");
 /* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
-/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
-/* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
-/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
-/* harmony import */ var _attr_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./attr_utils.js */ "./src/core/attr_utils.js");
+/* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
+/* harmony import */ var _StateManager_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./StateManager.js */ "./src/core/StateManager.js");
+/* harmony import */ var _paint_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./paint_utils.js */ "./src/core/paint_utils.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -340,7 +339,6 @@ function extendElementClassWithReactiveElementClass(elementClass) {
       _defineProperty(_this, "host", null);
       // Callback function for when the element is connected to a DOM tree on the page
       _classPrivateFieldInitSpec(_this, _onMount, void 0);
-      _defineProperty(_this, "_onRender", void 0);
       _classPrivateFieldInitSpec(_this, _wasMounted, false);
       // Used for the _bind command, which allows "reverse-binding" attribute values to state props,
       // keys are attribute names, values are state prop names
@@ -423,20 +421,6 @@ function extendElementClassWithReactiveElementClass(elementClass) {
         if (stateValue !== newValue) theState[stateProp] = newValue;
       }
     }, {
-      key: "resolveTextContentTemplateStringTag",
-      value: function resolveTextContentTemplateStringTag(strings) {
-        var _this2 = this;
-        for (var _len = arguments.length, attributeNames = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-          attributeNames[_key - 1] = arguments[_key];
-        }
-        return strings.reduce(function (result, str, i) {
-          var _this2$host;
-          var attrName = attributeNames[i] ? attributeNames[i].replaceAll(/\s/g, '') : false;
-          return result + str + (attrName ? (_this2$host = _this2.host) === null || _this2$host === void 0 ? void 0 : _this2$host.getAttribute(attrName) : "");
-        }, "");
-      }
-      // A template string "tag" function to use when referencing attribute values in element texts
-    }, {
       key: "disconnectedCallback",
       value: function disconnectedCallback() {
         var _this$host;
@@ -447,11 +431,12 @@ function extendElementClassWithReactiveElementClass(elementClass) {
         }
         _classPrivateFieldSet(_boundAttributesToState, this, {});
         _assertClassBrand(_ReactiveElement_brand, this, _unbindEvents).call(this);
+        this.state = undefined;
       }
     }, {
       key: "connectedCallback",
       value: function connectedCallback() {
-        var _this3 = this;
+        var _this2 = this;
         if (_classPrivateFieldGet(_wasMounted, this)) return;
         // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
         // It is part of the way a check is made to see if an element is part of ShadowDOM!
@@ -459,27 +444,6 @@ function extendElementClassWithReactiveElementClass(elementClass) {
         // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
         this.host = this.getRootNode().host;
         if (!this.isNativeElement) {
-          // If this is a custom element - normal attributes are used as State Initializers,
-          // We should add to initial state from them, before making it "live"
-          var _attributeNames = this.getAttributeNames();
-          var attrValue;
-          var _iterator = _createForOfIteratorHelper(_attributeNames),
-            _step;
-          try {
-            for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              var attrName = _step.value;
-              attrValue = this.getAttribute(attrName);
-              if (attrValue.indexOf('@') === 0) {
-                var _this$initialState;
-                (_this$initialState = this.initialState) !== null && _this$initialState !== void 0 ? _this$initialState : this.initialState = {};
-                this.initialState[attrName] = (0,_attr_utils_js__WEBPACK_IMPORTED_MODULE_1__.attributeValueToTypedValue)(attrValue.substring(1));
-              }
-            }
-          } catch (err) {
-            _iterator.e(err);
-          } finally {
-            _iterator.f();
-          }
           _assertClassBrand(_ReactiveElement_brand, this, _setActiveStateFromInitialState).call(this);
         }
 
@@ -502,48 +466,43 @@ function extendElementClassWithReactiveElementClass(elementClass) {
         }
         var commands = [];
         var attributeNames = this.getAttributeNames();
-        var _iterator2 = _createForOfIteratorHelper(attributeNames),
-          _step2;
+        var _iterator = _createForOfIteratorHelper(attributeNames),
+          _step;
         try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var _attrName = _step2.value;
-            var _attrValue = this.getAttribute(_attrName);
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var attrName = _step.value;
+            var attrValue = this.getAttribute(attrName);
             // This also resolves "State attributes"
-            this.initialSetAttribute(_attrName, _attrValue);
+            this.initialSetAttribute(attrName, attrValue);
 
             // Save "Command attributes"
-            if (_attrName.indexOf('_') === 0) {
-              var command = _attrName.substring(1);
+            if (attrName.indexOf('_') === 0) {
+              var command = attrName.substring(1);
               commands.push({
                 command: command,
-                args: _attrValue
+                args: attrValue
               });
               // COMMAND_ATTRIBUTES[command]?.call(this, attrValue);
             }
           }
         } catch (err) {
-          _iterator2.e(err);
+          _iterator.e(err);
         } finally {
-          _iterator2.f();
+          _iterator.f();
         }
         commands.forEach(function (_ref) {
           var _COMMAND_ATTRIBUTES$c;
           var command = _ref.command,
             args = _ref.args;
-          (_COMMAND_ATTRIBUTES$c = _commands_js__WEBPACK_IMPORTED_MODULE_2__.COMMANDS[command]) === null || _COMMAND_ATTRIBUTES$c === void 0 || _COMMAND_ATTRIBUTES$c.call(_this3, args);
+          (_COMMAND_ATTRIBUTES$c = _commands_js__WEBPACK_IMPORTED_MODULE_1__.COMMANDS[command]) === null || _COMMAND_ATTRIBUTES$c === void 0 || _COMMAND_ATTRIBUTES$c.call(_this2, args);
         });
         if (!this.isNativeElement) {
-          (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_3__.queueBindEvents)(this, function () {
-            return _assertClassBrand(_ReactiveElement_brand, _this3, _bindEvents).call(_this3);
+          (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_2__.queueBindEvents)(this, function () {
+            return _assertClassBrand(_ReactiveElement_brand, _this2, _bindEvents).call(_this2);
           });
           if (_classPrivateFieldGet(_onMount, this)) queueMicrotask(function () {
-            return _classPrivateFieldGet(_onMount, _this3).call(_this3, appScope[_consts_js__WEBPACK_IMPORTED_MODULE_0__.GLOBAL_STATE_FUNCTION_NAME]());
+            return _classPrivateFieldGet(_onMount, _this2).call(_this2, appScope[_consts_js__WEBPACK_IMPORTED_MODULE_0__.GLOBAL_STATE_FUNCTION_NAME]());
           });
-          if (this._onRender) this._onRender.call(this);
-        } else {
-          if (this.textContent.indexOf('${') !== -1) {
-            this.textContent = _assertClassBrand(_ReactiveElement_brand, this, _resolveTextContentTemplateString).call(this);
-          }
         }
         _classPrivateFieldSet(_wasMounted, this, true);
       }
@@ -616,12 +575,12 @@ function extendElementClassWithReactiveElementClass(elementClass) {
   // 2. When a custom element instance becomes connected (added to the DOM) - state attribute values are actually resolved to the
   // value of their respective state prop values, and binding between them occurs.
   function _setRuntime(runtime) {
-    var _this4 = this;
+    var _this3 = this;
     if (runtime.events) {
       _classPrivateFieldSet(_events, this, runtime.events);
       if (this.isConnected) {
-        (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_3__.queueBindEvents)(this, function () {
-          return _assertClassBrand(_ReactiveElement_brand, _this4, _bindEvents).call(_this4);
+        (0,_paint_utils_js__WEBPACK_IMPORTED_MODULE_2__.queueBindEvents)(this, function () {
+          return _assertClassBrand(_ReactiveElement_brand, _this3, _bindEvents).call(_this3);
         });
       }
     }
@@ -640,7 +599,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
     if (initialState._stateManager) {
       this.state = initialState._stateManager.state;
     } else {
-      this.state = new _StateManager_js__WEBPACK_IMPORTED_MODULE_4__["default"](initialState, undefined, undefined, false, appScope).state;
+      this.state = new _StateManager_js__WEBPACK_IMPORTED_MODULE_3__["default"](initialState, undefined, undefined, false, appScope).state;
     }
     delete this.initialState;
   }
@@ -660,23 +619,23 @@ function extendElementClassWithReactiveElementClass(elementClass) {
     }
   }
   function _unbindEvents() {
-    var _this5 = this;
+    var _this4 = this;
     if (_classPrivateFieldGet(_changeEventHandler, this)) this.removeEventListener('change', _classPrivateFieldGet(_changeEventHandler, this));
     if (!_classPrivateFieldGet(_boundEventNames, this).length) return;
     var thiselement = this;
     _classPrivateFieldGet(_boundEventNames, this).forEach(function (eventName) {
-      thiselement.removeEventListener(eventName, _classPrivateFieldGet(_eventHandler, _this5), false);
+      thiselement.removeEventListener(eventName, _classPrivateFieldGet(_eventHandler, _this4), false);
     });
   }
   function _bindEvents() {
-    var _this6 = this,
+    var _this5 = this,
       _classPrivateFieldGet2;
     if (!_classPrivateFieldGet(_events, this)) return;
     var eventRefNames = Object.keys(_classPrivateFieldGet(_events, this));
     var clickActions = {};
     var otherActions = {};
     eventRefNames.forEach(function (refName) {
-      var value = _classPrivateFieldGet(_events, _this6)[refName];
+      var value = _classPrivateFieldGet(_events, _this5)[refName];
       if (typeof value === 'function') {
         clickActions[refName] = value;
       } else if (_typeof(value) === 'object') {
@@ -711,7 +670,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
     var thiselement = this;
     if (Object.keys(clickActions).length) {
       thiselement.addEventListener('click', function (event) {
-        _classPrivateFieldGet(_eventHandler, _this6).call(_this6, event, clickActions);
+        _classPrivateFieldGet(_eventHandler, _this5).call(_this5, event, clickActions);
       }, false);
       _classPrivateFieldGet(_boundEventNames, this).push('click');
     }
@@ -719,7 +678,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
     var _loop = function _loop() {
       var eventName = _eventNames2[_i];
       thiselement.addEventListener(eventName, function (event) {
-        _classPrivateFieldGet(_eventHandler, _this6).call(_this6, event, otherActions[eventName]);
+        _classPrivateFieldGet(_eventHandler, _this5).call(_this5, event, otherActions[eventName]);
       }, false);
     };
     for (var _i = 0, _eventNames2 = eventNames; _i < _eventNames2.length; _i++) {
@@ -739,15 +698,11 @@ function extendElementClassWithReactiveElementClass(elementClass) {
       theState = _this$getState4[1];
     if (stateValue !== newValue) theState[stateProp] = newValue;
   }
-  function _resolveTextContentTemplateString() {
-    var resolveTextContentFn = new Function("return this.resolveTextContentTemplateStringTag`" + this.textContent + "`;").bind(this);
-    return resolveTextContentFn();
-  }
-  _defineProperty(ReactiveElement, "observedAttributes", ["ref"].concat(_consts_js__WEBPACK_IMPORTED_MODULE_0__.SUPPORTED_ATTRIBUTES_FOR_BINDING).concat(Object.keys(_commands_js__WEBPACK_IMPORTED_MODULE_2__.COMMANDS).map(function (command) {
+  _defineProperty(ReactiveElement, "observedAttributes", ["ref"].concat(_consts_js__WEBPACK_IMPORTED_MODULE_0__.SUPPORTED_ATTRIBUTES_FOR_BINDING).concat(Object.keys(_commands_js__WEBPACK_IMPORTED_MODULE_1__.COMMANDS).map(function (command) {
     return '_' + command.toLowerCase();
   })));
   ReactiveElement.prototype.initialSetText = function (stateProp) {
-    _state_utils_js__WEBPACK_IMPORTED_MODULE_5__.setStateText.call(this, stateProp);
+    _state_utils_js__WEBPACK_IMPORTED_MODULE_4__.setStateText.call(this, stateProp);
   };
   ReactiveElement.prototype.initialSetAttribute = function (attributeName, attributeValue) {
     attributeValue = String(attributeValue);
@@ -761,11 +716,11 @@ function extendElementClassWithReactiveElementClass(elementClass) {
     // "State attribute"
     if (attributeValue.indexOf('$') === 0 && this.isConnected) {
       var stateProp = attributeValue.substring(1);
-      _state_utils_js__WEBPACK_IMPORTED_MODULE_5__.setStateAttribute.call(this, attributeName, stateProp);
+      _state_utils_js__WEBPACK_IMPORTED_MODULE_4__.setStateAttribute.call(this, attributeName, stateProp);
     }
     // normal attribute
     else {
-      _state_utils_js__WEBPACK_IMPORTED_MODULE_5__.setAttribute.call(this, attributeName, valueToSet);
+      _state_utils_js__WEBPACK_IMPORTED_MODULE_4__.setAttribute.call(this, attributeName, valueToSet);
     }
   };
 
@@ -1285,7 +1240,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _state_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./state_utils.js */ "./src/core/state_utils.js");
 /* harmony import */ var _consts_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./consts.js */ "./src/core/consts.js");
 /* harmony import */ var _DOM_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOM_utils.js */ "./src/core/DOM_utils.js");
-/* harmony import */ var _attr_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./attr_utils.js */ "./src/core/attr_utils.js");
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
@@ -1367,51 +1321,6 @@ var COMMANDS = {
         });
       }
     }
-  },
-  condition: function condition(commandValue) {
-    var _this2 = this;
-    if (this.tagName !== "SLOT") {
-      throw Error("_condition command can only be used on a slot element!");
-    }
-    if (!this.children || !this.children.length) {
-      throw Error("Conditional rendering slot (a reactive-slot with a _condition command) must have children! For slot: ", this);
-    }
-    var statePropName = commandValue;
-    var _this$getState = this.getState(statePropName, true),
-      _this$getState2 = _slicedToArray(_this$getState, 2),
-      stateValue = _this$getState2[0],
-      stateObject = _this$getState2[1];
-    if (typeof stateValue === "undefined") {
-      throw Error("State property ".concat(statePropName, " not defined for _condition command!"));
-    }
-    var slotHost = this.host;
-    var slotChildren = _toConsumableArray(this.children);
-    var nodesToAssign = [];
-    slotChildren.forEach(function (slotChildElement) {
-      var _if = slotChildElement.getAttribute('_if');
-      if (_if) {
-        slotChildElement.host = slotHost;
-        slotChildElement.conditionalSlotChild = true;
-        var slotChildChildren = slotChildElement.querySelectorAll('*');
-        slotChildChildren.forEach(function (child) {
-          child.host = slotHost;
-        });
-        var expectedValue = (0,_attr_utils_js__WEBPACK_IMPORTED_MODULE_3__.attributeValueToTypedValue)(_if);
-        if (stateValue === expectedValue) {
-          nodesToAssign.push(slotChildElement);
-        }
-      }
-    });
-
-    // Slotted elements must be LIGHT DOM
-    // (directly connected to the custom element)
-    requestAnimationFrame(function () {
-      slotHost.append.apply(slotHost, _toConsumableArray(slotChildren));
-      if (nodesToAssign.length) {
-        _this2.assign.apply(_this2, nodesToAssign);
-      }
-    });
-    stateObject._stateManager.addConditionallyRenderingElements(statePropName, this);
   }
 };
 

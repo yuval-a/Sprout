@@ -83,7 +83,7 @@
 }
 
 .todo-item .destroy:after {
-	content: "×";
+	content: "\00D7";
 	display: block;
 	height: 100%;
 	line-height: 1.1
