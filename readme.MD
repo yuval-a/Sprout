@@ -1,8 +1,9 @@
 # Introduction
-Sprout is a client-side Javascript framework that introduces **state** management and **reactivity** into native HTML elements, 
-by using the native [Web Components API](https://developer.mozilla.org/en-US/docs/Web/API/Web_components), extending the [`HTMLElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement) class, adding additional capabilities to it, while also allowing you to define "[custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)" that reacts to state changes, using native browser features such as the [`<template>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template) element.
+Sprout is a client-side JavaScript framework that introduces **state** management and **reactivity** to native HTML elements by leveraging the native [Web Components API](https://developer.mozilla.org/en-US/docs/Web/API/Web_components), extending the `HTMLElement` class to provide additional capabilities, allowing developers to define “custom elements” that automatically react to state changes, or adding those capabilities to existing HTML elements (via the `is` attribute).
+Sprout seamlessly integrates native browser features, such as the <template> element, into its reactive system.
 
-Watch some [live demos](#demos), or read on for more information.
+Explore [live demos](#demos) or dive into the documentation below.
+
 
 # Quick Usage Highlights
 
@@ -85,7 +86,9 @@ Read on to learn further, or watch some [demos](#demos).
 
 # Main Concepts
 ## ReactiveElement
-At the heart of Sprout is the `ReactiveElement` class, this is a base class, extending the `HTMLElement` class, effectivily extending HTML Elements with the features Sprout supports.
+At the heart of Sprout, it extends all HTML elements with a `ReactiveElement` subclass, effectively enriching them with the features Sprout supports.
+Use the `is` attribute (`is="reactive-[tag-name]"`) to make native elements reactive.
+> **Note**: Certain elements like `<header>` and `<footer>` are not supported for the `is` attribute due to the DOM API limitations.
 
 "Building" an app with Sprout initially entails defining "Components", that eventually uses `<template>` elements, that encapsulates within them the three aspects of a component: the UI (HTML), the styling (its look - CSS), and the logic (Javascript). Sprout's core library passes this information to a new instance of a `ReactiveElement`, and then defines a new "Custom Element" based off of this. When you use that custom element in your HTML structure - it already supports Sprout's features. When working on an app in a **[development environment](#development-environment)** and using the [App Builder Script](#app-builder-script) - these `<template>` elements will be automatically generated for you (amongst other things the builder script does).
 
