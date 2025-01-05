@@ -1,11 +1,7 @@
 import { BOOLEAN_ATTRIBUTES, BUILT_IN_STATE_PROPS } from "./consts.js";
 import { generateStateNodeActions } from './node_actions.js';
 import { setHiddenProperty } from "./prop_utils.js";
-import { queuePaint } from "./paint_utils.js";
-import { NODES_STATE } from "./consts.js";
-import { isElementAList } from "./DOM_utils.js";
 
-const { nodeActionsMap } = NODES_STATE;
 
 if (typeof HTMLElement === 'undefined') {
     console.warn ("HTMLElement was not found! This probably means you are running in a non-browser environment, and can lead to unexpected results");
@@ -156,8 +152,8 @@ export function handleStateChange(stateManager, stateProp) {
     if (BUILT_IN_STATE_PROPS.includes(stateProp)) return;
     // Populate the next Node Actions to perform
     generateStateNodeActions(stateManager, stateProp);
-    const state = stateManager.state;
 
+    const state = stateManager.state;
     // Run on[stateProp]Change hooks
     if (state.hasOwnProperty(`on_${stateProp}Change`)) {
         if (typeof state[`on_${stateProp}Change`] === "function")
@@ -207,10 +203,6 @@ export function handleStateChange(stateManager, stateProp) {
             });
         });
     }
-
-    if (nodeActionsMap.size) {
-        queuePaint();
-    }
 }
 
 export function populateStateFromInitialState(state, initialState) {
@@ -238,7 +230,6 @@ export function populateStateFromInitialState(state, initialState) {
                 }
             }
         }
-        
     }
 
     // If state set hooks should run on initialization - 

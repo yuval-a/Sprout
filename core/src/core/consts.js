@@ -1,3 +1,5 @@
+import { extendElementClassWithReactiveElementClass } from "./ReactiveElement.js";
+
 export const BOOLEAN_ATTRIBUTES = [
     'hidden',
     'checked'
@@ -41,7 +43,8 @@ export const BUILT_IN_STATE_PROPS = [
     '_localStateManager',
     '_stateManager',
     '_binding',
-    '_populate'
+    '_populate',
+    '_isActive'
 ]
 
 export const GLOBAL_STATE_VAR_NAME = "SproutGlobalState";
@@ -53,12 +56,11 @@ export const ERROR_MESSAGES = {
     }
 }
 
-
 export const HTML_ELEMENTS_CLASSES_MAP = [
     { class: HTMLAnchorElement, element: "a" },
     { class: HTMLAreaElement, element: "area" },
     { class: HTMLAudioElement, element: "audio" },
-    { class: HTMLBaseElement, element: "base" },
+    // { class: HTMLBaseElement, element: "base" },
     { class: HTMLBodyElement, element: "body" },
     { class: HTMLBRElement, element: "br" },
     { class: HTMLButtonElement, element: "button" },
@@ -72,12 +74,14 @@ export const HTML_ELEMENTS_CLASSES_MAP = [
     { class: HTMLEmbedElement, element: "embed" },
     { class: HTMLFieldSetElement, element: "fieldset" },
     { class: HTMLFormElement, element: "form" },
+    /*
     { class: HTMLHeadingElement, element: "h1" },
     { class: HTMLHeadingElement, element: "h2" },
     { class: HTMLHeadingElement, element: "h3" },
     { class: HTMLHeadingElement, element: "h4" },
     { class: HTMLHeadingElement, element: "h5" },
     { class: HTMLHeadingElement, element: "h6" },
+     */
     { class: HTMLHRElement, element: "hr" },
     { class: HTMLHtmlElement, element: "html" },
     { class: HTMLIFrameElement, element: "iframe" },
@@ -94,19 +98,19 @@ export const HTML_ELEMENTS_CLASSES_MAP = [
     { class: HTMLOListElement, element: "ol" },
     { class: HTMLOptGroupElement, element: "optgroup" },
     { class: HTMLOptionElement, element: "option" },
-    { class: HTMLOutputElement, element: "output" },
+    // { class: HTMLOutputElement, element: "output" },
     { class: HTMLParagraphElement, element: "p" },
-    { class: HTMLParamElement, element: "param" },
+    // { class: HTMLParamElement, element: "param" },
     { class: HTMLPictureElement, element: "picture" },
     { class: HTMLPreElement, element: "pre" },
     { class: HTMLProgressElement, element: "progress" },
     { class: HTMLQuoteElement, element: "blockquote" },
     { class: HTMLQuoteElement, element: "q" },
-    { class: HTMLScriptElement, element: "script" },
+    // { class: HTMLScriptElement, element: "script" },
     { class: HTMLSelectElement, element: "select" },
     { class: HTMLSourceElement, element: "source" },
     { class: HTMLSpanElement, element: "span" },
-    { class: HTMLStyleElement, element: "style" },
+    // { class: HTMLStyleElement, element: "style" },
     { class: HTMLTableElement, element: "table" },
     { class: HTMLTableCellElement, element: "td" },
     { class: HTMLTableCellElement, element: "th" },
@@ -122,10 +126,9 @@ export const HTML_ELEMENTS_CLASSES_MAP = [
     { class: HTMLVideoElement, element: "video" },
     { class: HTMLSlotElement, element: "slot" },
     // We can't use HTMLElement more than once, so we will use a class extending it
-    { class: class extends HTMLElement{}, element: "code" }
-
-    // { class: HTMLSlotElement, element: "slot" } Has a different extended class for conditional rendering
+    // { class: class extends HTMLElement{}, element: "code" }
 ];
+
 // For development purposes only,
 // turn this on to see exactly which functions in each entity are called and when.
 export const DEBUG_MODE = false;
@@ -147,6 +150,8 @@ export const NODES_STATE = {
     eventBindRafId: null,
     // Same for conditional renders
     conditionalRenderRafId: null,
+    activateRafId: null,
+    elementActivateFunctions: new Map()
 }
 
 export const CONDITIONAL_OPERATORS = [

@@ -35,6 +35,33 @@ class StateManager {
     // or a value in an object on a state object - any change on the child state object should trigger state
     // changes on the parentStateProp
     // host is the host element that the state is attached to
+    
+    dirtyProps = new Set();
+
+    #handleStateChangeRAF_ID = null;
+    setDirtyProp(prop) {
+        this.dirtyProps.add(prop);
+        if (this.#handleStateChangeRAF_ID) {
+            cancelAnimationFrame(this.#handleStateChangeRAF_ID);
+            // clearTimeout(this.#handleStateChangeRAF_ID);
+
+        }
+        this.#handleStateChangeRAF_ID = requestAnimationFrame(()=> {
+            this.#handleStateChangeRAF_ID = null;
+            if (this.dirtyProps.size > 0) {
+                this.handleStateChanges();
+            }
+        });
+    }
+
+    handleStateChanges() {
+        console.log ("Handling state changes for", this);
+        const stateProps = [...this.dirtyProps];
+        this.dirtyProps.clear();
+        stateProps.forEach(prop=> {
+            handleStateChange(this, prop);
+        });
+    }
     constructor(initialState, parentStateProp, parentStateManager, isGlobal = false, appScope=window) {
         this.parentStateProp = parentStateProp;
         this.parentStateManager = parentStateManager;
@@ -68,6 +95,8 @@ class StateManager {
         if (initialState) {
             populateStateFromInitialState(this.state, initialState);
         }
+
+        setHiddenProperty(this.state, "_isActive", this, true);
     }
 
     addStateDependency(stateProp, depStateProp) {
@@ -79,13 +108,9 @@ class StateManager {
 
     addStateMap(stateProp, customElementName, parentElement) {
         if (!this.stateArrayMaps.hasOwnProperty(stateProp)) {
-            this.stateArrayMaps[stateProp] = [];
+            this.stateArrayMaps[stateProp] = new Map();
         }
-
-        this.stateArrayMaps[stateProp].push({
-            customElementName,
-            parentElement
-        });
+        this.stateArrayMaps[stateProp].set(parentElement, customElementName);
     }
 
 
@@ -106,97 +131,85 @@ class StateManager {
         }
         this.stateNodes[stateProp].add(stateNode);
     }
-    
-
-    setAndBindStateProperty(stateProp, isBooleanStateProp=false) {
+    setAndBindStateProperty(stateProp) {
         let stateObj = this.state;
-        if (stateProp.indexOf('!') === 0) {
-            const originalStateProp = stateProp.substring(1);
-            let descriptor = Object.getOwnPropertyDescriptor(stateObj, originalStateProp);
-            if (!descriptor) {
-                stateObj = stateObj._global;
-                descriptor = Object.getOwnPropertyDescriptor(stateObj, originalStateProp);
-                if (!descriptor) {
-                    throw Error(`Could not bind state prop ${stateProp}. State prop ${originalStateProp} not defined!`);
-                }
-            }
-            // Negate prop: (!something) - add a dependency between the negate prop to the original prop,
-            // So anytime the original prop change, things that are dependant on the negate prop will react
-            // return stateObj._stateManager.addStateDependency(originalStateProp, stateProp);
-            return;
+        let originalStateProp = stateProp;
+        const isNegationProp = stateProp.indexOf('!') === 0;
+        if (isNegationProp) {
+            originalStateProp = stateProp.substring(1);
         }
-
-        let descriptor = Object.getOwnPropertyDescriptor(stateObj, stateProp);
+        let descriptor = Object.getOwnPropertyDescriptor(stateObj, originalStateProp);
         if (!descriptor) {
             stateObj = stateObj._global;
-            descriptor = Object.getOwnPropertyDescriptor(stateObj, stateProp);
+            descriptor = Object.getOwnPropertyDescriptor(stateObj, originalStateProp);
             if (!descriptor) {
-                throw Error(`Could not bind state prop ${stateProp}. State prop not defined!`);
+                throw Error(`Could not bind state prop ${stateProp}. State prop ${originalStateProp} not defined!`);
             }
         }
+
+        stateObj._binding = true;
+
         // Some state props can be getters (which usually references other state values)
         // These should be treated differently: should not be saved in privateState, and should not have a setter defined
         const isValueProp = descriptor.hasOwnProperty('value');
         const stateManager = stateObj._stateManager;
 
-        if (isValueProp) {
-            if (!stateManager.privateState.hasOwnProperty(stateProp)) {
-                stateManager.privateState[stateProp] = stateObj[stateProp];
-            }
-            stateObj._binding = true;
-            Object.defineProperty(stateObj, stateProp, {
-                set(value) {
-                    const currentVal = stateManager.privateState[stateProp];
-                    if (value === currentVal) return;
-                    // Sets value to "private state"
-                    stateManager.privateState[stateProp] = value;
-
-                    handleStateChange(stateManager, stateProp);
-                    // If this is an item in a Stateful Array, also trigger a state change for the state prop that contains the array
-                    if (stateManager.parentStateManager) {
-                        handleStateChange(stateManager.parentStateManager, stateManager.parentStateProp);
-                    }
-                },
-                get() {
-                    // Value is always retrieved from the "private" state
-                    return stateManager.privateState[stateProp];
-                }
-            });
-        }
-
-        // Boolean state props will also have "negate props" available (![stateProp])
-        if (isBooleanStateProp && stateProp.indexOf('!') !== 0) {
-            const negateStateProp = `!${stateProp}`;
+        if (isNegationProp) {
+            const negateStateProp = stateProp;
             if (isValueProp) {
                 if (!stateManager.privateState.hasOwnProperty(negateStateProp)) {
                     Object.defineProperty(stateObj, negateStateProp, {
                         get() {
-                            return !stateManager.privateState[stateProp];
+                            return !stateManager.privateState[originalStateProp];
                         },
                         set() {
                             throw Error("Cannot directly set a negation State property!");
                         },
                         enumerable: true,
                     });
-                    stateManager.addStateDependency(stateProp, negateStateProp);
+                    stateManager.addStateDependency(originalStateProp, negateStateProp);
                 }
             }
             else {
                 if (!stateManager.state.hasOwnProperty(negateStateProp)) {
                     Object.defineProperty(stateObj, negateStateProp, {
                         get() {
-                            return !stateManager.state[stateProp];
+                            return !stateManager.state[originalStateProp];
                         },
                         set() {
                             throw Error("Cannot directly set a negation State property!");
                         },
                         enumerable: true,
                     });
-                    stateManager.addStateDependency(stateProp, negateStateProp);
+                    stateManager.addStateDependency(originalStateProp, negateStateProp);
                 }
             }
         }
-
+        else {
+            if (isValueProp) {
+                if (!stateManager.privateState.hasOwnProperty(stateProp)) {
+                    stateManager.privateState[stateProp] = stateObj[stateProp];
+                }
+                Object.defineProperty(stateObj, stateProp, {
+                    set(value) {
+                        const currentVal = stateManager.privateState[stateProp];
+                        if (value === currentVal) return;
+                        // Sets value to "private state"
+                        stateManager.privateState[stateProp] = value;
+                        handleStateChange(stateManager, stateProp);
+                        // If this is an item in a Stateful Array, also trigger a state change for the state prop that contains the array
+                        if (stateManager.parentStateManager) {
+                            handleStateChange(stateManager.parentStateManager, stateManager.parentStateProp);
+                        }
+                    },
+                    get() {
+                        // Value is always retrieved from the "private" state
+                        return stateManager.privateState[stateProp];
+                    }
+                });
+            }
+            // If is a getter then - it can't be set, and the getter will return the value.
+        }
         delete this.state._binding;
     }
 }    

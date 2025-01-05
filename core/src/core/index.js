@@ -6,16 +6,18 @@ import { putObjectInDebugMode } from "./debug_utils.js";
 import { DEBUG_MODE } from "./consts.js";
 import { setHiddenProperty } from "./prop_utils.js";
 import { getConditionalElementClass } from "./ConditionalElement.js";
+import { getReactiveCustomElementClass } from "./ReactiveCustomElement.js";
 
 const allowAppScopeAccess = document.currentScript.hasAttribute("allowappscopeaccess");
-
+const stateManagerClass = StateManager;
 globalThis.SproutInitApp = function(appName) {
     
     let appScope = (function() { return { window, document: window?.document }})(window);
 
     const config = {
         useShadow: true, // Always use shadow DOM for now, may add configurability later
-        allowAppScopeAccess: allowAppScopeAccess
+        allowAppScopeAccess: allowAppScopeAccess,
+        stateManagerClass
     }
 
     if (config.allowAppScopeAccess) {
@@ -41,7 +43,7 @@ globalThis.SproutInitApp = function(appName) {
     }
     // If initialState is passed - also sets it to global state
     appScope.setGlobalState = function(initialState = {}) {
-        const globalState =  new StateManager(initialState, undefined, undefined, true, appScope).state;
+        const globalState =  new appScope.SPROUT_CONFIG.stateManagerClass(initialState, undefined, undefined, true, appScope).state;
         const globalStateVarName = GLOBAL_STATE_VAR_NAME;
         Object.defineProperty(appScope, globalStateVarName, {
             value: globalState,
@@ -56,18 +58,32 @@ globalThis.SproutInitApp = function(appName) {
     };
 
 
-    appScope.ReactiveElement = extendElementClassWithReactiveElementClass(HTMLElement, appScope);
-
-    // Extend specific HTMLElement classes to enable reactivity (use it by adding an "is" attribute to an element)
-    HTML_ELEMENTS_CLASSES_MAP.forEach(itemDefinition => 
-        customElements.define(
-            `reactive-${itemDefinition.element}`, 
-            extendElementClassWithReactiveElementClass(itemDefinition.class, appScope, true),
-            { extends: itemDefinition.element })
-        
+    const HTML_REACTIVE_ELEMENT_CLASSES = {};
+    HTML_ELEMENTS_CLASSES_MAP.forEach(elementDefinition=>
+        HTML_REACTIVE_ELEMENT_CLASSES[elementDefinition.element] = extendElementClassWithReactiveElementClass(elementDefinition.class, appScope, true)
     );
 
-    const ReactiveConditionalElementClass = extendElementClassWithReactiveElementClass(HTMLElement, appScope, true);
+    appScope.ReactiveCustomElement = getReactiveCustomElementClass(appScope);
+
+    // Extend specific HTMLElement classes to enable reactivity (use it by adding an "is" attribute to an element)
+    HTML_ELEMENTS_CLASSES_MAP.forEach(itemDefinition => {
+        customElements.define(
+            `reactive-${itemDefinition.element}`, 
+            // extendElementClassWithReactiveElementClass(itemDefinition.class, appScope, true),
+            HTML_REACTIVE_ELEMENT_CLASSES[itemDefinition.element],
+            { extends: itemDefinition.element });
+        }
+    );
+
+    const ReactiveHeadingClass = extendElementClassWithReactiveElementClass(HTMLHeadingElement, appScope);
+    ["h1", "h2", "h3", "h4", "h5", "h6"].forEach(hTag=> {
+        customElements.define(`reactive-${hTag}`,
+            class extends ReactiveHeadingClass {},
+            { extends: hTag}
+        );
+
+    });
+    const ReactiveConditionalElementClass = extendElementClassWithReactiveElementClass(HTMLElement, appScope);
     const ConditionalElementClass = getConditionalElementClass(ReactiveConditionalElementClass); 
     customElements.define('conditional-render', ConditionalElementClass);
 

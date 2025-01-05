@@ -4,16 +4,18 @@ import StatefulArray from "./StatefulArray.js";
 import { BUILT_IN_STATE_PROPS, ERROR_MESSAGES } from "./consts.js";
 
 export const StatefulArrayHandler = function(parentStateManager, arrayStateProp, appScope = window) {
+    const StateManager = appScope.SPROUT_CONFIG.stateManagerClass;
     return {
         set(targetArray, property, value) {
-            // Return if the value is the same
             // A change in array length triggers state change in the array state prop
             if (property === "length") {
                 const setResult = Reflect.set(targetArray, property, value);
-                handleStateChange(parentStateManager, arrayStateProp);
+                parentStateManager.setDirtyProp(arrayStateProp);
+                // queueMicrotask(()=> handleStateChange(parentStateManager, arrayStateProp));
                 return setResult;
             }
 
+            // Return if the value is the same
             if (targetArray[property] === value) return true;
 
             const index = Number(property);
@@ -30,7 +32,6 @@ export const StatefulArrayHandler = function(parentStateManager, arrayStateProp,
                 // This means the object actions are part of a native array function ('splice' etc.), and that we should NOT
                 // mark $$mapAction on values
                 if (!targetArray.hasOwnProperty('$$operation')) {
-
                     let doStateChangeHandle = false;
                     if (index < targetArray.length) {
                         doStateChangeHandle = true;
@@ -40,7 +41,8 @@ export const StatefulArrayHandler = function(parentStateManager, arrayStateProp,
                     // if it's a new item, it will already be handled on the "length" property set
                     // Without this check we will have a redundant state check
                     if (doStateChangeHandle) {
-                        handleStateChange(parentStateManager, arrayStateProp);
+                        parentStateManager.setDirtyProp(arrayStateProp);
+                        //queueMicrotask(()=> handleStateChange(parentStateManager, arrayStateProp));
                     }
                     return setResult;
                 }
@@ -49,8 +51,8 @@ export const StatefulArrayHandler = function(parentStateManager, arrayStateProp,
         },
         
         get(targetArray, property, receiver) {
-            if (typeof property === 'symbol') return Reflect.get(...arguments);
-            if (property === 'hasOwnProperty') return Reflect.get(...arguments);
+            // if (typeof property === 'symbol') return Reflect.get(...arguments);
+            // if (property === 'hasOwnProperty') return Reflect.get(...arguments);
             const index = Number(property);
             if (!isNaN(index)) {
                 if (!targetArray[index]) return undefined;
@@ -72,6 +74,34 @@ export const StatefulArrayHandler = function(parentStateManager, arrayStateProp,
     }
 }
 
+export const StateObjectValueHandler = function(rootStateObj, objPropertyName, appScope = window) {
+    return {
+        defineProperty(targetObj, property, descriptor) {
+            if (typeof descriptor?.value !== "undefined") {
+                const value = descriptor.value;
+                // Could already be a StatefulArray (needs to find better way to detect this)
+                if (Array.isArray(value)) {
+                    if (!value?.[0]?._stateManager) {
+                        descriptor.value = new StatefulArray(descriptor.value, rootStateObj, objPropertyName, false, appScope);
+                    }
+                }
+                else if (typeof value === "object") {
+                    descriptor.value = new Proxy(descriptor.value, StateObjectValueHandler(rootStateObj, objPropertyName, appScope))
+
+                }
+            }
+            else if (typeof descriptor?.get === "function") {
+                descriptor.get.call(targetObj);
+            }
+            // Don't use "arguments" here - they are not linked to argument changes in 'strict'
+            const definePropertyResult = Reflect.defineProperty(targetObj, property, descriptor);
+            const stateManager = rootStateObj._stateManager;
+            stateManager.setDirtyProp(objPropertyName);
+            // queueMicrotask(()=> handleStateChange(stateManager, objPropertyName));
+            return definePropertyResult;
+        },
+    }
+}
 export const StateHandler = function(stateObj, appScope = window) {
     return {
         defineProperty(targetState, stateProp, descriptor) {
@@ -129,6 +159,9 @@ export const StateHandler = function(stateObj, appScope = window) {
                         descriptor.value = new StatefulArray(descriptor.value, stateObj, stateProp, false, appScope);
                     }
                 }
+                else if (typeof value === 'object') {
+                    descriptor.value = new Proxy(descriptor.value, StateObjectValueHandler(stateObj, stateProp, appScope));
+                }
             }
             else if (typeof descriptor?.get === "function") {
                 descriptor.get.call(targetState);
@@ -143,7 +176,8 @@ export const StateHandler = function(stateObj, appScope = window) {
             const stateManager = stateObj._stateManager;
             if (setStateProp) stateProp = setStateProp;
             if (!origTargetState.hasOwnProperty("_populate"))
-                handleStateChange(stateManager, stateProp);
+                stateManager.setDirtyProp(stateProp);
+                // queueMicrotask(()=> handleStateChange(stateManager, stateProp));
             return definePropertyResult;
         },
         get(targetState, property, receiver) {

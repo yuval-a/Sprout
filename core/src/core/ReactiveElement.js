@@ -1,196 +1,26 @@
 import { COMMANDS as COMMAND_ATTRIBUTES } from "./commands.js";
 import { BOOLEAN_ATTRIBUTES, SUPPORTED_ATTRIBUTES_FOR_BINDING, GLOBAL_STATE_FUNCTION_NAME, DEFAULT_TEMPLATE_DOM } from "./consts.js";
+import { queueActivate } from "./paint_utils.js";
 import { setAttribute, setStateAttribute, setStateText } from "./state_utils.js";
-import StateManager from "./StateManager.js";
-import { putObjectInDebugMode } from "./debug_utils.js";
-import { DEBUG_MODE } from "./consts.js";
-import { queueBindEvents } from "./paint_utils.js";
-import { attributeValueToTypedValue } from "./attr_utils.js";
 
-export function extendElementClassWithReactiveElementClass(elementClass, appScope = window, noRender = false) {
+export function extendElementClassWithReactiveElementClass(elementClass, appScope = window) {
     class ReactiveElement extends elementClass {
         // Should contain the "root" DOM element containing this element
         host = null
-        // Callback function for when the element is connected to a DOM tree on the page
-        #onMount
+
+        // For input elements - to force bubble-up of change events
+        #changeEventHandler
+
         #wasMounted = false
+
         // Used for the _bind command, which allows "reverse-binding" attribute values to state props,
         // keys are attribute names, values are state prop names
         #boundAttributesToState = {}
 
-        // Should only be used on non native custom elements
-        #templateContent
-        #stylesheet
-        #globalStylesheet
-        // This will be an object where keys are element "ref" names,
-        // and the value is either a "click" event handler (if it's a function),
-        // or an object with DOM event names as keys and event handlers as functions.
-        // Only relevant for non native custom elements - event bubbling from child elements will be used
-        #events
-
-        // Name of events that are bound to the main event handler function
-        #boundEventNames = [];
-
-        // Main event handler function 
-        #eventHandler
-        // Special case to handle input change events (to make them bubble up from shadow DOM)
-        #changeEventHandler
         static observedAttributes = ["ref"]
                                     .concat(SUPPORTED_ATTRIBUTES_FOR_BINDING)
                                     .concat(Object.keys(COMMAND_ATTRIBUTES).map(command => ('_' + command.toLowerCase())));
 
-
-        constructor(template=null, runtimeScript, style, globalStylesheet) {
-            super();
-            this.isReactiveElement = true;
-            this.isSpecialElement = this.tagName === "CONDITIONAL-ELEMENT";
-            this.isNativeElement = this.hasAttribute("is") && !this.isSpecialElement;
-            if (!this.isNativeElement) {
-                if (runtimeScript) {
-                    const dynamicRuntimeFn = new Function(runtimeScript.textContent);
-                    const runtime = dynamicRuntimeFn();
-                    this.#setRuntime(runtime);
-                }
-                // Should already be a DocumentFragment of the template
-                if (template) { 
-                    this.#templateContent = template.cloneNode(true);
-                }
-                else {
-                    this.#templateContent = DEFAULT_TEMPLATE_DOM.cloneNode();
-                }
-
-                if (style) {
-                    const stylesheet = new CSSStyleSheet();
-                    stylesheet.replaceSync(style);
-                    this.#stylesheet = stylesheet;
-                }
-                if (globalStylesheet) {
-                    this.#globalStylesheet = globalStylesheet;
-                }
-                // Maps "ref names" to actual elements in the component DOM tree,
-                // for fast access.
-                this.ref = {};
-            }
-
-        }
-
-        #setRuntime(runtime) {
-            if (runtime.events) {
-                this.#events = runtime.events;
-                if (this.isConnected) {
-                    queueBindEvents(this, ()=> this.#bindEvents());
-                }
-            }
-            if (runtime.state) {
-                this.setInitialState(runtime.state);
-                // If this is not mounted yet, #setStateFromInitialState will be called from onConnected callback
-                if (this.isConnected) this.#setActiveStateFromInitialState();
-            }
-
-            if (runtime.onMount) {
-                this.#onMount = runtime.onMount;
-            }
-        }
-
-        setInitialState(initState) {
-            if (this.initialState) {
-                Object.assign(this.initialState, initState);
-            }
-            else {
-                this.initialState = initState;
-            }
-        }
-
-        #setActiveStateFromInitialState() {
-            if (!this.initialState) return;
-            const initialState = this.initialState;
-            if (initialState._stateManager) {
-                this.state = initialState._stateManager.state;
-            }
-            else {
-                this.state = new StateManager(initialState, undefined, undefined, false, appScope).state;
-            }
-            delete this.initialState;
-        }
-
-        #renderTemplate() {
-            if (appScope.SPROUT_CONFIG.useShadow) {
-                const shadowRoot = this.attachShadow({ mode: "open" });
-                this.shadowRoot.adoptedStyleSheets = [];
-                if (this.#globalStylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#globalStylesheet);
-                if (this.#stylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#stylesheet);
-                shadowRoot.appendChild(this.#templateContent);
-            }
-            else {
-                const fragment = new DocumentFragment();
-                fragment.appendChild(this.#templateContent);
-                this.appendChild(fragment);
-            }
-        }
-
-        #unbindEvents() {
-            if (this.#changeEventHandler) this.removeEventListener('change', this.#changeEventHandler);
-            if (!this.#boundEventNames.length) return;
-            const thiselement = this;
-            this.#boundEventNames.forEach(eventName=> {
-                thiselement.removeEventListener(eventName, this.#eventHandler, false);
-            });
-
-        }
-        #bindEvents() {
-            if (!this.#events) return;
-            const eventRefNames = Object.keys(this.#events);
-            const clickActions = {};
-            const otherActions = {};
-            eventRefNames.forEach(refName=> {
-                const value = this.#events[refName];
-                if (typeof value === 'function') {
-                    clickActions[refName] = value;
-                }
-                else if (typeof value === 'object') {
-                    const eventNames = Object.keys(value);
-                    eventNames.forEach(eventName=> {
-                        if (eventName === 'click') {
-                            clickActions[refName] = value[eventName];
-                        }
-                        else {
-                            if (!otherActions[eventName]) otherActions[eventName] = {};
-                            otherActions[eventName][refName] = value[eventName];
-                        }
-                    });
-                }
-            });
-            const globalState = appScope[GLOBAL_STATE_FUNCTION_NAME]();
-            this.#eventHandler = function(event, eventsObject) {
-                const elementsPath = event.composedPath();
-                let target;
-                if (elementsPath) {
-                    target = elementsPath.find(element => element.hasAttribute && element.hasAttribute('ref') && (element.getAttribute('ref') in eventsObject));
-                }
-                else {
-                    target = (event.target.hasAttribute && event.target.hasAttribute('ref') && (event.target.getAttribute('ref') in eventsObject)) ? event.target : null;
-                }
-                if (target) {
-                    const ref = target.getAttribute('ref');
-                    eventsObject[ref]?.call(target, event, event.target, globalState);
-                }
-            }
-
-            const thiselement = this;
-            if (Object.keys(clickActions).length) {
-                thiselement.addEventListener('click', (event)=> {
-                    this.#eventHandler(event, clickActions);
-                }, false);
-                this.#boundEventNames.push('click');
-            }
-            const eventNames = Object.keys(otherActions);
-            for (const eventName of eventNames) {
-                thiselement.addEventListener(eventName, (event)=> {
-                    this.#eventHandler(event, otherActions[eventName]);
-                }, false);
-            }
-            this.#boundEventNames.push(...eventNames);
-        }
 
         bindAttributeToState(attrName, statePropName) {
             this.#boundAttributesToState[attrName] = statePropName;
@@ -220,28 +50,19 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
         }
 
         disconnectedCallback() {
+            if (this.#changeEventHandler) this.removeEventListener('change', this.#changeEventHandler);
             const host = this.host ?? this;
             if (host.ref) {
                 const thisRefName = this.getAttribute('ref');
-                if (thisRefName) delete host.ref[thisRefName];
+                if (thisRefName) { 
+                    delete host.ref[thisRefName];
+                    delete host.events[thisRefName];
+                }
             }
             this.#boundAttributesToState = {};
-            this.#unbindEvents();
-            this.state = undefined;
         }
 
-        connectedCallback() {
-            if (this.#wasMounted) return;
-            // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
-            // It is part of the way a check is made to see if an element is part of ShadowDOM!
-            // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
-            // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
-            this.host = this.getRootNode().host;
-
-            if (!this.isNativeElement) {
-                this.#setActiveStateFromInitialState();
-            }
-
+        activate() {
             // Keep it here and not in bindEvents! 
             if (this?.tagName === "INPUT") {
                 this.#changeEventHandler = function() {
@@ -252,11 +73,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                 this.addEventListener('change', this.#changeEventHandler, false);
             }
 
-            if (!this.isNativeElement && !noRender) {
-                // We mostly queue as microtask to allow custom slot elements to
-                // be attached to the light DOM first.
-                this.#renderTemplate();
-            }
             const commands = [];
             const attributeNames = this.getAttributeNames();
             for (const attrName of attributeNames) {
@@ -264,21 +80,39 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                 // This also resolves "State attributes"
                 this.initialSetAttribute(attrName, attrValue);
 
-                // Save "Command attributes"
+                // Save "Command attributes"\
                 if (attrName.indexOf('_') === 0) {
                     const command = attrName.substring(1);
                     commands.push({ command, args: attrValue });
-                    // COMMAND_ATTRIBUTES[command]?.call(this, attrValue);
                 }
             } 
-
             commands.forEach(({ command, args})=> {
                 COMMAND_ATTRIBUTES[command]?.call(this, args);
             });
 
-            if (!this.isNativeElement) {
-                queueBindEvents(this, ()=> this.#bindEvents());
-                if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
+        }
+        connectedCallback() {
+            if (this.#wasMounted) return;
+            // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
+            // It is part of the way a check is made to see if an element is part of ShadowDOM!
+            // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
+            // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
+            this.host = this.getRootNode().host;
+            if (this.host) {
+                // Once the host custom element is connected
+                // then its 'State' is ready and activated,
+                // then we can call the sub-elements 'activate()',
+                // which relies on an active state.
+                // Doing it like this, allow visual render faster,
+                // defering the state handling.
+                this.host.addEventListener("connected", 
+                    ()=> this.activate()),
+                { once: true }
+            }
+            else {
+                // queueActivate(this, ()=> this.activate());
+                queueMicrotask(()=> this.activate());
+
             }
             this.#wasMounted = true;
         }
@@ -296,7 +130,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             if (attributeName in this.#boundAttributesToState) {
                 this.#updateStateFromAttribute(attributeName);
             }
-    
         }
 
         // Gets state value of stateProp,
@@ -332,7 +165,7 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
         }
         
         findElement(refName) {
-            const host = this.isNativeElement ? this.host : this;
+            const host = this.host || this;
             // if Shadow DOM is used, the "root" element is shadowRoot, otherwise it is the 
             // web component itself
             let root = host;
@@ -341,34 +174,34 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
             }
             return host.ref.hasOwnProperty(refName) ? host.ref[refName] : root.querySelector(`[ref="${refName}"]`);
         }
-        //static get observedAttributes() { return ["todo-name"]; }
-    }
 
-    // The "initialSetX" functions are called:
-    // 1. When a custom element instance is first created (before it's connected) - 
-    // state attribute values are set to their state prop names (e.g: '$name').
-    // 2. When a custom element instance becomes connected (added to the DOM) - state attribute values are actually resolved to the
-    // value of their respective state prop values, and binding between them occurs.
-    ReactiveElement.prototype.initialSetText = function (stateProp) {
-        setStateText.call(this, stateProp);
-    }
-    ReactiveElement.prototype.initialSetAttribute = function (attributeName, attributeValue) {
-        attributeValue = String(attributeValue);
-        let valueToSet = attributeValue;
-
-        // "Property Attribute"
-        if (attributeValue.indexOf('@') === 0 && this.host && this.isConnected) {
-            valueToSet = this.host.getAttribute(attributeValue.substring(1));
-        } 
-        
-        // "State attribute"
-        if (attributeValue.indexOf('$') === 0 && this.isConnected)  {
-            let stateProp = attributeValue.substring(1);
-            setStateAttribute.call(this, attributeName, stateProp);
+        // The "initialSetX" functions are called:
+        // 1. When a custom element instance is first created (before it's connected) - 
+        // state attribute values are set to their state prop names (e.g: '$name').
+        // 2. When a custom element instance becomes connected (added to the DOM) - state attribute values are actually resolved to the
+        // value of their respective state prop values, and binding between them occurs.
+        initialSetText(stateProp) {
+            setStateText.call(this, stateProp);
         }
-        // normal attribute
-        else {
-            setAttribute.call(this, attributeName, valueToSet);
+        initialSetAttribute(attributeName, attributeValue) {
+            attributeValue = String(attributeValue);
+            let valueToSet = attributeValue;
+            /*
+            // "Property Attribute"
+            if (attributeValue.indexOf('@') === 0 && this.host && this.isConnected) {
+                valueToSet = this.host.getAttribute(attributeValue.substring(1));
+            } 
+            */
+            
+            // "State attribute"
+            if (attributeValue.indexOf('$') === 0 && this.isConnected)  {
+                let stateProp = attributeValue.substring(1);
+                setStateAttribute.call(this, attributeName, stateProp);
+            }
+            // normal attribute
+            else {
+                setAttribute.call(this, attributeName, valueToSet);
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 import { stateToElement, resolveStateMapToDocumentFragment } from "./state_utils.js";
 import { isElementAList } from "./DOM_utils.js";
-import { queueConditionalRender } from "./paint_utils.js";
+import { queueConditionalRender, queuePaint } from "./paint_utils.js";
 import { NODES_STATE } from "./consts.js";
 
 // Also, if doesn't exist - create it
@@ -26,6 +26,9 @@ export function addRemoveAction(nodeActions, elementToRemove, stateIdentifier) {
 }
 export function addReplaceAction(nodeActions, oldElement, newElement) {
     nodeActions.replace.set(oldElement, newElement);
+}
+export function addSwitchAction(nodeActions, newElement) {
+    nodeActions.switch = newElement;
 }
 // stateIdentifier can be a State object (for state maps),
 // or a State property (for conditionally rendered elements)
@@ -60,8 +63,15 @@ export function getNewNodeActionsObject() {
         // keys are state objects, or state props (string) 
         // to prevent duplicate pending
         remove: new Map(),
+        switch: null,
         get hasPendingActions() {
-            return (this.append.size || this.replace.size || this.after.size || this.remove.size);
+            return (
+                this.switch !== null ||
+                this.append.size || 
+                this.replace.size || 
+                this.after.size || 
+                this.remove.size
+            );
         }
     });
 }
@@ -72,7 +82,11 @@ export function generateStateNodeActions(stateManager, stateProp) {
     const { nodeActionsMap } = NODES_STATE;
     const value = stateManager.state[stateProp];
     const stateNodes = stateManager.stateNodes[stateProp];
-    const stateMaps = stateManager.stateArrayMaps[stateProp];
+    // This is a map, where keys are "parent elements" containing 
+    // custom element instanced created from a state array ("state map").
+    // The values are the custom element name. 
+    // The actual array of state objects is in state[stateProp]
+    const stateMapElements = stateManager.stateArrayMaps[stateProp];
     const conditionallyRenderingElements = stateManager.conditionallyRenderingElements[stateProp];
 
     // Note, since the value change is handled by a custom setter - that setter checks if the set value is the same - 
@@ -85,9 +99,12 @@ export function generateStateNodeActions(stateManager, stateProp) {
         });
     }
 
-    if (stateMaps) {
+    if (stateMapElements) {
+        // An array of state objects
         const stateMapArray = value;
-        stateMaps.forEach(({ customElementName, parentElement})=> {
+        console.log (`Has ${stateMapElements.size} stateMapElements`);
+        stateMapElements.forEach((customElementName, parentElement)=> {
+            //const newMappedElement = parentElement.cloneNode(true);
             const stateMapNodeActions = getNewNodeActionsObject();
             let currentStateMapArrayIndex = -1;
             const isParentAList = isElementAList(parentElement);
@@ -101,9 +118,11 @@ export function generateStateNodeActions(stateManager, stateProp) {
                     if (stateItem?.hasOwnProperty('state')) stateItem = stateItem.state;
                     if (!stateItem) {
                         addRemoveAction(stateMapNodeActions, childElement);
+                        // newMappedElement.removeChild(newMappedElement.children[currentIndex]);
                     }
                     else if (customElement.state !== stateItem) {
                         const replaceWithChild = stateToElement(stateItem, customElementName, isElementAList(parentElement) ? "li" : undefined);
+                        // newMappedElement.replaceChild(replaceWithChild, newMappedElement.children[currentIndex]);
                         addReplaceAction(stateMapNodeActions, childElement, replaceWithChild);
                     }
                     currentStateMapArrayIndex = currentIndex;
@@ -116,12 +135,13 @@ export function generateStateNodeActions(stateManager, stateProp) {
                 const stateItem = stateMapArray[i];
                 // New state item === new child element to append
                 if (stateItem) {
-                    // Make sure we don't already have a pending append action for the same state object
                     const newChild = stateToElement(stateItem, customElementName, isElementAList(parentElement) ? "li" : undefined);
+                    // newMappedElement.appendChild(newChild);
                     addAppendAction(stateMapNodeActions, newChild, stateItem);
                 }
             }
 
+            // addSwitchAction(stateMapNodeActions, newMappedElement);
             if (stateMapNodeActions.hasPendingActions) {
                 nodeActionsMap.set(parentElement, stateMapNodeActions);
             }
@@ -134,14 +154,18 @@ export function generateStateNodeActions(stateManager, stateProp) {
             queueConditionalRender(this, ()=> element.render());
         });
     }
+
+    if (nodeActionsMap.size) queuePaint();
 }
 
 function resolveNodeActionsMapToDOMActions() {
     const batchActions = [];
+    const attributeActions = [];
+    const elementActions = [];
+
     const { nodeActionsMap } = NODES_STATE;
 
     nodeActionsMap.forEach((nodeActions, node)=> {
-        console.log (nodeActions);
         // Attribute change
         if (nodeActions.hasOwnProperty("setAttribute")) {
             const value = nodeActions.setAttribute;
@@ -152,7 +176,7 @@ function resolveNodeActionsMapToDOMActions() {
                 if (value === false) {
                     // Remove attribute if it exists, otherwise - do nothing
                     if (node.originalOwnerElement.hasAttribute(node.name)) {
-                        batchActions.push(()=> {
+                        attributeActions.push(()=> {
                             node.originalOwnerElement.removeAttributeNode(node);
                         });
                     }
@@ -160,7 +184,7 @@ function resolveNodeActionsMapToDOMActions() {
                 // state changed to true
                 else {
                     if (!node.originalOwnerElement.hasAttribute(node.name)) {
-                        batchActions.push(()=> {
+                        attributeActions.push(()=> {
                             node.originalOwnerElement.setAttributeNode(node);
                         });
                     }
@@ -168,7 +192,7 @@ function resolveNodeActionsMapToDOMActions() {
             }
             else {
                 if (typeof value === "string" && node.nodeValue !== value) {
-                    batchActions.push (()=> node.nodeValue = value);
+                    attributeActions.push (()=> node.nodeValue = value);
                 }
             }
         }
@@ -177,31 +201,35 @@ function resolveNodeActionsMapToDOMActions() {
         else if (nodeActions.hasOwnProperty("textContent")) {
             const value = String(nodeActions.textContent);
             if (node.nodeValue === value) return;
-            batchActions.push (()=> node.nodeValue = value);
+            elementActions.push (()=> node.nodeValue = value);
         }
 
         // DOM change
+        else if (nodeActions.switch) {
+            elementActions.push(()=> node.replaceWith(nodeActions.switch));
+        }
         else {
             nodeActions.replace.forEach((newNode, oldNode)=> {
-                batchActions.push(()=> 
+                elementActions.push(()=> 
                     //oldNode.replaceWith(newNode));
                     node.replaceChild(newNode, oldNode));
             });
             for (const removes of nodeActions.remove.values()) {
                 for (const nodeToRemove of removes) {
                     if (nodeToRemove.parentNode && nodeToRemove.parentNode === node) {
-                        batchActions.push(()=> node.removeChild(nodeToRemove));
+                        elementActions.push(()=> node.removeChild(nodeToRemove));
                     }
                 }
             }
             for (const appends of nodeActions.append.values()) {
                 for (const newChildElement of appends) {
-                    batchActions.push(()=> node.appendChild(newChildElement));
+                    elementActions.push(()=> node.appendChild(newChildElement));
                 }
             }
         }
     });
-    return batchActions;
+
+    return [...attributeActions, ...elementActions];
 }
 
 // For debugging purposes
@@ -243,8 +271,10 @@ export function logNodeActions() {
 export function doUpdateDOM() {
     let { nodeActionsMap } = NODES_STATE;
     if (nodeActionsMap.size) {
+        // logNodeActions();
         const DOMActions = resolveNodeActionsMapToDOMActions(nodeActionsMap);
         DOMActions.forEach(DOMAction=> DOMAction());
         NODES_STATE.nodeActionsMap = new Map();
     }
 }
+

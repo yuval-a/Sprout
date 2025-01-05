@@ -17,7 +17,9 @@ module.exports = {
           chunks: 'all',
         },
       },
-    }
+    },
+    usedExports: true,
+    concatenateModules: true, // Scope hoisting
   },
   module: {
     rules: [
@@ -47,4 +49,4 @@ module.exports = {
     }
   ],  
   devtool: 'source-map',  // Use 'source-map' for detailed source maps
-};
+}

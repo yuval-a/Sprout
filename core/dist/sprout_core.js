@@ -1,5 +1,16 @@
-/******/ (() => { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["sprout_core"] = factory();
+	else
+		root["sprout_core"] = factory();
+})(self, () => {
+return /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
+var __webpack_exports__ = {};
 /*!****************************************!*\
   !*** ./src/core/index.js + 16 modules ***!
   \****************************************/
@@ -18,7 +29,7 @@ var SUPPORTED_INPUT_TYPES_FOR_VALUE_BINDING = [null,
 
 // These are "built-in" state props that are automatically added to state objects,
 // and should not be included in the normal state change/check flow
-var BUILT_IN_STATE_PROPS = ['_global', '_gettingDependenciesFor', '_localStateManager', '_stateManager', '_binding', '_populate', '_isActive'];
+var BUILT_IN_STATE_PROPS = ['_global', '_gettingDependenciesFor', '_localStateManager', '_stateManager', '_binding', '_populate'];
 var GLOBAL_STATE_VAR_NAME = "SproutGlobalState";
 var GLOBAL_STATE_FUNCTION_NAME = "getGlobalState";
 var ERROR_MESSAGES = {
@@ -233,9 +244,7 @@ var NODES_STATE = {
   // Similar as above but for event bindings
   eventBindRafId: null,
   // Same for conditional renders
-  conditionalRenderRafId: null,
-  activateRafId: null,
-  elementActivateFunctions: new Map()
+  conditionalRenderRafId: null
 };
 var CONDITIONAL_OPERATORS = ['=', '==', '!=', '!==', '<', '<=', '>', '>='];
 var MAX_OPERATIONS_PER_ANIMATION_FRAME = 100;
@@ -251,68 +260,38 @@ var paintRafId = NODES_STATE.paintRafId,
   eventBindRafId = NODES_STATE.eventBindRafId,
   conditionalRenderRafId = NODES_STATE.conditionalRenderRafId,
   conditionalRenders = NODES_STATE.conditionalRenders,
-  nodeActionsMap = NODES_STATE.nodeActionsMap,
-  activateRafId = NODES_STATE.activateRafId,
-  elementActivateFunctions = NODES_STATE.elementActivateFunctions;
+  nodeActionsMap = NODES_STATE.nodeActionsMap;
 function queueBindEvents(element, bindFunction) {
   eventBindingFunctions.set(element, bindFunction);
-  if (eventBindingFunctions.size < MAX_OPERATIONS_PER_ANIMATION_FRAME) {
-    if (eventBindRafId) cancelAnimationFrame(eventBindRafId);
+  if (eventBindingFunctions.size > MAX_OPERATIONS_PER_ANIMATION_FRAME) return;
+  if (eventBindRafId) cancelAnimationFrame(eventBindRafId);
+  eventBindRafId = requestAnimationFrame(function () {
     eventBindRafId = null;
-  }
-  if (!eventBindRafId) {
-    eventBindRafId = requestAnimationFrame(function () {
-      eventBindRafId = null;
-      eventBindingFunctions.forEach(function (bindFn) {
-        return bindFn();
-      });
-      eventBindingFunctions.clear();
+    eventBindingFunctions.forEach(function (bindFn) {
+      return bindFn();
     });
-  }
-}
-function queueActivate(element, activateFn) {
-  elementActivateFunctions.set(element, activateFn);
-  if (elementActivateFunctions.size < MAX_OPERATIONS_PER_ANIMATION_FRAME) {
-    if (activateRafId) cancelAnimationFrame(activateRafId);
-    activateRafId = null;
-  }
-  if (!activateRafId) {
-    activateRafId = requestAnimationFrame(function () {
-      activateRafId = null;
-      elementActivateFunctions.forEach(function (activateFn) {
-        return activateFn();
-      });
-      elementActivateFunctions.clear();
-    });
-  }
+    eventBindingFunctions = new Map();
+  });
 }
 function queuePaint() {
-  if (nodeActionsMap.size < MAX_OPERATIONS_PER_ANIMATION_FRAME) {
-    if (paintRafId) cancelAnimationFrame(paintRafId);
+  if (nodeActionsMap.size > MAX_OPERATIONS_PER_ANIMATION_FRAME) return;
+  if (paintRafId) cancelAnimationFrame(paintRafId);
+  paintRafId = requestAnimationFrame(function () {
+    doUpdateDOM();
     paintRafId = null;
-  }
-  if (!paintRafId) {
-    paintRafId = requestAnimationFrame(function () {
-      paintRafId = null;
-      doUpdateDOM();
-    });
-  }
+  });
 }
 function queueConditionalRender(element, renderFunction) {
   conditionalRenders.set(element, renderFunction);
-  if (conditionalRenders.size < MAX_OPERATIONS_PER_ANIMATION_FRAME) {
-    if (conditionalRenderRafId) cancelAnimationFrame(conditionalRenderRafId);
+  if (conditionalRenders.size > MAX_OPERATIONS_PER_ANIMATION_FRAME) return;
+  if (conditionalRenderRafId) cancelAnimationFrame(conditionalRenderRafId);
+  conditionalRenderRafId = requestAnimationFrame(function () {
     conditionalRenderRafId = null;
-  }
-  if (!conditionalRenderRafId) {
-    conditionalRenderRafId = requestAnimationFrame(function () {
-      conditionalRenderRafId = null;
-      conditionalRenders.forEach(function (renderFn) {
-        return renderFn();
-      });
-      conditionalRenders.clear();
+    conditionalRenders.forEach(function (renderFn) {
+      return renderFn();
     });
-  }
+    conditionalRenders = new Map();
+  });
 }
 ;// ./src/core/node_actions.js
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -1053,7 +1032,6 @@ function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.h
 
 
 
-
 function extendElementClassWithReactiveElementClass(elementClass) {
   var appScope = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window;
   var _changeEventHandler = /*#__PURE__*/new WeakMap();
@@ -1119,9 +1097,16 @@ function extendElementClassWithReactiveElementClass(elementClass) {
         _classPrivateFieldSet(_boundAttributesToState, this, {});
       }
     }, {
-      key: "activate",
-      value: function activate() {
+      key: "connectedCallback",
+      value: function connectedCallback() {
         var _this2 = this;
+        if (_classPrivateFieldGet(_wasMounted, this)) return;
+        // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
+        // It is part of the way a check is made to see if an element is part of ShadowDOM!
+        // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
+        // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
+        this.host = this.getRootNode().host;
+
         // Keep it here and not in bindEvents! 
         if ((this === null || this === void 0 ? void 0 : this.tagName) === "INPUT") {
           _classPrivateFieldSet(_changeEventHandler, this, function () {
@@ -1145,7 +1130,7 @@ function extendElementClassWithReactiveElementClass(elementClass) {
             // This also resolves "State attributes"
             this.initialSetAttribute(attrName, attrValue);
 
-            // Save "Command attributes"\
+            // Save "Command attributes"
             if (attrName.indexOf('_') === 0) {
               var command = attrName.substring(1);
               commands.push({
@@ -1165,34 +1150,6 @@ function extendElementClassWithReactiveElementClass(elementClass) {
             args = _ref.args;
           (_COMMAND_ATTRIBUTES$c = COMMANDS[command]) === null || _COMMAND_ATTRIBUTES$c === void 0 || _COMMAND_ATTRIBUTES$c.call(_this2, args);
         });
-      }
-    }, {
-      key: "connectedCallback",
-      value: function connectedCallback() {
-        var _this3 = this;
-        if (_classPrivateFieldGet(_wasMounted, this)) return;
-        // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
-        // It is part of the way a check is made to see if an element is part of ShadowDOM!
-        // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
-        // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
-        this.host = this.getRootNode().host;
-        if (this.host) {
-          // Once the host custom element is connected
-          // then its 'State' is ready and activated,
-          // then we can call the sub-elements 'activate()',
-          // which relies on an active state.
-          // Doing it like this, allow visual render faster,
-          // defering the state handling.
-          this.host.addEventListener("connected", function () {
-            return _this3.activate();
-          }), {
-            once: true
-          };
-        } else {
-          queueActivate(function () {
-            return _this3.activate();
-          });
-        }
         _classPrivateFieldSet(_wasMounted, this, true);
       }
     }, {
@@ -1404,7 +1361,6 @@ var StatefulArray = /*#__PURE__*/function (_Array) {
     var noConvertToStateItems = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     var appScope = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : window;
     StatefulArray_classCallCheck(this, StatefulArray);
-    var StateManager = appScope.SPROUT_CONFIG.stateManagerClass;
     if (!Array.isArray(initialArray)) {
       throw Error("Argument for StateFulArray constructor must be an array!");
     }
@@ -1414,7 +1370,7 @@ var StatefulArray = /*#__PURE__*/function (_Array) {
       statefulArray = rawArray.map(function (item, index) {
         if (item !== null && item !== void 0 && item.hasOwnProperty('state')) return item;
         if (Array.isArray(item)) return item; // return new StatefulArray(item, this[index].state, index, false, appScope); 
-        if (StatefulArray_typeof(item) === 'object') return new StateManager(item, arrayStateProp, parentStateObject._stateManager, false, appScope);
+        if (StatefulArray_typeof(item) === 'object') return new core_StateManager(item, arrayStateProp, parentStateObject._stateManager, false, appScope);
         return item;
       });
     }
@@ -1576,7 +1532,6 @@ function proxy_handlers_typeof(o) { "@babel/helpers - typeof"; return proxy_hand
 
 var StatefulArrayHandler = function StatefulArrayHandler(parentStateManager, arrayStateProp) {
   var appScope = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : window;
-  var StateManager = appScope.SPROUT_CONFIG.stateManagerClass;
   return {
     set: function set(targetArray, property, value) {
       // A change in array length triggers state change in the array state prop
@@ -1594,7 +1549,7 @@ var StatefulArrayHandler = function StatefulArrayHandler(parentStateManager, arr
         // Check if the property is a numeric index
         // If we set it to a new object, convert it to a state object
         if (proxy_handlers_typeof(value) === 'object' && !value.hasOwnProperty('_stateManager') && !value.hasOwnProperty('state')) {
-          value = new StateManager(value, arrayStateProp, parentStateManager, false, appScope);
+          value = new core_StateManager(value, arrayStateProp, parentStateManager, false, appScope);
         }
         // Make sure state values are always state manager values
         // Sometimes they can be state objects (because of the custom get handler in the Proxy)
@@ -1861,7 +1816,6 @@ var StateManager = /*#__PURE__*/function () {
     if (initialState) {
       populateStateFromInitialState(this.state, initialState);
     }
-    setHiddenProperty(this.state, "_isActive", this, true);
   }
   return StateManager_createClass(StateManager, [{
     key: "setDirtyProp",
@@ -2275,7 +2229,6 @@ function ReactiveCustomElement_assertClassBrand(e, t, n) { if ("function" == typ
 function getReactiveCustomElementClass() {
   var appScope = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window;
   var ReactiveHTMLElement = extendElementClassWithReactiveElementClass(HTMLElement, appScope);
-  var StateManager = appScope.SPROUT_CONFIG.stateManagerClass;
   var _wasMounted = /*#__PURE__*/new WeakMap();
   var _onMount = /*#__PURE__*/new WeakMap();
   var _beforeRender = /*#__PURE__*/new WeakMap();
@@ -2354,10 +2307,17 @@ function getReactiveCustomElementClass() {
         this.state = undefined;
       }
     }, {
-      key: "activate",
-      value: function activate() {
+      key: "connectedCallback",
+      value: function connectedCallback() {
         var _this2 = this;
-        //this.#setActiveStateFromInitialState();
+        if (ReactiveCustomElement_classPrivateFieldGet(_wasMounted, this)) return;
+        // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
+        // It is part of the way a check is made to see if an element is part of ShadowDOM!
+        // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
+        // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
+        this.host = this.getRootNode().host;
+        ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, this, _setActiveStateFromInitialState).call(this);
+        ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, this, _renderTemplate).call(this);
         var attributeNames = this.getAttributeNames();
         var _iterator = ReactiveCustomElement_createForOfIteratorHelper(attributeNames),
           _step;
@@ -2376,62 +2336,21 @@ function getReactiveCustomElementClass() {
         queueBindEvents(this, function () {
           return ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, _this2, _bindEvents).call(_this2);
         });
-        // if (this.#beforeRender) this.#beforeRender.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
-        // if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
-      }
-    }, {
-      key: "connectedCallback",
-      value: function connectedCallback() {
-        var _this3 = this;
-        console.log("CONNECTED CALLBACK: ", this);
-        if (ReactiveCustomElement_classPrivateFieldGet(_wasMounted, this)) return;
-        // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
-        // It is part of the way a check is made to see if an element is part of ShadowDOM!
-        // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
-        // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
-        this.host = this.getRootNode().host;
-        // this.#setActiveStateFromInitialState();
-        ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, this, _renderTemplate).call(this);
-        /*
-                    const attributeNames = this.getAttributeNames();
-                    for (const attrName of attributeNames) {
-                        const attrValue = this.getAttribute(attrName);
-                        // This also resolves "State attributes"
-                        this.initialSetAttribute(attrName, attrValue);
-                    }
-        
-                    queueBindEvents(this, ()=> this.#bindEvents());
-                    */
-
-        //requestAnimationFrame(()=> {
-        queueActivate(function () {
-          ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, _this3, _setActiveStateFromInitialState).call(_this3);
-          _this3.dispatchEvent(new CustomEvent("connected"));
-          _this3.activate();
-        });
-
-        //queueActivate(this, ()=> {
-        //    console.log ("QUEUE ACTIVATE");
-        //    this.activate()
-        //    this.dispatchEvent(
-        //        new CustomEvent("connected"),
-        //        { bubbles: true }
-        //    );
-        //});
-        //*/
         if (ReactiveCustomElement_classPrivateFieldGet(_beforeRender, this)) ReactiveCustomElement_classPrivateFieldGet(_beforeRender, this).call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
-        //if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
+        if (ReactiveCustomElement_classPrivateFieldGet(_onMount, this)) queueMicrotask(function () {
+          return ReactiveCustomElement_classPrivateFieldGet(_onMount, _this2).call(_this2, appScope[GLOBAL_STATE_FUNCTION_NAME]());
+        });
         ReactiveCustomElement_classPrivateFieldSet(_wasMounted, this, true);
       }
     }]);
   }(ReactiveHTMLElement);
   function _setRuntime(runtime) {
-    var _this4 = this;
+    var _this3 = this;
     if (runtime.events) {
       this.events = runtime.events;
       if (this.isConnected) {
         queueBindEvents(this, function () {
-          return ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, _this4, _bindEvents).call(_this4);
+          return ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, _this3, _bindEvents).call(_this3);
         });
       }
     }
@@ -2453,7 +2372,7 @@ function getReactiveCustomElementClass() {
     if (initialState._stateManager) {
       this.state = initialState._stateManager.state;
     } else {
-      this.state = new StateManager(initialState, undefined, undefined, false, appScope).state;
+      this.state = new core_StateManager(initialState, undefined, undefined, false, appScope).state;
     }
     delete this.initialState;
   }
@@ -2473,22 +2392,22 @@ function getReactiveCustomElementClass() {
     }
   }
   function _unbindEvents() {
-    var _this5 = this;
+    var _this4 = this;
     if (!ReactiveCustomElement_classPrivateFieldGet(_boundEventNames, this).length) return;
     var thiselement = this;
     ReactiveCustomElement_classPrivateFieldGet(_boundEventNames, this).forEach(function (eventName) {
-      thiselement.removeEventListener(eventName, ReactiveCustomElement_classPrivateFieldGet(_eventHandler, _this5), false);
+      thiselement.removeEventListener(eventName, ReactiveCustomElement_classPrivateFieldGet(_eventHandler, _this4), false);
     });
   }
   function _bindEvents() {
-    var _this6 = this,
+    var _this5 = this,
       _classPrivateFieldGet2;
     if (!this.events) return;
     var eventRefNames = Object.keys(this.events);
     var clickActions = {};
     var otherActions = {};
     eventRefNames.forEach(function (refName) {
-      var value = _this6.events[refName];
+      var value = _this5.events[refName];
       if (typeof value === 'function') {
         clickActions[refName] = value;
       } else if (ReactiveCustomElement_typeof(value) === 'object') {
@@ -2505,13 +2424,13 @@ function getReactiveCustomElementClass() {
     });
     var globalState = appScope[GLOBAL_STATE_FUNCTION_NAME]();
     ReactiveCustomElement_classPrivateFieldSet(_eventHandler, this, function (event) {
-      var _this7 = this;
+      var _this6 = this;
       var start = performance.now();
       var elementsPath = event.composedPath();
       var target;
       if (elementsPath) {
         target = elementsPath.find(function (element) {
-          return element.hasAttribute && element.hasAttribute('ref') && element.getAttribute('ref') in _this7.events;
+          return element.hasAttribute && element.hasAttribute('ref') && element.getAttribute('ref') in _this6.events;
         });
       } else {
         target = event.target.hasAttribute && event.target.hasAttribute('ref') && event.target.getAttribute('ref') in this.events ? event.target : null;
@@ -2567,7 +2486,7 @@ function core_setPrototypeOf(t, e) { return core_setPrototypeOf = Object.setProt
 
 
 var allowAppScopeAccess = document.currentScript.hasAttribute("allowappscopeaccess");
-var stateManagerClass = core_StateManager;
+var stateClass = window.StateManager;
 globalThis.SproutInitApp = function (appName) {
   var appScope = function () {
     var _window;
@@ -2579,8 +2498,7 @@ globalThis.SproutInitApp = function (appName) {
   var config = {
     useShadow: true,
     // Always use shadow DOM for now, may add configurability later
-    allowAppScopeAccess: allowAppScopeAccess,
-    stateManagerClass: stateManagerClass
+    allowAppScopeAccess: allowAppScopeAccess
   };
   if (config.allowAppScopeAccess) {
     Object.defineProperty(globalThis, "sproutApps", {
@@ -2603,7 +2521,7 @@ globalThis.SproutInitApp = function (appName) {
   // If initialState is passed - also sets it to global state
   appScope.setGlobalState = function () {
     var initialState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    var globalState = new appScope.SPROUT_CONFIG.stateManagerClass(initialState, undefined, undefined, true, appScope).state;
+    var globalState = new core_StateManager(initialState, undefined, undefined, true, appScope).state;
     var globalStateVarName = GLOBAL_STATE_VAR_NAME;
     Object.defineProperty(appScope, globalStateVarName, {
       value: globalState,
@@ -2650,6 +2568,8 @@ globalThis.SproutInitApp = function (appName) {
     build(appScope, appName);
   }.bind(appScope);
 };
+/******/ 	return __webpack_exports__;
 /******/ })()
 ;
-//# sourceMappingURL=sprout-core.js.map
+});
+//# sourceMappingURL=sprout_core.js.map

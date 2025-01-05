@@ -77,7 +77,6 @@ h1 {
 	width: 45px;
     cursor: default;
 }
-
 .toggle-all+label:before {
 	color: #949494;
 	content: "\276F";
@@ -85,10 +84,9 @@ h1 {
 	font-size: 22px;
 	padding: 10px 27px;
 	-webkit-transform: rotate(90deg);
-	transform: rotate(90deg)
+	transform: rotate(90deg);
 }
 
 .toggle-all:checked+label:before {
 	color: #484848
 }
-

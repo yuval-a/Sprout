@@ -1,7 +1,8 @@
 // Convert attribute values to "typed" values
 export function attributeValueToTypedValue(attrValue) {
     let typedValue = attrValue;
-    if (attrValue === "true" || attrValue === "false") typedValue = Boolean(attrValue === "true");
+    if (attrValue === "true") typedValue = true;
+    else if (attrValue === "false") typedValue = false;
     else if (!isNaN(Number(attrValue))) typedValue = Number(attrValue);
     return typedValue; 
 }

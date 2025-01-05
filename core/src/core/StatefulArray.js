@@ -101,6 +101,8 @@ class StatefulArray extends Array {
     // NOTE: original Array constructor can get a series of arguments to build an array from, OR a single number,
     // to create an array with that number as a length
     constructor(initialArray, parentStateObject, arrayStateProp, noConvertToStateItems=false, appScope = window) {
+        const StateManager = appScope.SPROUT_CONFIG.stateManagerClass;
+
         if (!Array.isArray(initialArray)) {
             throw Error("Argument for StateFulArray constructor must be an array!");
         }

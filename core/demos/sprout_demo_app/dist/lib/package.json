@@ -1,0 +1,9 @@
+{
+  "name": "sproutjs-core",
+  "version": "2.1.0",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "SproutJS core library - a Javascript framework for creating reusable components and adding state management and reactivity to native HTML elements, based on Web Components",
+  "homepage": "https://jssprout.com"
+}

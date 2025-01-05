@@ -1,5 +1,3 @@
-import { TODO_FILTERS } from '../../modules/consts.mjs';
-
 function setUrlHash(newHash) {
     if (window?.top?.location) {
         window.top.location.hash = newHash;
