@@ -5,4 +5,9 @@
         <div _if=">10">This is only shown if the counter is higher than 10</div>
         <div>This is always shown</div>
     </conditional-render>
+
+    <conditional-render _condition="isHidden">
+        <div style="color:red" _if="true">This is only shown if <code>isHidden</code> from above is <code>true</code></div>
+        <div style="color:green" _if="false">This is only shown if <code>isHidden</code> from above is <code>false</code></div>
+    </conditional-render>
 </div>

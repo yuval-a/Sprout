@@ -36,6 +36,7 @@ export function getReactiveCustomElementClass(appScope = window) {
         // Main event handler function 
         #eventHandler
 
+        propAttributes = new Map();
         constructor(template=null, runtimeScript, style, globalStylesheet) {
             super();
             const isFrameworkElement = this.tagName === "CONDITIONAL-ELEMENT";
@@ -220,6 +221,15 @@ export function getReactiveCustomElementClass(appScope = window) {
             });
             this.#wasMounted = true;
         }
+
+        attributeChangedCallback(attributeName, oldValue, newValue) {
+            if (oldValue === newValue) return;
+            if (this.propAttributes.has(attributeName)) {
+                const propAttributeNodes = this.propAttributes.get(attributeName);
+                propAttributeNodes.forEach(attrNode=> attrNode.nodeValue = newValue);
+            }
+        }
+
     }
 
     return ReactiveCustomElement;

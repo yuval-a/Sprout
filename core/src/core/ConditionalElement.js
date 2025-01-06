@@ -28,19 +28,12 @@ export function getConditionalElementClass(ReactiveElementClass) {
         #wasMounted = false
 
         render(isFirstRender=false) {
-            let stateValue;
-            if (this.#conditionStateProp.indexOf('@') === 0) {
-                stateValue = this.host.getAttribute(this.#conditionStateProp.substring(1));
-            }
-            else {
-                stateValue = this.getState(this.#conditionStateProp);
-            }
+            const stateValue = this.getState(this.#conditionStateProp);
 
             if (stateValue === undefined) {
                 throw Error(`State value for ${this.#conditionStateProp} not found while rendering conditional-render element:`, this);
             }
             const elementsToRender = [];
-
             this.#renderMap.forEach((elements, conditional)=> {
                 if (resolveConditional(conditional, stateValue)) {
                     elementsToRender.push(...elements);
@@ -69,20 +62,17 @@ export function getConditionalElementClass(ReactiveElementClass) {
                 throw Error("conditional-render elements must have a _condition command attribute");
             }
             if (!this.children || !this.children.length) {
-                throw Error("Conditional element must have children!");
+                console.warn("Conditional element doesn't have any children!");
             }
 
             const statePropName = conditionAttributeValue;
             this.#conditionStateProp = statePropName;
 
-            const isConditionStatic = this.#conditionStateProp.indexOf('@') === 0;
-            let stateValue, stateObject;
-            if (!isConditionStatic) {
-                [stateValue, stateObject] = this.getState(statePropName, true);
-                if (typeof stateValue === "undefined") {
-                    throw Error(`State property ${statePropName} not defined for _condition command!`);
-                }
+            const [stateValue, stateObject] = this.getState(statePropName, true);
+            if (typeof stateValue === "undefined") {
+                throw Error(`State property ${statePropName} not defined for _condition command!`);
             }
+
             const renderMap = new Map();
             renderMap.set("always", []);
             const children = [...this.children];
@@ -99,15 +89,11 @@ export function getConditionalElementClass(ReactiveElementClass) {
                 }
             });
             this.#renderMap = renderMap;
-
-            if (!isConditionStatic) {
-                stateObject._stateManager.addConditionallyRenderingElements(statePropName, this);
-            }
+            stateObject._stateManager.addConditionallyRenderingElements(statePropName, this);
             this.render(true);
             this.#wasMounted = true;
         }
     }
-
     return ConditionalElement;
 }
 

@@ -16,7 +16,6 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
         // Used for the _bind command, which allows "reverse-binding" attribute values to state props,
         // keys are attribute names, values are state prop names
         #boundAttributesToState = {}
-
         static observedAttributes = ["ref"]
                                     .concat(SUPPORTED_ATTRIBUTES_FOR_BINDING)
                                     .concat(Object.keys(COMMAND_ATTRIBUTES).map(command => ('_' + command.toLowerCase())));
@@ -125,11 +124,24 @@ export function extendElementClassWithReactiveElementClass(elementClass, appScop
                 const host = this.isNativeElement ? this.host : this;
                 const refValue = newValue;
                 host.ref[refValue] = this;
+                return;
             }
 
             if (attributeName in this.#boundAttributesToState) {
                 this.#updateStateFromAttribute(attributeName);
+                return;
             }
+
+            if (attributeName.indexOf('@') === 0) {
+                const propName = attributeName.substring(1);
+                const attrNode = this.getAttributeNode(attributeName);
+                attrNode.nodeValue = this.host.getAttribute(propName);
+                if (!this.host.propAttributes.has(propName)) {
+                    this.host.propAttributes.set(propName, new Set());
+                }
+                this.host.propAttributes.get(propName).add(attrNode);
+            }
+
         }
 
         // Gets state value of stateProp,

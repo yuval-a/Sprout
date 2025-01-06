@@ -1202,9 +1202,20 @@ function extendElementClassWithReactiveElementClass(elementClass) {
           var host = this.isNativeElement ? this.host : this;
           var refValue = newValue;
           host.ref[refValue] = this;
+          return;
         }
         if (attributeName in _classPrivateFieldGet(_boundAttributesToState, this)) {
           _assertClassBrand(_ReactiveElement_brand, this, _updateStateFromAttribute).call(this, attributeName);
+          return;
+        }
+        if (attributeName.indexOf('@') === 0) {
+          var propName = attributeName.substring(1);
+          var attrNode = this.getAttributeNode(attributeName);
+          attrNode.nodeValue = this.host.getAttribute(propName);
+          if (!this.host.propAttributes.has(propName)) {
+            this.host.propAttributes.set(propName, new Set());
+          }
+          this.host.propAttributes.get(propName).add(attrNode);
         }
       }
 
@@ -2162,12 +2173,7 @@ function getConditionalElementClass(ReactiveElementClass) {
       value: function render() {
         var _this2 = this;
         var isFirstRender = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var stateValue;
-        if (ConditionalElement_classPrivateFieldGet(_conditionStateProp, this).indexOf('@') === 0) {
-          stateValue = this.host.getAttribute(ConditionalElement_classPrivateFieldGet(_conditionStateProp, this).substring(1));
-        } else {
-          stateValue = this.getState(ConditionalElement_classPrivateFieldGet(_conditionStateProp, this));
-        }
+        var stateValue = this.getState(ConditionalElement_classPrivateFieldGet(_conditionStateProp, this));
         if (stateValue === undefined) {
           throw Error("State value for ".concat(ConditionalElement_classPrivateFieldGet(_conditionStateProp, this), " not found while rendering conditional-render element:"), this);
         }
@@ -2200,20 +2206,16 @@ function getConditionalElementClass(ReactiveElementClass) {
           throw Error("conditional-render elements must have a _condition command attribute");
         }
         if (!this.children || !this.children.length) {
-          throw Error("Conditional element must have children!");
+          console.warn("Conditional element doesn't have any children!");
         }
         var statePropName = conditionAttributeValue;
         ConditionalElement_classPrivateFieldSet(_conditionStateProp, this, statePropName);
-        var isConditionStatic = ConditionalElement_classPrivateFieldGet(_conditionStateProp, this).indexOf('@') === 0;
-        var stateValue, stateObject;
-        if (!isConditionStatic) {
-          var _this$getState = this.getState(statePropName, true);
-          var _this$getState2 = ConditionalElement_slicedToArray(_this$getState, 2);
-          stateValue = _this$getState2[0];
+        var _this$getState = this.getState(statePropName, true),
+          _this$getState2 = ConditionalElement_slicedToArray(_this$getState, 2),
+          stateValue = _this$getState2[0],
           stateObject = _this$getState2[1];
-          if (typeof stateValue === "undefined") {
-            throw Error("State property ".concat(statePropName, " not defined for _condition command!"));
-          }
+        if (typeof stateValue === "undefined") {
+          throw Error("State property ".concat(statePropName, " not defined for _condition command!"));
         }
         var renderMap = new Map();
         renderMap.set("always", []);
@@ -2229,9 +2231,7 @@ function getConditionalElementClass(ReactiveElementClass) {
           }
         });
         ConditionalElement_classPrivateFieldSet(_renderMap, this, renderMap);
-        if (!isConditionStatic) {
-          stateObject._stateManager.addConditionallyRenderingElements(statePropName, this);
-        }
+        stateObject._stateManager.addConditionallyRenderingElements(statePropName, this);
         this.render(true);
         ConditionalElement_classPrivateFieldSet(_wasMounted, this, true);
       }
@@ -2316,6 +2316,7 @@ function getReactiveCustomElementClass() {
       ReactiveCustomElement_classPrivateFieldInitSpec(_this, _boundEventNames, []);
       // Main event handler function 
       ReactiveCustomElement_classPrivateFieldInitSpec(_this, _eventHandler, void 0);
+      ReactiveCustomElement_defineProperty(_this, "propAttributes", new Map());
       var isFrameworkElement = _this.tagName === "CONDITIONAL-ELEMENT";
       if (isFrameworkElement) return ReactiveCustomElement_possibleConstructorReturn(_this);
       if (runtimeScript) {
@@ -2398,6 +2399,17 @@ function getReactiveCustomElementClass() {
           _this3.activate();
         });
         ReactiveCustomElement_classPrivateFieldSet(_wasMounted, this, true);
+      }
+    }, {
+      key: "attributeChangedCallback",
+      value: function attributeChangedCallback(attributeName, oldValue, newValue) {
+        if (oldValue === newValue) return;
+        if (this.propAttributes.has(attributeName)) {
+          var propAttributeNodes = this.propAttributes.get(attributeName);
+          propAttributeNodes.forEach(function (attrNode) {
+            return attrNode.nodeValue = newValue;
+          });
+        }
       }
     }]);
   }(ReactiveHTMLElement);
