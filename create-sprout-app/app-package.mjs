@@ -15,7 +15,7 @@ export default function getAppPackageJson(projectName) {
             "@rollup/plugin-virtual": "^3.0.2",
             "html-minifier-terser": "^7.2.0",
             "vite": "^5.4.10",
-            "sproutjs-core": "^2.3.0",
+            "sproutjs-core": "^2.4.0",
             "sprout-build-app": "^1.6.1"
         },
         "scripts": {
