@@ -102,7 +102,6 @@ export function generateStateNodeActions(stateManager, stateProp) {
     if (stateMapElements) {
         // An array of state objects
         const stateMapArray = value;
-        console.log (`Has ${stateMapElements.size} stateMapElements`);
         stateMapElements.forEach((customElementName, parentElement)=> {
             //const newMappedElement = parentElement.cloneNode(true);
             const stateMapNodeActions = getNewNodeActionsObject();

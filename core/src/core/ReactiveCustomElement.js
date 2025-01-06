@@ -18,7 +18,9 @@ export function getReactiveCustomElementClass(appScope = window) {
         #onMount
         // Callback function for when the element is connected to a DOM tree on the page, just before render
         #beforeRender
-
+        // Callback function for when the element is connected to a DOM tree on the page, just after render,
+        // before state/reactivity activation
+        #afterRender
         // Should only be used on non native custom elements
         #templateContent
         #stylesheet
@@ -57,7 +59,6 @@ export function getReactiveCustomElementClass(appScope = window) {
             this.#templateContent = 
                 template?.cloneNode(true) ||
                 DEFAULT_TEMPLATE_DOM.cloneNode();
-
             // Maps "ref names" to actual elements in the component DOM tree,
             // for fast access.
             this.ref = {};
@@ -170,8 +171,6 @@ export function getReactiveCustomElementClass(appScope = window) {
                         this.events[ref][eventName]?.call(target, event, event.target, globalState);
                     }
                 }
-
-                console.log (`Event ${event.type} took ${ performance.now() - start }`);
             }
 
             const thiselement = this;
@@ -191,7 +190,6 @@ export function getReactiveCustomElementClass(appScope = window) {
         }
 
         activate() {
-            //this.#setActiveStateFromInitialState();
             const attributeNames = this.getAttributeNames();
             for (const attrName of attributeNames) {
                 const attrValue = this.getAttribute(attrName);
@@ -200,34 +198,19 @@ export function getReactiveCustomElementClass(appScope = window) {
             }
 
             queueBindEvents(this, ()=> this.#bindEvents());
-            // queueMicrotask(()=> this.#bindEvents());
-
-            // if (this.#beforeRender) this.#beforeRender.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
-            // if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
-
+            if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
         }
         connectedCallback() {
-            console.log ("CONNECTED CALLBACK: ", this);
             if (this.#wasMounted) return;
             // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
             // It is part of the way a check is made to see if an element is part of ShadowDOM!
             // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
             // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
             this.host = this.getRootNode().host;
-            // this.#setActiveStateFromInitialState();
+            if (this.#beforeRender) this.#beforeRender.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
             this.#renderTemplate();
-/*
-            const attributeNames = this.getAttributeNames();
-            for (const attrName of attributeNames) {
-                const attrValue = this.getAttribute(attrName);
-                // This also resolves "State attributes"
-                this.initialSetAttribute(attrName, attrValue);
-            }
+            if (this.#afterRender) this.#afterRender.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
 
-            queueBindEvents(this, ()=> this.#bindEvents());
-            */
-           
-            //requestAnimationFrame(()=> {
             queueMicrotask(()=> {
                 this.#setActiveStateFromInitialState();
                 this.dispatchEvent(
@@ -235,18 +218,6 @@ export function getReactiveCustomElementClass(appScope = window) {
                 );
                 this.activate();
             });
-        
-            //queueActivate(this, ()=> {
-            //    console.log ("QUEUE ACTIVATE");
-            //    this.activate()
-            //    this.dispatchEvent(
-            //        new CustomEvent("connected"),
-            //        { bubbles: true }
-            //    );
-            //});
-            //*/
-            if (this.#beforeRender) this.#beforeRender.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
-            //if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
             this.#wasMounted = true;
         }
     }

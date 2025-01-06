@@ -1,0 +1,37 @@
+<html>
+    <button
+        is="reactive-button"
+        ref="filter-btn"
+        type="button"
+        name="$name"
+        class="btn toggle-btn btn__filter"
+        aria-pressed="$isOn"
+    >
+        <span is="reactive-span" _text="name"></span>
+    </button>
+</html>
+
+<style>
+    .btn.toggle-btn {
+        border-color: #d3d3d3;
+        border-width: 1px;
+        width: 100%;
+    }
+    .btn.toggle-btn[aria-pressed="true"] {
+        border-color: #4d4d4d;
+        text-decoration: underline;
+    }
+    .btn__filter {
+        border-color: lightgrey;
+    }
+</style>
+
+<script>
+    export default {
+        events: {
+            'filter-btn': function(event, host, global) {
+                global.filter = this.getAttribute("name");
+            }
+        }
+    }
+</script>

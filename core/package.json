@@ -21,6 +21,7 @@
     "build-todomvc-app-min": "node ./node_modules/sprout-build-app/sprout-build-app.mjs ./demos/todo-mvc-src ./demos/todo-mvc-build --app todo_mvc --minify",
     "build-ttt-app-min": "node ./node_modules/sprout-build-app/sprout-build-app.mjs ./demos/tic-tac-toe-src ./demos/tic-tac-toe-build --app tic_tac_toe --minify",
     "serve-todo-app": "npx webpack serve --config webpack.server.todo-app-demo.config.js",
+    "serve-todo-app-singles": "npx webpack serve --config webpack.server.todo-app-singles-demo.config.js",
     "serve-todomvc-app": "npx webpack serve --config webpack.server.todomvc-app-demo.config.js",
     "serve-ttt-app": "npx webpack serve --config webpack.server.ttt-app-demo.config.js"
   },
@@ -38,7 +39,7 @@
     "compression-webpack-plugin": "^11.1.0",
     "html-minifier-terser": "^7.2.0",
     "rollup": "^4.18.0",
-    "sprout-build-app": "^1.3.4",
+    "sprout-build-app": "^1.6.0",
     "terser": "^5.31.3",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"

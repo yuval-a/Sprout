@@ -418,7 +418,6 @@ function generateStateNodeActions(stateManager, stateProp) {
   if (stateMapElements) {
     // An array of state objects
     var stateMapArray = value;
-    console.log("Has ".concat(stateMapElements.size, " stateMapElements"));
     stateMapElements.forEach(function (customElementName, parentElement) {
       //const newMappedElement = parentElement.cloneNode(true);
       var stateMapNodeActions = getNewNodeActionsObject();
@@ -668,7 +667,6 @@ function state_utils_arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 
 
-var handleStatesRAFId = null;
 if (typeof HTMLElement === 'undefined') {
   console.warn("HTMLElement was not found! This probably means you are running in a non-browser environment, and can lead to unexpected results");
 } else {
@@ -809,7 +807,6 @@ function mapStateArrayToElements(stateItems, elemName, wrapInElement) {
 
 // Main function that handles all state changes in a state object
 function handleStateChange(stateManager, stateProp) {
-  console.log("handleStateChange:", stateProp);
   if (BUILT_IN_STATE_PROPS.includes(stateProp)) return;
   // Populate the next Node Actions to perform
   generateStateNodeActions(stateManager, stateProp);
@@ -1189,7 +1186,8 @@ function extendElementClassWithReactiveElementClass(elementClass) {
             once: true
           };
         } else {
-          queueActivate(function () {
+          // queueActivate(this, ()=> this.activate());
+          queueMicrotask(function () {
             return _this3.activate();
           });
         }
@@ -1883,7 +1881,6 @@ var StateManager = /*#__PURE__*/function () {
     key: "handleStateChanges",
     value: function handleStateChanges() {
       var _this3 = this;
-      console.log("Handling state changes for", this);
       var stateProps = StateManager_toConsumableArray(this.dirtyProps);
       this.dirtyProps.clear();
       stateProps.forEach(function (prop) {
@@ -2279,6 +2276,7 @@ function getReactiveCustomElementClass() {
   var _wasMounted = /*#__PURE__*/new WeakMap();
   var _onMount = /*#__PURE__*/new WeakMap();
   var _beforeRender = /*#__PURE__*/new WeakMap();
+  var _afterRender = /*#__PURE__*/new WeakMap();
   var _templateContent = /*#__PURE__*/new WeakMap();
   var _stylesheet = /*#__PURE__*/new WeakMap();
   var _globalStylesheet = /*#__PURE__*/new WeakMap();
@@ -2302,6 +2300,9 @@ function getReactiveCustomElementClass() {
       ReactiveCustomElement_classPrivateFieldInitSpec(_this, _onMount, void 0);
       // Callback function for when the element is connected to a DOM tree on the page, just before render
       ReactiveCustomElement_classPrivateFieldInitSpec(_this, _beforeRender, void 0);
+      // Callback function for when the element is connected to a DOM tree on the page, just after render,
+      // before state/reactivity activation
+      ReactiveCustomElement_classPrivateFieldInitSpec(_this, _afterRender, void 0);
       // Should only be used on non native custom elements
       ReactiveCustomElement_classPrivateFieldInitSpec(_this, _templateContent, void 0);
       ReactiveCustomElement_classPrivateFieldInitSpec(_this, _stylesheet, void 0);
@@ -2331,7 +2332,6 @@ function getReactiveCustomElementClass() {
         ReactiveCustomElement_classPrivateFieldSet(_globalStylesheet, _this, globalStylesheet);
       }
       ReactiveCustomElement_classPrivateFieldSet(_templateContent, _this, (template === null || template === void 0 ? void 0 : template.cloneNode(true)) || DEFAULT_TEMPLATE_DOM.cloneNode());
-
       // Maps "ref names" to actual elements in the component DOM tree,
       // for fast access.
       _this.ref = {};
@@ -2357,7 +2357,6 @@ function getReactiveCustomElementClass() {
       key: "activate",
       value: function activate() {
         var _this2 = this;
-        //this.#setActiveStateFromInitialState();
         var attributeNames = this.getAttributeNames();
         var _iterator = ReactiveCustomElement_createForOfIteratorHelper(attributeNames),
           _step;
@@ -2376,64 +2375,36 @@ function getReactiveCustomElementClass() {
         queueBindEvents(this, function () {
           return ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, _this2, _bindEvents).call(_this2);
         });
-        // if (this.#beforeRender) this.#beforeRender.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
-        // if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
+        if (ReactiveCustomElement_classPrivateFieldGet(_onMount, this)) queueMicrotask(function () {
+          return ReactiveCustomElement_classPrivateFieldGet(_onMount, _this2).call(_this2, appScope[GLOBAL_STATE_FUNCTION_NAME]());
+        });
       }
     }, {
       key: "connectedCallback",
       value: function connectedCallback() {
         var _this3 = this;
-        console.log("CONNECTED CALLBACK: ", this);
         if (ReactiveCustomElement_classPrivateFieldGet(_wasMounted, this)) return;
         // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
         // It is part of the way a check is made to see if an element is part of ShadowDOM!
         // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
         // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
         this.host = this.getRootNode().host;
-        // this.#setActiveStateFromInitialState();
+        if (ReactiveCustomElement_classPrivateFieldGet(_beforeRender, this)) ReactiveCustomElement_classPrivateFieldGet(_beforeRender, this).call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
         ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, this, _renderTemplate).call(this);
-        /*
-                    const attributeNames = this.getAttributeNames();
-                    for (const attrName of attributeNames) {
-                        const attrValue = this.getAttribute(attrName);
-                        // This also resolves "State attributes"
-                        this.initialSetAttribute(attrName, attrValue);
-                    }
-        
-                    queueBindEvents(this, ()=> this.#bindEvents());
-                    */
-
-        //requestAnimationFrame(()=> {
-        queueActivate(function () {
+        if (ReactiveCustomElement_classPrivateFieldGet(_afterRender, this)) ReactiveCustomElement_classPrivateFieldGet(_afterRender, this).call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
+        queueMicrotask(function () {
           ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, _this3, _setActiveStateFromInitialState).call(_this3);
           _this3.dispatchEvent(new CustomEvent("connected"));
           _this3.activate();
         });
-
-        //queueActivate(this, ()=> {
-        //    console.log ("QUEUE ACTIVATE");
-        //    this.activate()
-        //    this.dispatchEvent(
-        //        new CustomEvent("connected"),
-        //        { bubbles: true }
-        //    );
-        //});
-        //*/
-        if (ReactiveCustomElement_classPrivateFieldGet(_beforeRender, this)) ReactiveCustomElement_classPrivateFieldGet(_beforeRender, this).call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
-        //if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
         ReactiveCustomElement_classPrivateFieldSet(_wasMounted, this, true);
       }
     }]);
   }(ReactiveHTMLElement);
   function _setRuntime(runtime) {
-    var _this4 = this;
     if (runtime.events) {
       this.events = runtime.events;
-      if (this.isConnected) {
-        queueBindEvents(this, function () {
-          return ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, _this4, _bindEvents).call(_this4);
-        });
-      }
+      if (this.isConnected) ReactiveCustomElement_assertClassBrand(_ReactiveCustomElement_brand, this, _bindEvents).call(this);
     }
     if (runtime.state) {
       this.setInitialState(runtime.state);
@@ -2473,22 +2444,22 @@ function getReactiveCustomElementClass() {
     }
   }
   function _unbindEvents() {
-    var _this5 = this;
+    var _this4 = this;
     if (!ReactiveCustomElement_classPrivateFieldGet(_boundEventNames, this).length) return;
     var thiselement = this;
     ReactiveCustomElement_classPrivateFieldGet(_boundEventNames, this).forEach(function (eventName) {
-      thiselement.removeEventListener(eventName, ReactiveCustomElement_classPrivateFieldGet(_eventHandler, _this5), false);
+      thiselement.removeEventListener(eventName, ReactiveCustomElement_classPrivateFieldGet(_eventHandler, _this4), false);
     });
   }
   function _bindEvents() {
-    var _this6 = this,
+    var _this5 = this,
       _classPrivateFieldGet2;
     if (!this.events) return;
     var eventRefNames = Object.keys(this.events);
     var clickActions = {};
     var otherActions = {};
     eventRefNames.forEach(function (refName) {
-      var value = _this6.events[refName];
+      var value = _this5.events[refName];
       if (typeof value === 'function') {
         clickActions[refName] = value;
       } else if (ReactiveCustomElement_typeof(value) === 'object') {
@@ -2505,13 +2476,13 @@ function getReactiveCustomElementClass() {
     });
     var globalState = appScope[GLOBAL_STATE_FUNCTION_NAME]();
     ReactiveCustomElement_classPrivateFieldSet(_eventHandler, this, function (event) {
-      var _this7 = this;
+      var _this6 = this;
       var start = performance.now();
       var elementsPath = event.composedPath();
       var target;
       if (elementsPath) {
         target = elementsPath.find(function (element) {
-          return element.hasAttribute && element.hasAttribute('ref') && element.getAttribute('ref') in _this7.events;
+          return element.hasAttribute && element.hasAttribute('ref') && element.getAttribute('ref') in _this6.events;
         });
       } else {
         target = event.target.hasAttribute && event.target.hasAttribute('ref') && event.target.getAttribute('ref') in this.events ? event.target : null;
@@ -2527,7 +2498,6 @@ function getReactiveCustomElementClass() {
           (_this$events$ref$even = this.events[ref][eventName]) === null || _this$events$ref$even === void 0 || _this$events$ref$even.call(target, event, event.target, globalState);
         }
       }
-      console.log("Event ".concat(event.type, " took ").concat(performance.now() - start));
     });
     var thiselement = this;
     if (Object.keys(clickActions).length) {

@@ -55,7 +55,6 @@ class StateManager {
     }
 
     handleStateChanges() {
-        console.log ("Handling state changes for", this);
         const stateProps = [...this.dirtyProps];
         this.dirtyProps.clear();
         stateProps.forEach(prop=> {

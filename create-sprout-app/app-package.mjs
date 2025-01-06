@@ -16,7 +16,7 @@ export default function getAppPackageJson(projectName) {
             "html-minifier-terser": "^7.2.0",
             "vite": "^5.4.10",
             "sproutjs-core": "^2.1.0",
-            "sprout-build-app": "^1.3.4"
+            "sprout-build-app": "^1.6.0"
         },
         "scripts": {
             "build": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess`,

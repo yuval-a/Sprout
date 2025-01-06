@@ -1,8 +1,14 @@
 <div class="framed">
+    <code>&lt;conditional-render&gt;</code> custom elements allow for conditional rendering,
+    bound to state values
     <conditional-render _condition="counter">
         <div _if="<10">This is only shown if the counter is smaller than 10</div>
         <div _if="10">This is only shown if the counter is exactly equal to 10</div>
         <div _if=">10">This is only shown if the counter is higher than 10</div>
         <div>This is always shown</div>
+    </conditional-render>
+
+    <conditional-render _condition="isHidden">
+        <div _if="false">This is only shown when <code>isHidden</code> is <code>false</code></div>
     </conditional-render>
 </div>
