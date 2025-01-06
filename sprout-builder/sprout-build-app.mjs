@@ -163,8 +163,8 @@ async function buildComponents() {
             const isFolder = fs.statSync(componentPath).isDirectory();
             const componentFile = isFolder ? null : component.split('.');
             const componentName = isFolder ? component : componentFile[0];
-            if (componentFile[1] !== 'html') 
-                throw Error ("Component template files extensions must be .html!");
+            if (!isFolder && componentFile && componentFile[1] !== 'html') 
+                throw Error ("Component single template files extensions must be .html!");
             
             console.log(`Processing component ${componentName}...`);
             try {
