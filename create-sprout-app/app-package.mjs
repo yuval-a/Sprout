@@ -15,13 +15,19 @@ export default function getAppPackageJson(projectName) {
             "@rollup/plugin-virtual": "^3.0.2",
             "html-minifier-terser": "^7.2.0",
             "vite": "^5.4.10",
-            "sproutjs-core": "^2.4.0",
+            "sproutjs-core": "^2.5.0",
             "sprout-build-app": "^1.6.1"
         },
         "scripts": {
             "build": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess`,
-            "build-prod": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --minify`,
+            "build-min": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --minify`,
+            "build-strict": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess --strict`,
+            "build-strict-min": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess --strict --minify`,
             "serve": "npm run build && vite dev",
+            "serve-min": "npm run build-min && vite dev",
+            "serve-strict": "npm run build-strict && vite dev",
+            "serve-strict-min": "npm run build-strict-min && vite dev",
+
             "serve-prod": "npm run build-prod && vite dev"
         },
         "type": "module"
