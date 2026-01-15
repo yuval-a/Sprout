@@ -1,6 +1,6 @@
 {
   "name": "sprout-build-app",
-  "version": "1.6.1",
+  "version": "2.0.0",
   "main": "sprout-build-app.mjs",
   "keywords": [
     "SproutJS",
