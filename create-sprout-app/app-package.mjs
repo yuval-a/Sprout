@@ -20,15 +20,13 @@ export default function getAppPackageJson(projectName) {
         },
         "scripts": {
             "build": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess`,
-            "build-min": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --minify`,
-            "build-strict": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess --strict`,
-            "build-strict-min": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess --strict --minify`,
+            "build:min": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --minify`,
+            "build:strict": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess --strict`,
+            "build:strict-min": `node ./node_modules/sprout-build-app/sprout-build-app.mjs ./src ./dist --app ${projectName} --allowAppScopeAccess --strict --minify`,
             "serve": "npm run build && vite dev",
-            "serve-min": "npm run build-min && vite dev",
-            "serve-strict": "npm run build-strict && vite dev",
-            "serve-strict-min": "npm run build-strict-min && vite dev",
-
-            "serve-prod": "npm run build-prod && vite dev"
+            "serve:min": "npm run build:min && vite dev",
+            "serve:strict": "npm run build:strict && vite dev",
+            "serve:strict-min": "npm run build:strict-min && vite dev",
         },
         "type": "module"
     }

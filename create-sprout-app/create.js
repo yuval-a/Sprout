@@ -94,14 +94,14 @@ async function createSproutAppTemplate() {
         console.log('Run the following commands to get started:\n');
         console.log(`cd ${projectName}`);
         console.log('npm install');
-        console.log("npm build: to build a 'development' version of your app into 'dist' folder");
-        console.log("npm build-min: to build a minified 'development' version of your app into 'dist' folder");
-        console.log("npm build-strict: to build a 'strict' (no console warnings/errors) version of your app into 'dist' folder");
-        console.log("npm build-strict-min: to build a minified 'strict' (no console warnings/errors) version of your app into 'dist' folder");
-        console.log("npm serve: to build a 'development' version of your app into 'dist' folder and serve it using a Vite server.");
-        console.log("npm serve-min: to build a 'development' version of your app into 'dist' folder and serve it using a Vite server.");
-        console.log("npm serve-strict: to build a 'strict' version of your app into 'dist' folder and serve it using a Vite server.");
-        console.log("npm serve-strict-min: to build a minified 'strict' version of your app into 'dist' folder and serve it using a Vite server.");
+        console.log("npm build to build a 'development' version of your app into 'dist' folder");
+        console.log("npm build:min to build a minified 'development' version of your app into 'dist' folder");
+        console.log("npm build:strict to build a 'strict' (no console warnings/errors) version of your app into 'dist' folder");
+        console.log("npm build:strict-min to build a minified 'strict' (no console warnings/errors) version of your app into 'dist' folder");
+        console.log("npm serve to build a 'development' version of your app into 'dist' folder and serve it using a Vite server.");
+        console.log("npm serve:min to build a 'development' version of your app into 'dist' folder and serve it using a Vite server.");
+        console.log("npm serve:strict to build a 'strict' version of your app into 'dist' folder and serve it using a Vite server.");
+        console.log("npm serve:strict-min to build a minified 'strict' version of your app into 'dist' folder and serve it using a Vite server.");
     } catch (error) {
         console.error('Error creating app:', error);
         process.exit(1);
