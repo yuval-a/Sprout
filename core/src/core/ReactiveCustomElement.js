@@ -1,85 +1,161 @@
-import { COMMANDS as COMMAND_ATTRIBUTES } from "./commands.js";
-import { BOOLEAN_ATTRIBUTES, SUPPORTED_ATTRIBUTES_FOR_BINDING, GLOBAL_STATE_FUNCTION_NAME, DEFAULT_TEMPLATE_DOM } from "./consts.js";
-import { setAttribute, setStateAttribute, setStateText } from "./state_utils.js";
-import StateManager from "./StateManager.js";
-import { queueActivate, queueBindEvents } from "./paint_utils.js";
+import { GLOBAL_STATE_FUNCTION_NAME, DEFAULT_TEMPLATE_DOM, SHADOW_ROOT_CSS } from "../shared/consts.js";
+import { queueBindEvents } from "../shared/paint_utils.js";
 import { extendElementClassWithReactiveElementClass } from './ReactiveElement.js';
+import { handleStateChange  } from "../shared/state_utils.js";
+import { newStateManager } from "../Cougar/state_utils.js";
 
+const SHADOW_CSS =  new CSSStyleSheet();
+SHADOW_CSS.replaceSync(SHADOW_ROOT_CSS);
+
+// Lifecycle:
+// init: constructor
+// mount: connectedCallback
+// stateful: state is active
+// active: stateful, events bound and after all commands run
+// unmount: disconnectedCallback
 export function getReactiveCustomElementClass(appScope = window) {
     const ReactiveHTMLElement = extendElementClassWithReactiveElementClass(HTMLElement, appScope);
     const StateManager = appScope.SPROUT_CONFIG.stateManagerClass;
     class ReactiveCustomElement extends ReactiveHTMLElement {
-        // Should contain the "root" DOM element containing this element
-        host = null
 
+        // Important different between "host" and shadowRoot (we call root):
+        // host is the DOM element of the custom element
+        // that element contains Shadow DOM - Shadow DOM trees always have a "shadowRoot"
+        // the shadowRoot is an extension of a DocumentFragment, accessible via this.shadowRoot
+
+        // If this is part of a "mapped element" (an element where each child is mapped to a state item in an array),
+        // created using the _map command - then this will contain the parent element
+        ownerMapElement
+
+        // Reactive state managed by a State Manager (Cougar by default)
+        state 
+
+        // This is a "fallback" for the key property for state objects used for maps,
+        // the runtime uses this in cases where state is not active yet
+        stateKey
         #wasMounted = false
 
-        // Callback function for when the element is connected to a DOM tree on the page and rendered
-        #onMount
-        // Callback function for when the element is connected to a DOM tree on the page, just before render
-        #beforeRender
-        // Callback function for when the element is connected to a DOM tree on the page, just after render,
-        // before state/reactivity activation
-        #afterRender
-        // Should only be used on non native custom elements
+        // Note! .state will not be available in init and mount!
+        #lifecycle = {
+            init: null,
+            mount: null,
+            stateful: null,
+            active: null,
+            unmount: null
+        }
+
         #templateContent
         #stylesheet
         #globalStylesheet
+
         // This will be an object where keys are element "ref" names,
         // and the value is either a "click" event handler (if it's a function),
         // or an object with DOM event names as keys and event handlers as functions.
         // Only relevant for non native custom elements - event bubbling from child elements will be used
         events
 
-        // Name of events that are bound to the main event handler function
-        #boundEventNames = [];
-        // Main event handler function 
+        // A "mapped" version of events, where keys are event names and value
+        // is a map where keys are ref target names and values are event handler function
+        eventsMap = new Map();
         #eventHandler
-
+        
+        // These are attributes of child elements that are bound to "Prop Attributes",
+        // Keys are attribute names, and values are set of Attribute Nodes
         propAttributes = new Map();
-        constructor(template=null, runtimeScript, style, globalStylesheet) {
+
+        // Uses Declrative Shadow DOM
+        #usesDSD = false;
+        #settings
+        commands
+        // Maps "ref names" to actual elements in the component DOM tree,
+        // for fast access.
+        ref = {};
+
+        canonicalTagName;
+
+        constructor(template=null, runtime, style, globalStylesheet, usesDSD = false) {
             super();
             const isFrameworkElement = this.tagName === "CONDITIONAL-ELEMENT";
             if (isFrameworkElement) return;
 
-            if (runtimeScript) {
-                const dynamicRuntimeFn = new Function(runtimeScript.textContent);
-                const runtime = dynamicRuntimeFn();
-                this.#setRuntime(runtime);
-            }
+            this.isNativeElement = false;
+            this.#usesDSD = usesDSD;
 
-            if (style) {
-                const stylesheet = new CSSStyleSheet();
-                stylesheet.replaceSync(style);
-                this.#stylesheet = stylesheet;
-            }
             if (globalStylesheet) {
                 this.#globalStylesheet = globalStylesheet;
             }
 
-            this.#templateContent = 
-                template?.cloneNode(true) ||
-                DEFAULT_TEMPLATE_DOM.cloneNode();
-            // Maps "ref names" to actual elements in the component DOM tree,
-            // for fast access.
-            this.ref = {};
+            this.canonicalTagName = this.localName;
+            if (!this.#usesDSD) {
+                if (style) {
+                    const stylesheet = new CSSStyleSheet();
+                    stylesheet.replaceSync(style);
+                    this.#stylesheet = stylesheet;
+                }
+
+                // Using importNode instead of node.cloneNode,
+                // so if a template includes other custom elements,
+                // they will already be defined. (See cloneNode on MDN) 
+                this.#templateContent = 
+                    template ?
+                    document.importNode(template, true) :
+                    document.importNode(DEFAULT_TEMPLATE_DOM, true);
+
+                this.#renderTemplate();
+            }
+            else {
+                // Declartive Shadow DOM (DSD) elements have a '-dsd' at the end of their tag name
+                this.canonicalTagName = this.localName.substring(0, this.localName.indexOf('-dsd'));
+            }
+
+            if (runtime) {
+                this.#setRuntime(runtime);
+            }
+
+            if (this.#lifecycle.init) this.#lifecycle.init.call(this);
         }
 
         #setRuntime(runtime) {
+            this.#settings = runtime.settings;
+            this.commands = runtime.commands;
             if (runtime.events) {
-                this.events = runtime.events;
+                const setRefEvent = (eventName, refName, eventHandler)=> {
+                    if (!this.eventsMap.has(eventName)) {
+                        this.eventsMap.set(eventName, new Map());
+                    }
+                    const eventMapItem = this.eventsMap.get(eventName);
+                    eventMapItem.set(refName, eventHandler);
+                }
+
+                let eventsObjectValue, typeOfValue;
+                for (const refName in runtime.events) {
+                    eventsObjectValue = runtime.events[refName];
+                    typeOfValue = typeof eventsObjectValue;
+                    if (typeOfValue === "function") {
+                        setRefEvent("click", refName, eventsObjectValue);
+                    }
+                    else if (typeOfValue === "object") {
+                        for (const eventName in eventsObjectValue) {
+                            setRefEvent(eventName, refName, eventsObjectValue[eventName]);
+                        }
+                    }
+                }
+
                 if (this.isConnected) this.#bindEvents();
             }
             if (runtime.state) {
                 this.setInitialState(runtime.state);
-                // If this is not mounted yet, #setStateFromInitialState will be called from onConnected callback
-                if (this.isConnected) this.#setActiveStateFromInitialState();
+                // Upgraded custom elements can be "connected" while still inside constructor.
+                // Activating state there creates a first state tree before mount/stateful run,
+                // then connectedCallback creates a second one and orphanes existing bindings.
+                if (this.isConnected && this.#wasMounted && !this.state) {
+                    this.#setActiveStateFromInitialState();
+                }
             }
-            if (runtime.onMount) {
-                this.#onMount = runtime.onMount;
-            }
-            if (runtime.beforeRender) {
-                this.#beforeRender = runtime.beforeRender;
+            for (const lifecycleEvent in this.#lifecycle) {
+                if (runtime.hasOwnProperty(lifecycleEvent)) {
+                    this.#lifecycle[lifecycleEvent] = runtime[lifecycleEvent];
+                }
             }
         }
 
@@ -90,27 +166,33 @@ export function getReactiveCustomElementClass(appScope = window) {
             else {
                 this.initialState = initState;
             }
+            if (initState.hasOwnProperty("key")) this.stateKey = initState.key;
         }
-
         #setActiveStateFromInitialState() {
-            if (!this.initialState) return;
+            if (!this.initialState || this.state?._isActive) return;
             const initialState = this.initialState;
             if (initialState._stateManager) {
                 this.state = initialState._stateManager.state;
             }
             else {
-                this.state = new StateManager(initialState, undefined, undefined, false, appScope).state;
+                const stateManager = newStateManager(initialState, undefined, undefined, handleStateChange, false, appScope);
+                this.state = stateManager.state;
+                this.state.$host = this; 
             }
-            delete this.initialState;
+            // delete this.initialState;
+            this.state._isActive = true;
         }
 
         #renderTemplate() {
             if (appScope.SPROUT_CONFIG.useShadow) {
-                const shadowRoot = this.attachShadow({ mode: "open" });
-                this.shadowRoot.adoptedStyleSheets = [];
+                this.attachShadow({ 
+                    mode: "open",
+                    delegatesFocus: true,
+                });
+                this.shadowRoot.adoptedStyleSheets = [ SHADOW_CSS ];
                 if (this.#globalStylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#globalStylesheet);
                 if (this.#stylesheet) this.shadowRoot.adoptedStyleSheets.push(this.#stylesheet);
-                shadowRoot.appendChild(this.#templateContent);
+                this.shadowRoot.appendChild(this.#templateContent);
             }
             else {
                 const fragment = new DocumentFragment();
@@ -120,117 +202,140 @@ export function getReactiveCustomElementClass(appScope = window) {
         }
 
         #unbindEvents() {
-            if (!this.#boundEventNames.length) return;
+            if (!this.eventsMap.size) return;
             const thiselement = this;
-            this.#boundEventNames.forEach(eventName=> {
-                thiselement.removeEventListener(eventName, this.#eventHandler, false);
-            });
-
+            for (const eventName of this.eventsMap.keys()) {
+                thiselement.shadowRoot.removeEventListener(eventName, this.#eventHandler, false);
+            }
         }
-        #bindEvents() {
-            if (!this.events) return;
-            const eventRefNames = Object.keys(this.events);
-            const clickActions = {};
-            const otherActions = {};
-            eventRefNames.forEach(refName=> {
-                const value = this.events[refName];
-                if (typeof value === 'function') {
-                    clickActions[refName] = value;
-                }
-                else if (typeof value === 'object') {
-                    const eventNames = Object.keys(value);
-                    eventNames.forEach(eventName=> {
-                        if (eventName === 'click') {
-                            clickActions[refName] = value[eventName];
-                        }
-                        else {
-                            if (!otherActions[eventName]) otherActions[eventName] = {};
-                            otherActions[eventName][refName] = value[eventName];
-                        }
-                    });
-                }
-            });
-            const globalState = appScope[GLOBAL_STATE_FUNCTION_NAME]();
-            this.#eventHandler = function(event) {
-                const start = performance.now();
-                const elementsPath = event.composedPath();
-                let target;
-                if (elementsPath) {
-                    target = elementsPath.find(element => element.hasAttribute && element.hasAttribute('ref') && (element.getAttribute('ref') in this.events));
-                }
-                else {
-                    target = (event.target.hasAttribute && event.target.hasAttribute('ref') && (event.target.getAttribute('ref') in this.events)) ? event.target : null;
-                }
-                if (target) {
-                    const ref = target.getAttribute('ref');
-                    const eventName = event.type;
-                    if (eventName === "click") {
-                        const clickEvent = typeof this.events[ref] === "function" ? this.events[ref] : null;
-                        clickEvent?.call(target, event, event.target, globalState);
-                    }
-                    else {
-                        this.events[ref][eventName]?.call(target, event, event.target, globalState);
-                    }
-                }
-            }
 
-            const thiselement = this;
-            if (Object.keys(clickActions).length) {
-                thiselement.addEventListener('click', this.#eventHandler);
-                this.#boundEventNames.push('click');
+        #bindEvents() {
+            if (this.#eventHandler) return;
+            if (!this.eventsMap.size) return;
+            const globalState = appScope[GLOBAL_STATE_FUNCTION_NAME]();
+            // This runs in the scope of shadowRoot
+            this.#eventHandler = function(event) {
+                const host = this.host;
+                const eventsMapItem = host.eventsMap.get(event.type);
+                if (!eventsMapItem) return false;
+
+                const eventsPath = event.composedPath();
+                for (const element of eventsPath) {
+                    if (element && 
+                        element.refName &&
+                        eventsMapItem.has(element.refName)
+                    ) {
+                        const targetElement = element;
+                        const targetRefName = targetElement.refName;
+                        const eventHandler = eventsMapItem.get(targetRefName);
+                        eventHandler.call(targetElement, event, host, globalState);
+                    }
+                }
+                event.stopPropagation();
+            };
+
+            for (const eventName of this.eventsMap.keys()) {
+                this.shadowRoot.addEventListener(eventName, this.#eventHandler, { capture: true });
             }
-            const eventNames = Object.keys(otherActions);
-            for (const eventName of eventNames)
-                thiselement.addEventListener(eventName, this.#eventHandler);
-            this.#boundEventNames.push(...eventNames);
         }
 
         disconnectedCallback() {
             this.#unbindEvents();
             this.state = undefined;
+            this.isActive = false;
+            if (this.#lifecycle.unmount) this.#lifecycle.unmount.call(this);
         }
 
         activate() {
-            const attributeNames = this.getAttributeNames();
-            for (const attrName of attributeNames) {
-                const attrValue = this.getAttribute(attrName);
-                // This also resolves "State attributes"
-                this.initialSetAttribute(attrName, attrValue);
-            }
+           super.activate();
+           this.#bindEvents();
+           if (this.#lifecycle.active) this.#lifecycle.active.call(this);
+        }
 
-            queueBindEvents(this, ()=> this.#bindEvents());
-            if (this.#onMount) queueMicrotask(()=> this.#onMount.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]()));
+        // Override findElement to scope lookups to this component instance,
+        // not its parent host. This ensures nested components resolve their own refs.
+        findElement(refName) {
+            const host = this;
+            let root = this;
+            if (appScope.SPROUT_CONFIG.useShadow) {
+                root = host.shadowRoot;
+            }
+            return Object.hasOwn(host.ref, refName)
+                ? host.ref[refName]
+                : root?.querySelector?.(`[ref="${refName}"]`) || null;
         }
         connectedCallback() {
+            // We set this for easier/straightforward access (e.g. with querySelector); 
+            this.setAttribute("tagName", this.canonicalTagName);
+
             if (this.#wasMounted) return;
             // IMPORTANT: THIS *CAN* be NULL, DO NOT CHANGE IT!
-            // It is part of the way a check is made to see if an element is part of ShadowDOM!
-            // host will be null if the element is part of the DOM === the "root" custom element will have null in .host
-            // THIS SHOULD BE THE FIRST THING THAT HAPPENS!
-            this.host = this.getRootNode().host;
-            if (this.#beforeRender) this.#beforeRender.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
-            this.#renderTemplate();
-            if (this.#afterRender) this.#afterRender.call(this, appScope[GLOBAL_STATE_FUNCTION_NAME]());
+            // It is to check if the custom element is inside a shadow DOM
+            // of ANOTER parent custom element - 
+            // if this is the case - getRootNode() will return the shadowRoot,
+            // of the outer CE - and it will have a host property - referencing
+            // the containing CE, if not it will just return document and .host
+            // will be null
+            const host = this.getRootNode().host;
 
-            queueMicrotask(()=> {
+            if (this.#lifecycle.mount) this.#lifecycle.mount.call(this);
+            //if (!this.#usesDSD) {
+            //    this.#renderTemplate();
+            //}
+
+            const doActivate = ()=> {
                 this.#setActiveStateFromInitialState();
-                this.dispatchEvent(
-                    new CustomEvent("connected"),
-                );
+                this.isActive = true;
+                this.dispatchEvent( new CustomEvent("active") );
+                if (this.#lifecycle.stateful) this.#lifecycle.stateful.call(this);
                 this.activate();
-            });
+            }
+            // Custom Elements can also be inside 
+            // the Shadow DOM of other custom elements,
+            // in which case - we need to wait for their host to be active first
+            // We async queue using setTimeout (NOT rAF or queueMicrotrask!) -
+            // To allow full paint of the elements to finish first,
+            // and then hydrate
+            if (host) {
+                if (host.isActive) doActivate();
+                else host.addEventListener(
+                    "active",
+                    doActivate,
+                    { once: true }
+                );
+            }
+            else {
+                setTimeout(doActivate, 0);
+            }
             this.#wasMounted = true;
         }
 
         attributeChangedCallback(attributeName, oldValue, newValue) {
             if (oldValue === newValue) return;
+            if (attributeName === "hidden") {
+                if (newValue === null) {
+                    this.dispatchEvent(
+                        new CustomEvent("unhide", { bubbles: true })
+                    );
+                }
+                else {
+                    this.dispatchEvent(
+                        new CustomEvent("hide", { bubbles: true })
+                    );
+                }
+            }
             if (this.propAttributes.has(attributeName)) {
                 const propAttributeNodes = this.propAttributes.get(attributeName);
-                propAttributeNodes.forEach(attrNode=> attrNode.nodeValue = newValue);
+                propAttributeNodes.forEach(attrNode=> {
+                    attrNode.nodeValue = newValue;
+                    if (attrNode.ownerElement.tagName === "CONDITIONAL-RENDER") {
+                        attrNode.ownerElement.render();
+                    }
+                });
             }
         }
-
     }
+
 
     return ReactiveCustomElement;
 }

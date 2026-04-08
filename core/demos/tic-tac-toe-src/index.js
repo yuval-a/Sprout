@@ -1,7 +1,7 @@
 const initState = {
     // Should contain an array of 9-item arrays. NOTE, should be NATIVE arrays (not StatefulArrays), the history itself is a StatefulArray
     history: [ 
-        Array.from({ length: 9 }, (_, index)=> ({ value: "", key: index }))
+        Array.from({ length: 9 }, (_, index)=> ({ value: "", key: index, index }))
     ],
     currentMove: 0,
     
@@ -30,21 +30,31 @@ const initState = {
         return null;
     },
     handlePlay(nextSquares) {
-        const nextHistory = [...this.history.slice(0, this.currentMove + 1), nextSquares];
+        const nextMove = this.currentMove+1;
+        // Make key unique (index-nextMove)
+        nextSquares = nextSquares.map((square, index)=> ({
+            ...square,
+            index: square.index ?? index,
+            key: `${index}-${nextMove}`
+        }));
+        const nextHistory = [...this.history.slice(0, nextMove), nextSquares];
         this.history = nextHistory;
-        this.currentMove = nextHistory.length - 1;
+        this.currentMove = nextMove;
+        //this.currentMove = nextHistory.length - 1;
     },
     jumpTo(nextMove) {
         this.currentMove = nextMove;
     },
 
-    set_xIsNext: [function() { 
+    get xIsNext() {
         return this.currentMove % 2 === 0 
-    }, ["currentMove"], true],
-
-    set_currentSquares: [function() { 
+    },
+    set_currentSquares: [function() {
         return this.history[this.currentMove]; 
-    }, ["currentMove"], true],
+    }, { 
+        init: true,
+        // stateMap: true
+    }], 
 
     set_status: [function() {
         const winner = this.calculateWinner();
@@ -55,7 +65,10 @@ const initState = {
             status = 'Next player: ' + (this.xIsNext ? 'X' : 'O');
         }
         return status;
-    }, ["currentSquares"], true],
+    }, {
+        reevaluate: true,
+        init: true
+    }],
     set_moves: [function() {
         return this.history.map((_, move) => {
             let description;
@@ -65,12 +78,16 @@ const initState = {
                 description = 'Go to game start';
             }
             return  {
+                key: move,
                 move,
                 description
             };
         });
-    }, ["history"], true]
-
+    }, {
+        reevaluate: true,
+        init: true,
+        stateMap: true
+    }]
 }
 
 this.setGlobalState(initState);

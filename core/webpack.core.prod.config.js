@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin'); // Import TerserPlugin
 const CompressionPlugin = require('compression-webpack-plugin');
 
@@ -64,6 +65,10 @@ module.exports = {
     }
   },
   plugins: [
+    new webpack.DefinePlugin({
+      STRICT: 'true',
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    }),
     new CompressionPlugin({
       algorithm: 'gzip',
       test: /\.(js|css|html|svg)$/,

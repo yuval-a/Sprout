@@ -1,7 +1,7 @@
-export const TODO_FILTERS = {
-    All: ()=> true,
-    Active: (item)=> !item.completed,
-    Completed: (item)=> item.completed
+export const TODO_FILTER_NAMES = {
+    All: "All",
+    Active: "Active",
+    Completed: "Completed"
 }
 
 let TODO_ID = 0;

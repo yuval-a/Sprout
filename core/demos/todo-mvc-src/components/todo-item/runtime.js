@@ -3,7 +3,11 @@ export default {
         ["todo-item"]: {
             dblclick(event, host, global) {
                 host.state.editMode = true;
-                requestAnimationFrame(()=> this.findElement("todo-edit-input").focus());
+                setTimeout(()=> {
+                    const $input = this.findElement("todo-edit-input");
+                    $input.focus();
+                    $input.select();
+                }, 50);
             }
         },
         ["todo-edit-input"]: {
@@ -21,14 +25,16 @@ export default {
             }
         },
         ["task-completed-checkbox"]: {
-            inputChange(event, host, global) {
-                host.state.completed = this.checked;
+            inputChange(event, host) {
+                const completed = this.checked;
+                host.state.completed = completed;
             }
         },
         ["button-destroy"](event, host, global) {
             const todoKey = host.state.key;
             const todos = global.todos;
             const todoIndex = todos.findIndex(todo=>todo.key === todoKey);
+            // todos.remove(todoIndex, 1);
             todos.splice(todoIndex, 1);
         },
     }

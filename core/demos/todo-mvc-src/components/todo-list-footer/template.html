@@ -5,15 +5,15 @@
     </span>
     <ul class="filters">
         <li>
-            <a is="reactive-a" ref="filter-all" filter="All" href="/#" selected="$is_currentTodosFilterName:All">All</a>
+            <a is="reactive-a" ref="filter-all" filter="All" href="/#" :selected="is_currentTodosFilterName:All">All</a>
         </li>
         <li>
-            <a is="reactive-a" ref="filter-active" filter="Active" href="/#active" selected="$is_currentTodosFilterName:Active">Active</a>
+            <a is="reactive-a" ref="filter-active" filter="Active" href="/#active" :selected="is_currentTodosFilterName:Active">Active</a>
         </li>
         <li>
-            <a is="reactive-a" ref="filter-completed" filter="Completed" href="/#completed" selected="$is_currentTodosFilterName:Completed">Completed</a>
+            <a is="reactive-a" ref="filter-completed" filter="Completed" href="/#completed" :selected="is_currentTodosFilterName:Completed">Completed</a>
         </li>
     </ul>
     <!-- Hidden if no completed items are left ↓ -->
-    <button ref="button-clear-completed" is="reactive-button" part="button" class="clear-completed" hidden="$!completedTasksExist">Clear completed</button>
+    <button ref="button-clear-completed" is="reactive-button" part="button" class="clear-completed" :hidden="!completedTasksExist">Clear completed</button>
 </footer>

@@ -1,17 +1,28 @@
-<div is="reactive-div" ref="todo-item" class="todo-item" completed="$completed" editing="$editMode">
-    <div is="reactive-div" class="view" hidden="$editMode">
-        <input is="reactive-input" ref="task-completed-checkbox" id="task-completed-checkbox" class="toggle" type="checkbox" checked="$completed" />
-        <label is="reactive-label" for="task-completed-checkbox" _text="title"></label>
-        <button part="button" ref="button-destroy" class="destroy"></button>
+<div is="reactive-div" ref="todo-item" class="todo-item" :completed="completed" :editing="editMode">
+
+    <!-- View Mode-->
+    <div is="reactive-div" class="view" :hidden="editMode">
+        <input is="reactive-input" 
+               ref="task-completed-checkbox" 
+               id="task-completed-checkbox" 
+               class="toggle"
+               type="checkbox"
+               :checked="completed"
+               _bind="checked:completed"
+        />
+        <label is="reactive-label" _text="title"></label>
+        <button is="reactive-button" part="button" ref="button-destroy" class="destroy"></button>
     </div>
-    <div is="reactive-div" hidden="$!editMode">
+
+    <!-- Edit Mode-->
+    <div is="reactive-div" :hidden="!editMode" hidden>
         <div class="input-container">
             <input is="reactive-input" 
                    ref="todo-edit-input" 
                    class="new-todo edit" 
                    id="todo-input" 
                    placeholder="Edit what needs to be done" 
-                   value="$title"
+                   :value="title"
             />
         </div>
     </div>

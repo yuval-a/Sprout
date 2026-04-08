@@ -96,14 +96,25 @@ code {
     padding: 2rem;
 }
 </style><div class="framed">
+    <code>&lt;conditional-render&gt;</code> custom elements allow for conditional rendering,
+    bound to state values
     <conditional-render _condition="counter">
         <div _if="<10">This is only shown if the counter is smaller than 10</div>
         <div _if="10">This is only shown if the counter is exactly equal to 10</div>
         <div _if=">10">This is only shown if the counter is higher than 10</div>
         <div>This is always shown</div>
     </conditional-render>
+
+    <conditional-render _condition="isHidden">
+        <div _if="false">This is only shown when <code>isHidden</code> is <code>false</code></div>
+    </conditional-render>
 </div></template>
 <template app="sprout_demo_app" for="list-item"><div>This is list item number <span is="reactive-span" _text="key"></span></div></template>
+<template app="sprout_demo_app" for="counter-button"><script> var counterButtonRuntime=function(){"use strict";return{events:{"btn-counter-increase":function(n,t,e){e.counter++},"btn-counter-decrease":function(n,t,e){e.counter--}}}}();
+ return counterButtonRuntime; </script><conditional-render _condition="@type">
+    <button is="reactive-button" ref="btn-counter-increase" _if="increase">Increase Counter</button>
+    <button is="reactive-button" ref="btn-counter-decrease" _if="decrease">Decrease Counter</button>
+</conditional-render></template>
 <template app="sprout_demo_app" for="example-block"><script> var exampleBlockRuntime=function(){"use strict";return{state:{seeCodeOn:!1}}}();
  return exampleBlockRuntime; </script><style>.example {
     background-color: rgba(101, 108, 118, 0.4);
@@ -127,17 +138,6 @@ code {
         <slot name="exampleContent" _if="false"></slot>
     </conditional-render>
 </div></template>
-<template app="sprout_demo_app" for="show-hide"><script> var showHideRuntime=function(){"use strict";return{events:{"show-hide-btn":function(i,n,e){e.isHidden=!e.isHidden}}}}();
- return showHideRuntime; </script><button is="reactive-button" ref="show-hide-btn">
-    <span is="reactive-span" hidden="$!isHidden">Show</span>
-    <span is="reactive-span" hidden="$isHidden">Hide</span>
-</button></template>
-<template app="sprout_demo_app" for="counter-button"><script> var counterButtonRuntime=function(){"use strict";return{events:{"btn-counter-increase":function(n,t,e){e.counter++},"btn-counter-decrease":function(n,t,e){e.counter--}}}}();
- return counterButtonRuntime; </script><conditional-render _condition="@type">
-    <button is="reactive-button" ref="btn-counter-increase" _if="increase">Increase Counter</button>
-    <button is="reactive-button" ref="btn-counter-decrease" _if="decrease">Decrease Counter</button>
-</conditional-render>
-</template>
 <template app="sprout_demo_app" for="seecode-button"><script> var seecodeButtonRuntime=function(){"use strict";return{events:{seeCodeButton(e,t,n){const[o,s]=t.getState("seeCodeOn",!0);s.seeCodeOn=!o}}}}();
  return seecodeButtonRuntime; </script><style>button {
     padding: 1rem;
@@ -155,7 +155,13 @@ code {
     <span is="reactive-span" hidden="$seeCodeOn">See Code</span>
     <span is="reactive-span" hidden="$!seeCodeOn">See Example</span>
 </button>
+
 </template>
+<template app="sprout_demo_app" for="show-hide"><script> var showHideRuntime=function(){"use strict";return{events:{"show-hide-btn":function(i,n,e){e.isHidden=!e.isHidden}}}}();
+ return showHideRuntime; </script><button is="reactive-button" ref="show-hide-btn">
+    <span is="reactive-span" hidden="$!isHidden">Show</span>
+    <span is="reactive-span" hidden="$isHidden">Hide</span>
+</button></template>
 <script onload="const build_sprout_demo_appApp = SproutInitApp('sprout_demo_app'); build_sprout_demo_appApp();" src="lib/sprout-core.js" allowappscopeaccess></script>
 
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -178,7 +184,7 @@ code {
                 To see <em>reactivity</em> in action:
             </p>
             <p>Open the console. <br>
-                Type: <code>const state = sproutApps.sprout_demo_app.getGlobalState() </code> <br>
+                Type: <code>const state = sproutApps.[Your project name (with underscores instead of dashes/spaces)].getGlobalState() </code> <br>
                 <code>state</code> variable now contains the global state object. <br>
                 Type: <code> state.dynamicText = "Hello dynamic text!"</code>. Click enter, and watch how the text above automagically change.
             </p>

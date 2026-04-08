@@ -1,0 +1,12 @@
+button {
+    padding: 1rem;
+    cursor: pointer;
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 0;
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    background-color: inherit;
+    color: #fff;
+}

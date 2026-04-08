@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Built-in Commands Tests</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) {
+        display: block;
+        height: 1px;
+        width: 1px;
+      }
+      ul[ref="list"] { list-style: none; padding: 0; margin: 0; }
+    </style>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+
+    <!-- Item component used by _map -->
+    <template app="sprout-tests" for="item-el">
+      <html>
+        <span is="reactive-span" ref="label" _text="label"></span>
+      </html>
+    </template>
+
+    <!-- Host that exercises built-in commands -->
+    <template app="sprout-tests" for="commands-host">
+      <html>
+        <!-- _map: maps items -> <item-el>, wraps with <li> because parent is <ul> -->
+        <ul is="reactive-ul" ref="list" _map="items:item-el"></ul>
+
+        <!-- _map: array items WITHOUT 'key' defined (should auto-assign index) -->
+        <ul is="reactive-ul" ref="listNoKeys" _map="itemsNoKeys:item-el"></ul>
+
+        <!-- _map: SSH returning array (stateful) -->
+        <ul is="reactive-ul" ref="listSshNoStateMap" _map="itemsSshNoStateMap:item-el"></ul>
+
+        <!-- _map: SSH returning array with stateMap: true (optimized path) -->
+        <ul is="reactive-ul" ref="listSshStateMap" _map="itemsSshStateMap:item-el"></ul>
+
+        <!-- _text: binds text to title -->
+        <div is="reactive-div" ref="txt" _text="title"></div>
+
+        <!-- _bind: checkbox checked -> state.isOn -->
+        <input is="reactive-input" type="checkbox" ref="chk" _bind="checked:isOn">
+        <span is="reactive-span" ref="chkText" _text="isOn"></span>
+
+        <!-- _bind: value -> state.inputVal (attribute change) -->
+        <input is="reactive-input" type="text" ref="txtInput" _bind="value:inputVal">
+        <span is="reactive-span" ref="inputValText" _text="inputVal"></span>
+
+        <!-- _bindprop: one-time bind of state.tab -> element.tabIndex -->
+        <div is="reactive-div" ref="bindprop" _bindprop="tab:tabIndex"></div>
+      </html>
+      <script>
+        return {
+          state: {
+            title: 'Hello',
+            // Define State Map via SSH with stateMap: true
+            items: [
+              { key: 'A', label: 'A' },
+              { key: 'B', label: 'B' }
+            ],
+
+            // Array without 'key' on items
+            itemsNoKeys: [
+              { label: 'C' },
+              { label: 'D' }
+            ],
+
+            // SSH returning array WITH stateMap: true (avoid strict runtime error)
+            set_itemsSshNoStateMap: [function() {
+              return [
+                { key: 'NS1', label: 'NS1' },
+                { key: 'NS2', label: 'NS2' }
+              ];
+            }, { init: true, stateMap: true }],
+
+            // SSH returning array WITH stateMap: true (optimized and memoized for maps)
+            set_itemsSshStateMap: [function() {
+              return [
+                { key: 'S1', label: 'S1' },
+                { key: 'S2', label: 'S2' }
+              ];
+            }, { init: true, stateMap: true }],
+            isOn: false,
+            inputVal: 'start',
+            tab: 2
+          }
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <commands-host></commands-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+  
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Lifecycle Handlers</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) { display: block; min-height: 1px; min-width: 1px; }
+    </style>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+
+    <template app="sprout-tests" for="life-host">
+      <html>
+        <span is="reactive-span" ref="log" _text="logJoined"></span>
+        <life-child ref="child"></life-child>
+        <span is="reactive-span" ref="childLog" _text="childLogJoined"></span>
+      </html>
+      <script>
+        // Queue logs until state becomes active; then assign into state in stateful()
+        const push = (host, msg) => {
+          const st = host.state;
+          if (st && st.log) { st.log.push(msg); return; }
+          if (!host.$$log) host.$$log = [];
+          host.$$log.push(msg);
+        };
+        return {
+          state: {
+            log: [],
+            childLog: [],
+            get logJoined() { return this.log.join('|'); },
+            get childLogJoined() { return this.childLog.join('|'); }
+          },
+          init() {
+            // 'this' is the custom element instance
+            push(this, 'init');
+          },
+          mount() {
+            push(this, 'mount');
+            this.addEventListener('active', () => push(this, 'event:active'));
+            this.addEventListener('hide', () => push(this, 'event:hide'));
+            this.addEventListener('unhide', () => push(this, 'event:unhide'));
+          },
+          stateful() {
+            // Merge pre-collected host logs at the front to preserve order
+            if (this.$$log && this.$$log.length) this.state.log.unshift(...this.$$log);
+            // Also pull child logs directly from child component state
+            const child = this.findElement('child');
+            if (child && child.state && Array.isArray(child.state.log)) {
+              this.state.childLog = child.state.log.slice();
+            }
+            push(this, 'stateful');
+          },
+          active() {
+            push(this, 'active');
+          },
+          unmount() {
+            // At this point, ReactiveCustomElement has already cleared this.state in disconnectedCallback.
+            // Avoid touching state here; mark via attribute for external observation if needed.
+            this.setAttribute('did-unmount', '1');
+          }
+        };
+      </script>
+    </template>
+
+    <template app="sprout-tests" for="life-child">
+      <html>
+        <span is="reactive-span" ref="clog" _text="logJoined"></span>
+      </html>
+      <script>
+        // Queue child logs until child state becomes active; no host bubbling
+        const push = (el, msg) => {
+          if (el.state && el.state.log) { el.state.log.push(msg); return; }
+          if (!el.$$log) el.$$log = [];
+          el.$$log.push(msg);
+        };
+        return {
+          state: { log: [], get logJoined() { return this.log.join('|'); } },
+          init() { push(this, 'child:init'); },
+          mount() { push(this, 'child:mount'); this.addEventListener('active', () => push(this,'child:event:active')); },
+          stateful() {
+            if (this.$$log && this.$$log.length) this.state.log.unshift(...this.$$log);
+            push(this, 'child:stateful');
+          },
+          active() { push(this, 'child:active'); },
+          unmount() { this.setAttribute('did-unmount','1'); }
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <life-host></life-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Slots</title>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+
+    <!-- Item component used by _map -->
+    <template app="sprout-tests" for="c-slot">
+      <html>
+        <h1> Hello, this is a component</h1>
+        <slot name="slot1">Slot1</slot>
+        <slot name="slot2">Slot2</slot>
+        <slot is="reactive-slot" :name="projectedSlot">Projected!</slot>
+        <button is="reactive-button" ref="setSlot">Change Slot</button>
+      </html>
+      <script>
+        return {
+            state: {
+                projectedSlot: "",
+                controlledSlot: "",
+                get hasSlot() { return this.$host?.querySelector(`[name="${this.controlledSlot}"]`); },
+                setControlled() { 
+                    if (this.controlledSlot === "" || this.controlledSlot === "slot2") {
+                        this.controlledSlot = "slot1";
+                    }
+                    else {
+                        this.controlledSlot = "slot2";
+                    }
+
+                    if (this.projectedSlot === "" || this.projectedSlot === "p1") {
+                        this.projectedSlot = "p2";
+                    }
+                    else if (this.projectedSlot === "p2") {
+                        this.projectedSlot = "p3";
+                    }
+                    else {
+                        this.projectedSlot = "p1";
+                    }
+                },
+
+
+            },
+            events: {
+                setSlot(_, host) {
+                    host.state.setControlled();
+                }
+            }
+        }
+      </script>
+    </template>
+  </head>
+  <body>
+    <c-slot>
+        <div is="reactive-div" :slot="controlledSlot">Controlled Slot!</div>
+        <div slot="p1">Projected1</div>
+        <div slot="p2">Projected2</div>
+        <div slot="p3">Projected3</div>
+    </c-slot>
+
+    <script src="sprout-core.js" app="sprout-tests"></script>
+  </body>
+  
+</html>

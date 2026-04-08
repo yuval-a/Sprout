@@ -5,7 +5,7 @@ let wasEditing = false;
 export default {
     state: {
         isEditing: false,
-        newName: ""
+        // newName: ""
     },
 
     onMount() {
@@ -19,11 +19,12 @@ export default {
     },
     events: {
         'todo-edit-save': (event, host, global)=> {
-            const newName = host.state["newName"];
+            const $input = host.findElement('todo-edit-input');
+            const newName = $input.value;
+            alert (newName);
             if (!newName.length || !/\S/.test(newName)) return;
             editTask.call({state: global}, host.state.id, newName);
-            host.findElement('todo-edit-input').value = "";
-            host.state.newName = "";
+            $input.value = "";
             host.state.isEditing = false;
         },
         'todo-edit-btn': (event, host)=> {

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ReactiveElement Methods Tests</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) { display: block; height: 1px; width: 1px; }
+    </style>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+
+    <template app="sprout-tests" for="re-methods-host">
+      <html>
+        <div is="reactive-div" ref="alpha">
+          <span is="reactive-span" ref="beta" _text="localA"></span>
+        </div>
+        <div is="reactive-div" ref="gamma"></div>
+        <re-child ref="child"></re-child>
+      </html>
+      <script>
+        return {
+          state: {
+            localA: 'LA',
+            localObj: { foo: 'F', nested: { bar: 'B' } },
+            itemsLocal: [
+              { key: 'k1', label: 'A' },
+              { key: 'k2', label: 'B' }
+            ],
+            get itemsLocalLen() { return this.itemsLocal.length; }
+          }
+        };
+      </script>
+    </template>
+
+    <!-- Nested child component with its own ref 'alpha' to test scoping -->
+    <template app="sprout-tests" for="re-child">
+      <html>
+        <div is="reactive-div" ref="alpha"></div>
+        <re-grandchild ref="grand"></re-grandchild>
+      </html>
+      <script>
+        return { state: {} };
+      </script>
+    </template>
+
+    <template app="sprout-tests" for="re-grandchild">
+      <html>
+        <div is="reactive-div" ref="alpha"></div>
+      </html>
+      <script>
+        return { state: {} };
+      </script>
+    </template>
+  </head>
+  <body>
+    <re-methods-host></re-methods-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+</html>

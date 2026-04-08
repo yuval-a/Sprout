@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Events Consolidation</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) { display: block; min-height: 1px; min-width: 1px; }
+    </style>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+
+    <template app="sprout-tests" for="events-cons-host">
+      <html>
+        <div is="reactive-div" ref="alpha">A</div>
+        <div is="reactive-div" ref="beta">B</div>
+        <span is="reactive-span" ref="outA" _text="a"></span>
+        <span is="reactive-span" ref="outB" _text="b"></span>
+        <span is="reactive-span" ref="outC" _text="c"></span>
+      </html>
+      <script>
+        return {
+          state: {
+            a: '', b: '',
+            get c() { return `${this.a}:${this.b}`; }
+          },
+          events: {
+            alpha: { click(evt, host) { host.state.a = 'A1'; } },
+            beta: { keydown(evt, host) { host.state.b = 'B1'; } }
+          }
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <events-cons-host></events-cons-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+</html>

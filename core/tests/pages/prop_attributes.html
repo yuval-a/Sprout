@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Prop Attributes Tests</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) {
+        display: block;
+        min-height: 1px;
+        min-width: 1px;
+      }
+    </style>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+    <template app="sprout-tests" for="props-host">
+      <style></style>
+      <html>
+        <div is="reactive-div" ref="klass" class="@item-class"></div>
+        <div is="reactive-div" ref="title" title="@title"></div>
+        <span is="reactive-span" ref="fan1" data-shared="@shared"></span>
+        <span is="reactive-span" ref="fan2" data-shared="@shared"></span>
+      </html>
+      <script>
+        return {};
+      </script>
+    </template>
+  </head>
+  <body>
+    <props-host item-class="alpha beta" title="Hello" shared="X"></props-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+</html>

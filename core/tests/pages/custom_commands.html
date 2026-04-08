@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Custom Commands Tests</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) { display: block; height: 1px; width: 1px; }
+    </style>
+    <!-- Define app-scope commands via runtime function; core will call it -->
+    <script app="sprout-tests">
+      globalThis['sprout-tests_runtime'] = function () {
+        this.setCommands({
+          // App-scope command: sets a data attribute
+          ping(value) { this.setAttribute('data-ping', value); },
+          // Another example: toggles a CSS class (not asserted but harmless)
+          flag(val) { if (val) this.classList.add(`flag-${val}`); }
+        });
+      };
+    </script>
+
+    <!-- Component with component-scope commands -->
+    <template app="sprout-tests" for="custom-cmd-host">
+      <html>
+        <div is="reactive-div" ref="appOnly" _ping="A"></div>
+        <div is="reactive-div" ref="compOnly" _mark="B"></div>
+        <div is="reactive-div" ref="both" _ping="X" _mark="Y"></div>
+      </html>
+      <script>
+        return {
+          commands: {
+            // Component-scope command: sets a data attribute
+            mark(value) { this.setAttribute('data-mark', value); }
+          },
+          state: {}
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <!-- Apply component-scope and app-scope commands on the host itself -->
+    <custom-cmd-host _mark="HOSTCMD" _ping="HOSTAPP"></custom-cmd-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+</html>

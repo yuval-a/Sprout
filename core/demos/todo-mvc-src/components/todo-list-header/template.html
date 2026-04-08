@@ -1,8 +1,19 @@
 <header class="header">
     <h1>todos</h1>
-    <div id="toggle-all-container" is="reactive-div" hidden="$todosEmpty">
-        <input is="reactive-input" ref="toggle-all" id="toggle-all" class="toggle-all" type="checkbox">
-        <label for="toggle-all">Mark all as complete</label>
+    <div id="toggle-all-container" is="reactive-div" :hidden="todosEmpty">
+        <input is="reactive-input" 
+               ref="toggle-all" 
+               id="toggle-all" 
+               class="toggle-all" 
+               type="checkbox"
+               _bind="checked:markedAllCompleted"
+               :hidden="todosEmpty"
+        >
+        <label
+            is="reactive-label"
+            for="toggle-all"
+            :title="markedAllCompleted?Umark all as completed:Mark all as completed"
+        >Mark all as complete</label>
     </div>
     <input is="reactive-input" ref="new-todo-input" class="new-todo" placeholder="What needs to be done?" autofocus>
 </header>

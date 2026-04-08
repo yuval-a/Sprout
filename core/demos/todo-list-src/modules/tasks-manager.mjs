@@ -12,7 +12,7 @@ export function addTask(name) {
     this.state.tasks.push(
         {
             id: `todo-task-${++TASK_ID}`,
-            key: `todo-task-${TASK_ID}`,
+            key: TASK_ID,
             name,
             newName: "",
             isEditing: false,

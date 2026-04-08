@@ -1,8 +1,15 @@
 export default {
+    settings: {
+        useDSD: true,
+    },
+    state: {
+        markedAllCompleted: false
+    },
     events: {
         ['new-todo-input']: {
             keyup(event, host, global) {
                 if (event.key === "Enter") {
+                    performance.mark("todo-enter-key");
                     const todoTitle = this.value.trim();
                     if (/\S/.test(todoTitle)) {
                         global.addTodo(todoTitle);
@@ -13,8 +20,8 @@ export default {
             }
         },
         ['toggle-all'](event, host, global) {
-            const completedState = this.checked;
-            global.todos.forEach(todo=> todo.completed = completedState);
+            global.todos.forEach(todo=> todo.completed = this.checked);
+            host.state.markedAllCompleted = this.checked;
         }
     }
 }

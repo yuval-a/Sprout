@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Events Matrix</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) { display: block; min-height: 1px; min-width: 1px; }
+    </style>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+
+    <template app="sprout-tests" for="events-matrix-host">
+      <html>
+        <div is="reactive-div" ref="alpha">
+          <span is="reactive-span" ref="inner">INNER</span>
+        </div>
+        <form is="reactive-form" ref="form"><button is="reactive-button" ref="submit">S</button></form>
+        <input is="reactive-input" ref="txt" />
+        <span is="reactive-span" ref="log" _text="logJoined"></span>
+      </html>
+      <script>
+        const push = (host, str)=> host.state.log.push(str);
+        return {
+          state: {
+            log: [],
+            get logJoined() { return this.log.join(','); }
+          },
+          events: {
+            alpha: {
+              click(e,host){push(host,'click@alpha');}, dblclick(e,h){push(h,'dblclick@alpha');},
+              mousedown(e,h){push(h,'mousedown@alpha');}, mouseup(e,h){push(h,'mouseup@alpha');},
+              mouseover(e,h){push(h,'mouseover@alpha');}, mouseout(e,h){push(h,'mouseout@alpha');},
+              contextmenu(e,h){push(h,'contextmenu@alpha');}, wheel(e,h){push(h,'wheel@alpha');},
+              pointerdown(e,h){push(h,'pointerdown@alpha');}, pointerup(e,h){push(h,'pointerup@alpha');},
+              pointerover(e,h){push(h,'pointerover@alpha');}, pointerout(e,h){push(h,'pointerout@alpha');},
+              keydown(e,h){push(h,`keydown@alpha:${e.key||''}`);}, keyup(e,h){push(h,`keyup@alpha:${e.key||''}`);},
+              focusin(e,h){push(h,'focusin@alpha');}, focusout(e,h){push(h,'focusout@alpha');},
+              copy(e,h){push(h,'copy@alpha');}, cut(e,h){push(h,'cut@alpha');}, paste(e,h){push(h,'paste@alpha');}
+            },
+            inner: function(e,host){ push(host,'click@inner'); },
+            txt: { input(e,h){push(h,'input@txt');}, change(e,h){push(h,'change@txt');} },
+            form: { submit(e,h){ e.preventDefault(); push(h,'submit@form'); } }
+          }
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <events-matrix-host></events-matrix-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+</html>

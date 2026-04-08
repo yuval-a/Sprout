@@ -1,0 +1,10 @@
+<div class="example">
+    <seecode-button></seecode-button>
+
+    <slot name="headline"></slot>
+
+    <conditional-render _condition="seeCodeOn">
+        <slot name="codeSnippet" _if="true"></slot>
+        <slot name="exampleContent" _if="false"></slot>
+    </conditional-render>
+</div>

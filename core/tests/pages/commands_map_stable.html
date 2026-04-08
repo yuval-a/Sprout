@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout _map Command Tests (Stable)</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) {
+        display: block;
+        height: 1px;
+        width: 1px;
+      }
+      ul[ref="list"] { list-style: none; padding: 0; margin: 0; }
+    </style>
+    <!-- Item component used by _map -->
+    <template app="sprout-tests" for="item-el">
+      <html>
+        <span is="reactive-span" ref="label" _text="label"></span>
+      </html>
+    </template>
+
+    <!-- Host with only stateful maps -->
+    <template app="sprout-tests" for="map-host">
+      <html>
+        <!-- Base arrays (stateful) -->
+        <ul is="reactive-ul" ref="listNormal" _map="itemsNormal:item-el"></ul>
+        <ul is="reactive-ul" ref="listSshYes" _map="itemsSshStateMap:item-el"></ul>
+
+        <!-- Derived arrays (stateful SSH) -->
+        <ul is="reactive-ul" ref="listSshFilterYes" _map="itemsFilterSshStateMap:item-el"></ul>
+        <ul is="reactive-ul" ref="listSshMapYes" _map="itemsMapSshStateMap:item-el"></ul>
+        <ul is="reactive-ul" ref="listSshSliceYes" _map="itemsSliceSshStateMap:item-el"></ul>
+      </html>
+      <script>
+        return {
+          state: {
+            // Mixed data types for label
+            itemsNormal: [
+              { key: 'k1', label: 'A' },
+              { key: 'k2', label: 42 },
+              { key: 'k3', label: 0 },
+              { key: 'k4', label: true },
+              { key: 'k5', label: false },
+              { key: 'k6', label: '' },
+              { key: 'k7', label: null },
+              { key: 'k8', label: undefined },
+            ],
+
+            // SSH with stateMap: mirrors itemsNormal
+            set_itemsSshStateMap: [function() {
+              return this.itemsNormal.slice();
+            }, { init: true, stateMap: true }],
+
+            // SSH-derived arrays using filter (stateful)
+            set_itemsFilterSshStateMap: [function() {
+              return this.itemsNormal.filter(item => item.label !== 'A');
+            }, { init: true, stateMap: true }],
+
+            // SSH-derived arrays using map (stateful)
+            set_itemsMapSshStateMap: [function() {
+              return this.itemsNormal.map(item => ({ key: `my-${item.key}`, label: `M:${String(item.label)}` }));
+            }, { init: true, stateMap: true }],
+
+            // SSH-derived arrays using slice (stateful)
+            set_itemsSliceSshStateMap: [function() {
+              return this.itemsNormal.slice(1, 5);
+            }, { init: true, stateMap: true }],
+          }
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <map-host></map-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+  
+</html>
+

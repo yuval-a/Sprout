@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Reactive Attributes Tests</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) {
+        display: block;
+        height: 1px;
+        width: 1px;
+      }
+    </style>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+    <!-- Component template -->
+    <template app="sprout-tests" for="attr-host">
+      <html>
+        <div is="reactive-div" ref="str" :title="title"></div>
+        <div is="reactive-div" ref="bool" :hidden="isHidden"></div>
+        <div is="reactive-div" ref="neg" :hidden="!isVisible"></div>
+        <div is="reactive-div" ref="eq" :hidden="is_status:done"></div>
+        <div is="reactive-div" ref="tern" :data-mode="check?on:off"></div>
+        <div is="reactive-div" ref="ternOnly" :data-flag="check?on"></div>
+        <div is="reactive-div" ref="getStr" :title="titleUpper"></div>
+        <div is="reactive-div" ref="getBool" :hidden="isDone"></div>
+        <div is="reactive-div" ref="getObjStr" :title="objTitleUpper"></div>
+        <div is="reactive-div" ref="getObjBool" :hidden="objIsHidden"></div>
+        <div is="reactive-div" ref="getArrStr" :title="arrTitleUpper"></div>
+        <div is="reactive-div" ref="getArrBool" :hidden="arrIsHidden"></div>
+
+      </html>
+      <script>
+        return {
+          state: {
+            title: 'Hello',
+            isHidden: false,
+            isVisible: true,
+            status: 'open',
+            check: true,
+            obj: {
+              title: 'Hello',
+              isHidden: false,
+            },
+            arr: ["Hello", false],
+            get objTitleUpper() { return this.obj.title.toUpperCase() },
+            get objIsHidden()   { return this.obj.isHidden },
+            get arrTitleUpper() { return this.arr[0].toUpperCase() },
+            get arrIsHidden()   { return this.arr[1] },
+            get titleUpper() { return this.title.toUpperCase(); },
+            get isDone()     { return this.status === 'done'; }
+          }
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <attr-host></attr-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+  
+</html>

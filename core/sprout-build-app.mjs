@@ -8,15 +8,21 @@ import { minify } from 'html-minifier-terser';
 import fs from 'fs';
 import path from 'path';
 
-const minifyOn = process.argv.includes("--minify");
+console.log ("BUILD!");
+
+const SHADOW_ROOT_CSS = 
+':host { contain: layout paint; }';
 
 const customElementsPolyfillScript = 
 `!function(){"use strict";var e=function(e,t){var n=function(e){for(var t=0,n=e.length;t<n;t++)r(e[t])},r=function(e){var t=e.target,n=e.attributeName,r=e.oldValue;t.attributeChangedCallback(n,r,t.getAttribute(n))};return function(o,a){var l=o.constructor.observedAttributes;return l&&e(a).then((function(){new t(n).observe(o,{attributes:!0,attributeOldValue:!0,attributeFilter:l});for(var e=0,a=l.length;e<a;e++)o.hasAttribute(l[e])&&r({target:o,attributeName:l[e],oldValue:null})})),o}};function t(e,t){(null==t||t>e.length)&&(t=e.length);for(var n=0,r=new Array(t);n<t;n++)r[n]=e[n];return r}function n(e,n){var r="undefined"!=typeof Symbol&&e[Symbol.iterator]||e["@@iterator"];if(!r){if(Array.isArray(e)||(r=function(e,n){if(e){if("string"==typeof e)return t(e,n);var r=Object.prototype.toString.call(e).slice(8,-1);return"Object"===r&&e.constructor&&(r=e.constructor.name),"Map"===r||"Set"===r?Array.from(e):"Arguments"===r||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(r)?t(e,n):void 0}}(e))||n&&e&&"number"==typeof e.length){r&&(e=r);var o=0,a=function(){};return{s:a,n:function(){return o>=e.length?{done:!0}:{done:!1,value:e[o++]}},e:function(e){throw e},f:a}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var l,i=!0,c=!1;return{s:function(){r=r.call(e)},n:function(){var e=r.next();return i=e.done,e},e:function(e){c=!0,l=e},f:function(){try{i||null==r.return||r.return()}finally{if(c)throw l}}}}` +
 `var r=!0,o=!1,a="querySelectorAll",l="querySelectorAll",i=self,c=i.document,u=i.Element,s=i.MutationObserver,f=i.Set,d=i.WeakMap,h=function(e){return l in e},v=[].filter,p=function(e){var t=new d,i=function(n,r){var o;if(r)for(var a,l=function(e){return e.matches||e.webkitMatchesSelector||e.msMatchesSelector}(n),i=0,c=y.length;i<c;i++)l.call(n,a=y[i])&&(t.has(n)||t.set(n,new f),(o=t.get(n)).has(a)||(o.add(a),e.handle(n,r,a)));else t.has(n)&&(o=t.get(n),t.delete(n),o.forEach((function(t){e.handle(n,r,t)})))},p=function(e){for(var t=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],n=0,r=e.length;n<r;n++)i(e[n],t)},y=e.query,g=e.root||c,m=function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:document,l=arguments.length>2&&void 0!==arguments[2]?arguments[2]:MutationObserver,i=arguments.length>3&&void 0!==arguments[3]?arguments[3]:["*"],c=function t(o,l,i,c,u,s){var f,d=n(o);try{for(d.s();!(f=d.n()).done;){var h=f.value;(s||a in h)&&(u?i.has(h)||(i.add(h),c.delete(h),e(h,u)):c.has(h)||(c.add(h),i.delete(h),e(h,u)),s||t(h[a](l),l,i,c,u,r))}}catch(e){d.e(e)}finally{d.f()}},u=new l((function(e){if(i.length){var t,a=i.join(","),l=new Set,u=new Set,s=n(e);try{for(s.s();!(t=s.n()).done;){var f=t.value,d=f.addedNodes,h=f.removedNodes;c(h,a,l,u,o,o),c(d,a,l,u,r,o)}}catch(e){s.e(e)}finally{s.f()}}})),s=u.observe;return(u.observe=function(e){return s.call(u,e,{subtree:r,childList:r})})(t),u}(i,g,s,y),w=u.prototype.attachShadow;return w&&(u.prototype.attachShadow=function(e){var t=w.call(this,e);return m.observe(t),t}),y.length&&p(g[l](y)),{drop:function(e){for(var n=0,r=e.length;n<r;n++)t.delete(e[n])},flush:function(){for(var e=m.takeRecords(),t=0,n=e.length;t<n;t++)p(v.call(e[t].removedNodes,h),!1),p(v.call(e[t].addedNodes,h),!0)},observer:m,parse:p}},y=self,g=y.document,m=y.Map,w=y.MutationObserver,b=y.Object,E=y.Set,S=y.WeakMap,A=y.Element,M=y.HTMLElement,O=y.Node,N=y.Error,C=y.TypeError,T=y.Reflect,q=b.defineProperty,D=b.keys,I=b.getOwnPropertyNames,P=b.setPrototypeOf,k=!self.customElements,L=function(e){for(var t=D(e),n=[],r=new E,o=t.length,a=0;a<o;a++){n[a]=e[t[a]];try{delete e[t[a]]}catch(e){r.add(a)}}return function(){for(var a=0;a<o;a++)r.has(a)||(e[t[a]]=n[a])}};if(k){var x=function(){var e=this.constructor;if(!$.has(e))throw new C("Illegal constructor");var t=$.get(e);if(W)return F(W,t);var n=H.call(g,t);return F(P(n,e.prototype),t)},H=g.createElement,$=new m,_=new m,j=new m,R=new m,V=[],U=p({query:V,handle:function(e,t,n){var r=j.get(n);if(t&&!r.isPrototypeOf(e)){var o=L(e);W=P(e,r);try{new r.constructor}finally{W=null,o()}}var a="".concat(t?"":"dis","connectedCallback");a in r&&e[a]()}}).parse,W=null,B=function(e){if(!_.has(e)){var t,n=new Promise((function(e){t=e}));_.set(e,{$:n,_:t})}return _.get(e).$},F=e(B,w);self.customElements={define:function(e,t){if(R.has(e))throw new N('the name "'.concat(e,'" has already been used with this registry'));$.set(t,e),j.set(e,t.prototype),R.set(e,t),V.push(e),B(e).then((function(){U(g.querySelectorAll(e))})),_.get(e)._(t)},get:function(e){return R.get(e)},whenDefined:B},q(x.prototype=M.prototype,"constructor",{value:x}),self.HTMLElement=x,g.createElement=function(e,t){var n=t&&t.is,r=n?R.get(n):R.get(e);return r?new r:H.call(g,e)},"isConnected"in O.prototype||q(O.prototype,"isConnected",{configurable:!0,get:function(){return!(this.ownerDocument.compareDocumentPosition(this)&this.DOCUMENT_POSITION_DISCONNECTED)}})}else if(k=!self.customElements.get("extends-br"))try{var z=function e(){return self.Reflect.construct(HTMLBRElement,[],e)};z.prototype=HTMLLIElement.prototype;var G="extends-br";self.customElements.define("extends-br",z,{extends:"br"}),k=g.createElement("br",{is:G}).outerHTML.indexOf(G)<0;var J=self.customElements,K=J.get,Q=J.whenDefined;self.customElements.whenDefined=function(e){var t=this;return Q.call(this,e).then((function(n){return n||K.call(t,e)}))}}catch(e){}if(k){var X=function(e){var t=ae.get(e);ve(t.querySelectorAll(this),e.isConnected)},Y=self.customElements,Z=g.createElement,ee=Y.define,te=Y.get,ne=Y.upgrade,re=T||{construct:function(e){return e.call(this)}},oe=re.construct,ae=new S,le=new E,ie=new m,ce=new m,ue=new m,se=new m,fe=[],de=[],he=function(e){return se.get(e)||te.call(Y,e)},ve=p({query:de,handle:function(e,t,n){var r=ue.get(n);if(t&&!r.isPrototypeOf(e)){var o=L(e);we=P(e,r);try{new r.constructor}finally{we=null,o()}}var a="".concat(t?"":"dis","connectedCallback");a in r&&e[a]()}}).parse,pe=p({query:fe,handle:function(e,t){ae.has(e)&&(t?le.add(e):le.delete(e),de.length&&X.call(de,e))}}).parse,ye=A.prototype.attachShadow;ye&&(A.prototype.attachShadow=function(e){var t=ye.call(this,e);return ae.set(this,t),t});var ge=function(e){if(!ce.has(e)){var t,n=new Promise((function(e){t=e}));ce.set(e,{$:n,_:t})}return ce.get(e).$},me=e(ge,w),we=null;I(self).filter((function(e){return/^HTML.*Element$/.test(e)})).forEach((function(e){var t=self[e];function n(){var e=this.constructor;if(!ie.has(e))throw new C("Illegal constructor");var n=ie.get(e),r=n.is,o=n.tag;if(r){if(we)return me(we,r);var a=Z.call(g,o);return a.setAttribute("is",r),me(P(a,e.prototype),r)}return oe.call(this,t,[],e)}q(n.prototype=t.prototype,"constructor",{value:n}),q(self,e,{value:n})})),g.createElement=function(e,t){var n=t&&t.is;if(n){var r=se.get(n);if(r&&ie.get(r).tag===e)return new r}var o=Z.call(g,e);return n&&o.setAttribute("is",n),o},Y.get=he,Y.whenDefined=ge,Y.upgrade=function(e){var t=e.getAttribute("is");if(t){var n=se.get(t);if(n)return void me(P(e,n.prototype),t)}ne.call(Y,e)},Y.define=function(e,t,n){if(he(e))throw new N("'".concat(e,"' has already been defined as a custom element"));var r,o=n&&n.extends;ie.set(t,o?{is:e,tag:o}:{is:"",tag:e}),o?(r="".concat(o,'[is="').concat(e,'"]'),ue.set(r,t.prototype),se.set(e,t),de.push(r)):(ee.apply(Y,arguments),fe.push(r=e)),ge(e).then((function(){o?(ve(g.querySelectorAll(r)),le.forEach(X,[r])):pe(g.querySelectorAll(r))})),ce.get(e)._(t)}}}();`
+
+
+/* Utils */
 function getRandomLetter() {
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     return letters[Math.floor(Math.random() * letters.length)];
-  }
+}
   
 function generateRandomString(length) {
     let result = '';
@@ -25,42 +31,6 @@ function generateRandomString(length) {
     }
     return result;
 }
-const appNameArg = process.argv[process.argv.indexOf('--app') + 1];
-const appName = appNameArg ? appNameArg.replaceAll('-','_') : generateRandomString(8);
-
-async function bundleRuntime(modulePath, outputName) {
-    // Create a bundle
-    const bundle = await rollup({
-        input: modulePath, // specify your entry file here
-        plugins: [
-            alias({
-                entries: [
-                  { find: './modules', replacement: path.join(app_dir, 'modules') }
-                ]
-            }),
-            resolve({
-                extensions: ['.js', '.mjs'],
-                modulesOnly: true, // Ensure that only ES modules are resolved
-            }), // allows Rollup to find external modules in node_modules
-            commonjs(), // converts CommonJS modules to ES6
-            terser()
-        ],
-    });
-    // Generate the bundle as a string
-    const { output } = await bundle.generate({
-        format: 'iife',    // Use IIFE format to wrap the code in a function
-        name: outputName, // name for the global variable
-    });
-
-    // Extract the bundled code
-    const bundledCode = output[0].code;
-    // Close the bundle
-    await bundle.close();
-
-    return bundledCode;
-}
-
-
 function toCamelCase(str) {
     return str
         .toLowerCase() // Convert the string to lower case
@@ -75,77 +45,303 @@ function toCamelCase(str) {
         .join(''); // Join all words together
 }
 
-console.log ("Building Sprout App...");
+let compileTemplatesScript = `
+globalThis.SPROUT_COMPONENTS = {};
 
-const app_dir = process.argv[2];
-const build_dir = process.argv[3];
+function SPROUT_COMPILED_ADD_TEMPLATE(appName, componentName, html, style, script) {
+    globalThis.SPROUT_COMPONENTS[appName] ??= new Map();
+    const template = document.createElement('template');
+    template.innerHTML = html || '';
+    if (script) {
+        const scriptElement = document.createElement('script');
+        scriptElement.textContent = script;
+        template.content.appendChild(scriptElement);
+    }
+    if (style) {
+        const styleElement = document.createElement('style');
+        styleElement.textContent = style;
+        template.content.appendChild(styleElement);
+    }
+    globalThis.SPROUT_COMPONENTS[appName].set(componentName, template);
+}`;
 
-if (!app_dir || !build_dir) {
-    console.log ("Usage: node sprout-build-app [app_src_directory] [app_build_directory] <--app [app name]> <--minify>");
+
+// isInputPath=false, means the first argument is script text
+async function bundleScript(inputPathOrScriptText, outputName, isInputPath = true) {
+    const inputPath  = isInputPath ? inputPathOrScriptText : null;
+    const scriptText = isInputPath ? null : inputPathOrScriptText;
+
+    const bundlePlugins = [];
+    if (scriptText) {
+        bundlePlugins.push(virtual({
+            'virtual-entry': scriptText,
+        }));
+    }
+
+    bundlePlugins.push(
+        alias({
+            entries: [
+                {
+                    find: 'modules', // Top-level 'modules' directory
+                    replacement: path.resolve(app_src_dir, 'modules'),
+                },
+                ],
+        }),
+        resolve({
+            extensions: ['.js', '.mjs'],
+            modulesOnly: true, // Ensure that only ES modules are resolved
+        }), // allows Rollup to find external modules in node_modules
+        commonjs() // converts CommonJS modules to ES6
+    );
+    if (CONFIG?.minify) {
+        bundlePlugins.push(terser());
+    }
+
+    // Create a bundle
+    const bundle = await rollup({
+        input: inputPath ?? 'virtual-entry', 
+        plugins: bundlePlugins
+    });
+    // Generate the bundle as a string
+    const { output } = await bundle.generate({
+        format: 'iife',    // Use IIFE format to wrap the code in a function
+        name: outputName, // name for the global variable
+    });
+
+    // Extract the bundled code
+    const bundledCode = output[0].code;
+    // Close the bundle
+    await bundle.close();
+    return bundledCode;
+}
+
+/*---------------------------------------------*/
+
+/* Command line args / configuration */
+const CONFIG = {
+    minify: process.argv.includes("--minify") || false,
+    strict: process.argv.includes("--strict") || false,
+    appScopeAccess: process.argv.includes("--allowAppScopeAccess") || false,
+    compileMode: process.argv.includes("--compile") || false
+};
+
+const appNameArg = process.argv[process.argv.indexOf('--app') + 1];
+const appName = appNameArg ? appNameArg.replaceAll(/\s|-/g,'_') : generateRandomString(8);
+
+
+const app_src_dir = process.argv[2];
+const app_build_dir = process.argv[3];
+
+if (!app_src_dir || !app_build_dir) {
+    console.log ("Usage: node sprout-build:app [app_src_directory] [app_build_directory] <--app [app name]> <--minify> <--strict>");
     process.exit(0);
 }
-const components_dir = path.join(app_dir, 'components');
 
-if (!fs.existsSync(build_dir)) {
-    fs.mkdirSync(build_dir,  { recursive: true });
+console.log ("Building Sprout App...");
+
+const components_dir = path.join(app_src_dir, 'components');
+
+if (!fs.existsSync(app_build_dir)) {
+    fs.mkdirSync(app_build_dir,  { recursive: true });
 }
 if (!fs.existsSync(components_dir)) {
     throw new Error(`Components directory not found at path: ${components_dir}`);
 }
 
 const templates = [];
+const templatesMap = new Map();
 
-function processComponentTemplate(templatePath, componentName, stylePath, runtimeScript) {
+function buildTemplateFromFolder(templatePath, componentName, stylePath, runtimeScript, useDSD) {
     try {
-        const templateHTML = fs.readFileSync(templatePath, 'utf8');
-        let style = "";
+        let template = `<template app="${appName}" for="${componentName}">`;
+        let style, templateHTML;
+        if (runtimeScript) template += runtimeScript;
         if (stylePath && fs.existsSync(stylePath)) {
             style = fs.readFileSync(stylePath, 'utf8');
         }
-        let template = `<template app="${appName}" for="${componentName}">`;
-        if (runtimeScript)  template += runtimeScript;
-        if (stylePath) template += `<style>${style}</style>`; 
-        template += templateHTML + '</template>';
-        templates.push(template);
+        templateHTML = fs.readFileSync(templatePath, 'utf8');
 
+        if (!useDSD) {
+            if (style) template += `<style>${style}</style>`;
+            template += templateHTML;
+        }
+        else {
+            style = SHADOW_ROOT_CSS + style;
+        }
+
+
+        template += '</template>';
+
+        return {
+            templateMarkup: template,
+            style,
+            html: templateHTML,
+            script: runtimeScript,
+            useDSD
+        }
     } catch (err) {
         console.error("Error: ", err);
     }
 }
-
-async function getRuntimeScript(runtimePath, runtimeVariableName) {
+async function buildTemplateFromFile(templateFile, componentName, useDSD = false) {
     try {
-        const runtimeScript = await bundleRuntime(runtimePath, runtimeVariableName);
+        const templateContent = fs.readFileSync(templateFile, 'utf8');
+        const templateHTML = templateContent.substring(templateContent.indexOf('<html>')+6, templateContent.indexOf('</html>'));
+        let templateStyle = templateContent.substring(templateContent.indexOf('<style>')+7, templateContent.indexOf('</style>'));
+        const templateScript = templateContent.substring(templateContent.indexOf('<script>')+8, templateContent.indexOf('</script>'));
+        let runtimeScript;
+        let template = `<template app="${appName}" for="${componentName}">`;
+        if (templateScript) {
+            runtimeScript = await getRuntimeScript(templateScript, toCamelCase(componentName) + "Runtime", false);
+            template += runtimeScript;
+        }
 
-        return `<script> ${runtimeScript} return ${runtimeVariableName}; </script>`;
+        // DSD has only runtime script. HTML and STYLE are inside the shadow DOM.
+        if (!useDSD) {
+            if (templateStyle) {
+                template += `<style>${templateStyle}</style>`;
+            }
+            template += templateHTML;
+        }
+        else {
+            templateStyle = SHADOW_ROOT_CSS + templateStyle;
+        }
 
+        template +=  '</template>';
+        return {
+            templateMarkup: template,
+            style: templateStyle,
+            html: templateHTML,
+            script: runtimeScript,
+            useDSD
+        }
+    } catch (err) {
+        console.error("Error: ", err);
+    }
+
+}
+
+async function getRuntimeScript(runtimePathOrScriptText, runtimeVariableName, isScriptFile=true, addScriptTag=true) {
+    try {
+        // Minimal authoring adapter: allow inline SFC scripts that start with 'return ...'
+        // by wrapping them as a valid ESM default so Rollup can parse.
+        let source = runtimePathOrScriptText;
+        if (!isScriptFile && typeof source === 'string') {
+            const trimmed = source.trimStart();
+            if (trimmed.startsWith('return')) {
+                source = `export default (function(){\n${source}\n})();`;
+            }
+        }
+
+        const runtimeScript = await bundleScript(source, runtimeVariableName, isScriptFile);
+        if (runtimeScript) {
+            const script = `${runtimeScript} return ${runtimeVariableName};`;
+            return addScriptTag ? `<script> ${script} </script>` : script;
+        }
+        return '';
     } catch (error) {
-        console.warn(`Error reading runtime file: ${runtimePath}`, error);
+        console.warn("Error generating runtime script", error);
         return "";
     }
 }
+
+
+async function compileComponentsScript() {
+        console.log ("Building components...");
+    const componentFolders = fs.readdirSync(components_dir);
+
+    return new Promise ( (resolve, reject)=> {
+        const processPromises = componentFolders.map(async component => {
+            const componentPath = path.join(components_dir, component);
+            const isFolder = fs.statSync(componentPath).isDirectory();
+            const componentFile = isFolder ? null : component.split('.');
+            const componentName = isFolder ? component : componentFile[0];
+            if (!isFolder && componentFile && componentFile[1] !== 'html') 
+                throw Error ("Component single template files extensions must be .html!");
+            
+            console.log(`Processing component ${componentName}...`);
+            try {
+                let componentTemplate, settings;
+                if (isFolder) {
+                    const templatePath = path.join(componentPath, 'template.html');
+                    let runtimeScript = undefined;
+                    const runtimePath = path.join(componentPath, 'runtime.js');
+                    if (fs.existsSync(runtimePath)) runtimeScript = await getRuntimeScript(runtimePath, toCamelCase(componentName) + "Runtime");
+                    let stylePath = path.join(componentPath, 'style.css');
+                    if (!fs.existsSync(stylePath)) stylePath = undefined;
+                    const settingsPath = path.join(componentPath, 'settings.json');
+                    if (fs.existsSync(settingsPath)) settings = JSON.parse(fs.readFileSync(settingsPath, { encoding: "utf-8" }));
+                    
+                    componentTemplate = buildTemplateFromFolder(templatePath, componentName, stylePath, runtimeScript, settings);
+                }
+                else {
+                    componentTemplate = await buildTemplateFromFile(componentPath, componentName);
+                }
+                console.log (componentName);
+                templates.push(componentTemplate.templateMarkup);
+                templatesMap.set(componentName, componentTemplate);
+                if (CONFIG.compileMode) {
+                    const compName = JSON.stringify(componentName);
+                    const htmlStr = JSON.stringify(componentTemplate.html || '');
+                    const styleStr = JSON.stringify(componentTemplate.style || '');
+                    const scriptStr = JSON.stringify(componentTemplate.script || '');
+                    compileTemplatesScript += `\nSPROUT_COMPILED_ADD_TEMPLATE(${JSON.stringify(appName)}, ${compName}, ${htmlStr}, ${styleStr}, ${scriptStr});`;
+                }
+            } catch (err) {
+                console.error("Error: ", err);
+            }
+        });
+      
+        Promise.all(processPromises).then(() => {
+            resolve();
+        }).catch(reject);
+    });
+
+}
+
 
 async function buildComponents() {
     console.log ("Building components...");
     const componentFolders = fs.readdirSync(components_dir);
 
     return new Promise ( (resolve, reject)=> {
-        const processPromises = componentFolders.map(async folder => {
-            const componentName = folder;
+        const processPromises = componentFolders.map(async component => {
+            const componentPath = path.join(components_dir, component);
+            const isFolder = fs.statSync(componentPath).isDirectory();
+            const componentFile = isFolder ? null : component.split('.');
+            const componentName = isFolder ? component : componentFile[0];
+            if (!isFolder && componentFile && componentFile[1] !== 'html') 
+                throw Error ("Component single template files extensions must be .html!");
+            
             console.log(`Processing component ${componentName}...`);
-            const folderPath = path.join(components_dir, folder);
-      
-            if (fs.statSync(folderPath).isDirectory()) {
-                const templatePath = path.join(folderPath, 'template.html');
-
-                let runtimeScript = undefined;
-                const runtimePath = path.join(folderPath, 'runtime.js');
-                if (fs.existsSync(runtimePath)) runtimeScript = await getRuntimeScript(runtimePath, toCamelCase(componentName) + "Runtime");
-
-                let stylePath = path.join(folderPath, 'style.css');
-                if (!fs.existsSync(stylePath)) stylePath = undefined;
-
-              processComponentTemplate(templatePath, componentName, stylePath, runtimeScript);
+            try {
+                let componentTemplate, settings;
+                if (isFolder) {
+                    const templatePath = path.join(componentPath, 'template.html');
+                    let runtimeScript = undefined;
+                    const runtimePath = path.join(componentPath, 'runtime.js');
+                    if (fs.existsSync(runtimePath)) runtimeScript = await getRuntimeScript(runtimePath, toCamelCase(componentName) + "Runtime", true, !CONFIG.compileMode);
+                    let stylePath = path.join(componentPath, 'style.css');
+                    if (!fs.existsSync(stylePath)) stylePath = undefined;
+                    const settingsPath = path.join(componentPath, 'settings.json');
+                    if (fs.existsSync(settingsPath)) settings = JSON.parse(fs.readFileSync(settingsPath, { encoding: "utf-8" }))
+                    componentTemplate = buildTemplateFromFolder(templatePath, componentName, stylePath, runtimeScript, settings);
+                }
+                else {
+                    componentTemplate = await buildTemplateFromFile(componentPath, componentName);
+                }
+                console.log (componentName);
+                templates.push(componentTemplate.templateMarkup);
+                templatesMap.set(componentName, componentTemplate);
+                if (CONFIG.compileMode) {
+                    const compName = JSON.stringify(componentName);
+                    const htmlStr = JSON.stringify(componentTemplate.html || '');
+                    const styleStr = JSON.stringify(componentTemplate.style || '');
+                    const scriptStr = JSON.stringify(componentTemplate.script || '');
+                    compileTemplatesScript += `\nSPROUT_COMPILED_ADD_TEMPLATE(${JSON.stringify(appName)}, ${compName}, ${htmlStr}, ${styleStr}, ${scriptStr});`;
+                }
+            } catch (err) {
+                console.error("Error: ", err);
             }
         });
       
@@ -155,62 +351,22 @@ async function buildComponents() {
     });
 }
 
-buildComponents()
-.then(async ()=> {
-    const html_path = path.join(app_dir, 'index.html');
-    const head_path = path.join(app_dir, 'head.html');
-    const style_path = path.join(app_dir, 'index.css');
-    if (!fs.existsSync(html_path)) {
-        throw new Error(`index.html file not found on app directory!`);
-    }
-    const htmlContent  = fs.readFileSync(html_path, 'utf8');
+function injectDsd(html, tagName, innerHTML) {
+  const openTag = new RegExp(
+    `<${tagName}(\\s[^>]*)?>`,
+    'g'
+  );
+  const closeTag = new RegExp(
+    `</${tagName}>`,
+    'g'
+  );
+  html = html.replace(openTag, (_, attrs = '') =>
+    `<${tagName}-dsd${attrs}>${innerHTML}`
+  );
+  html = html.replace(closeTag, `</${tagName}-dsd>`);
+  return html;
+}
 
-    let headContent = '<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">';
-    if (fs.existsSync(head_path)) {
-        headContent  = fs.readFileSync(head_path, 'utf8');
-    }
-    let styleContent = "";
-    if (fs.existsSync(style_path)) {
-        styleContent = fs.readFileSync(style_path, 'utf8');
-    }
-    let global_runtime_script = "";
-    const global_script_path = path.join (app_dir, "index.js");
-    if (fs.existsSync(global_script_path)) {
-        const scriptData = fs.readFileSync(global_script_path, 'utf8');
-        const bundle = await rollup({
-            input: 'entry', // specify your entry file here
-            plugins: [
-                alias({
-                    entries: [
-                      { find: './modules', replacement: path.join(app_dir, 'modules') }
-                    ]
-                }),
-                virtual({
-                    entry: scriptData, // specify your script data here
-                }),
-                resolve({
-                    extensions: ['.js', '.mjs'],
-                    modulesOnly: true, // Ensure that only ES modules are resolved
-                }), // allows Rollup to find external modules in node_modules
-                commonjs(), // converts CommonJS modules to ES6
-                terser(),
-            ]
-        });
-        // Generate the bundle as a string
-        const { output } = await bundle.generate({
-            format: 'es'
-        })
-        // Extract the bundled code
-        let globalRuntimeScript = output[0].code;
-        globalRuntimeScript = globalRuntimeScript.replace("(void 0)", "this");
-        // Close the bundle
-        await bundle.close();
-        global_runtime_script = `<script app="${appName}"> ${appName}_runtime = function() { ${globalRuntimeScript} }</script>`;
-    }
-   
-
-    console.log ("Building app HTML...");
- 
     const injectPolyfillIfNeeded =
 `<script>
     customElements.define(
@@ -227,11 +383,98 @@ buildComponents()
     }
 </script>
 `;
-    let html;
 
-    const sproutCoreScriptSrc = `lib/${minifyOn ? 'sprout-core.min.js' : 'sprout-core.js'}`;
+buildComponents()
+.then(async ()=> {
+    const html_path = path.join(app_src_dir, 'index.html');
+    const head_path = path.join(app_src_dir, 'head.html');
+    const style_path = path.join(app_src_dir, 'index.css');
+    if (!fs.existsSync(html_path)) {
+        throw new Error(`index.html file not found on app directory!`);
+    }
+    let htmlContent = fs.readFileSync(html_path, 'utf8');
+    // All components in templatesMap are DSD
+    templatesMap.forEach((template, componentName)=> {
+        const dsdHTML = `
+<template shadowrootmode="open">
+<style>
+${template.style}
+</style>
+${template.html}
+</template>`;
+
+        htmlContent = injectDsd(htmlContent, componentName, dsdHTML);
+    })
+
+    let headContent = '<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">';
+    if (fs.existsSync(head_path)) {
+        headContent  = fs.readFileSync(head_path, 'utf8');
+    }
+    let styleContent = "";
+    if (fs.existsSync(style_path)) {
+        styleContent = fs.readFileSync(style_path, 'utf8');
+    }
+    let global_runtime_script = "";
+    const global_script_path = path.join (app_src_dir, "index.js");
+    if (fs.existsSync(global_script_path)) {
+        const scriptData = fs.readFileSync(global_script_path, 'utf8');
+        const bundle = await rollup({
+            input: 'entry', // specify your entry file here
+            plugins: [
+                alias({
+                    entries: [
+                      { find: './modules', replacement: path.join(app_src_dir, 'modules') }
+                    ]
+                }),
+                virtual({
+                    entry: scriptData, // specify your script data here
+                }),
+                resolve({
+                    extensions: ['.js', '.mjs'],
+                    modulesOnly: true, // Ensure that only ES modules are resolved
+                }), // allows Rollup to find external modules in node_modules
+                commonjs(), // converts CommonJS modules to ES6
+                ...(CONFIG.minify ? [terser()] : []),
+            ]
+        });
+        // Generate the bundle as a string
+        const { output } = await bundle.generate({
+            format: 'es'
+        })
+        // Extract the bundled code
+        let globalRuntimeScript = output[0].code;
+        // Ensure top-level `this` usage survives Rollup ESM transform where it becomes undefined/(void 0)
+        // Replace only when used as a property receiver (before a dot), and handle optional parens
+        globalRuntimeScript = globalRuntimeScript.replace(/(?:\(\s*void 0\s*\)|undefined)(?=\s*\.)/g, 'this');
+        // Close the bundle
+        await bundle.close();
+        global_runtime_script = `<script app="${appName}"> ${appName}_runtime = function() { ${globalRuntimeScript} }</script>`;
+    }
+   
+
+    console.log ("Building app HTML...");
+ 
     // Safari doesn't support 'custom native elements' (using the 'is' attribute and 'extends' attribute)
     // Load a polyfill for this case
+
+    let html;
+
+    let sproutCoreScriptSrc = "lib/sprout-core";
+    if (CONFIG.strict) {
+        sproutCoreScriptSrc += ".strict";
+    }
+    if (CONFIG.minify) {
+        sproutCoreScriptSrc += ".min";
+    }
+    sproutCoreScriptSrc += ".js";
+
+    let sproutCoreScriptTag = `<script app="${appName}" src="${sproutCoreScriptSrc}"`;
+
+    if (CONFIG.appScopeAccess) sproutCoreScriptTag += ' allowappscopeaccess';
+    if (CONFIG.strict) sproutCoreScriptTag += ' strict';
+
+    sproutCoreScriptTag += '></script>';
+
 if (!process.argv.includes("--component")) {
     html = `
 <!DOCTYPE html>
@@ -242,13 +485,12 @@ ${injectPolyfillIfNeeded}
 ${styleContent ? `<style app="${appName}">` + styleContent + '</style>' : ""}
 ${global_runtime_script}
 ${templates.join("\n")}
-<script onload="const build_${appName}App = SproutInitApp('${appName}'); build_${appName}App();" src="${sproutCoreScriptSrc}" ${process.argv.includes("--allowAppScopeAccess") ? 'allowappscopeaccess' : ''}></script>
-
 ${headContent}
 </head>
 <body>
 ${htmlContent}
-</body>
+${sproutCoreScriptTag}
+s</body>
 </html>
 `;
 }
@@ -260,60 +502,48 @@ ${injectPolyfillIfNeeded}
 ${styleContent ? `<style for="${appName}">` + styleContent + '</style>' : ""}
 ${global_runtime_script}
 ${templates.join("\n")}
-<script onload="const build_${appName}App = SproutInitApp('${appName}'); build_${appName}App();" src="${sproutCoreScriptSrc}" ${process.argv.includes("--allowAppScopeAccess") ? 'allowappscopeaccess' : ''}></script>
 ${htmlContent}
+${sproutCoreScriptTag}
 `
 }
     try {
         console.log ("Copying Sprout lib script files...");
-        const lib_dir = path.join(build_dir, "lib");
+        const lib_dir = path.join(app_build_dir, "lib");
         if (!fs.existsSync(lib_dir)) {
             fs.mkdirSync(lib_dir,  { recursive: true });
         }
+        // Prefer repo root/core/dist when developing locally; otherwise use installed package
+        const scriptDir = path.dirname(new URL(import.meta.url).pathname);
+        const repoCoreDist = path.resolve(scriptDir, 'dist');
+        const pkgCoreDir = path.join(process.cwd(), 'node_modules', 'sproutjs-core');
+        const dist_dir = fs.existsSync(repoCoreDist) ? repoCoreDist : pkgCoreDir;
 
-        const dist_dir = "./dist";
+        const filesToCopy = [
+            "sprout-core.js",
+            "sprout-core.min.js",
+            "sprout-core.js.map",
+            "sprout-core.min.js.map",
+            "sprout-core.strict.js",
+            "sprout-core.strict.min.js",
+            "sprout-core.strict.js.map",
+            "sprout-core.strict.min.js.map"
 
-        if (fs.existsSync(path.join(dist_dir,"sprout-core.js")))
-            fs.copyFileSync(path.join(dist_dir,"sprout-core.js"), path.join(lib_dir,"sprout-core.js"));
-        if (fs.existsSync(path.join(dist_dir,"sprout-core.min.js")))
-            fs.copyFileSync(path.join(dist_dir,"sprout-core.min.js"), path.join(lib_dir,"sprout-core.min.js"));
-        if (fs.existsSync(path.join(dist_dir,"sprout-core.js.map")))
-            fs.copyFileSync(path.join(dist_dir,"sprout-core.js.map"), path.join(lib_dir,"sprout-core.js.map"));
-        if (fs.existsSync(path.join(dist_dir,"sprout-core.min.js.map")))
-            fs.copyFileSync(path.join(dist_dir,"sprout-core.min.js.map"), path.join(lib_dir,"sprout-core.min.js.map"));
+        ];
 
-
-        const modules_dir = path.join(app_dir, "modules");
-
-        if (fs.existsSync(modules_dir)) {
-            const targetModulesDir = path.join(build_dir, 'modules');
-            // Create the target directory if it doesn't exist
-            fs.mkdirSync(targetModulesDir, { recursive: true });
-
-            fs.readdir(modules_dir, (err, files) => {
-                if (err) {
-                    console.error('Error reading modules directory:', err);
-                    return;
-                }
-
-                // Filter and copy .mjs files
-                files.forEach(file => {
-                    if (path.extname(file) === '.mjs') {
-                        const sourceFile = path.join(modules_dir, file);
-                        const targetFile = path.join(targetModulesDir, file);
-
-                        // Copy the file
-                        fs.copyFile(sourceFile, targetFile, err => {
-                            if (err) {
-                                console.error('Error copying file:', err);
-                            }
-                        });
-                    }
-                });
-            });
+        let copiedAny = false;
+        for (const file of filesToCopy) {
+            const src = path.join(dist_dir, file);
+            if (fs.existsSync(src)) {
+                fs.copyFileSync(src, path.join(lib_dir, file));
+                copiedAny = true;
+            }
+        }
+        if (!copiedAny) {
+            console.warn("Warning: No Sprout core artifacts found in:", dist_dir);
         }
         console.log ("Writing main HTML...");
-        if (minifyOn) {
+        console.log ("HTML:", html);
+        if (CONFIG.minify) {
             console.log ("Minifying...");
             html = await minify(html, {
                 collapseWhitespace: true,
@@ -322,10 +552,11 @@ ${htmlContent}
                 minifyJS: true
               });
         }
-        fs.writeFileSync(path.join(build_dir, "index.html"), html);
+        fs.writeFileSync(path.join(app_build_dir, "index.html"), html);
 
         console.log ("App built successfully!");
     }
+    
     catch (error) {
         console.error ("Error writing main HTML file:", error);
     }

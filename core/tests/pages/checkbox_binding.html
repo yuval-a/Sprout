@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Checkbox Binding</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) { display: block; min-height: 1px; min-width: 1px; }
+    </style>
+    <!-- Core bootstraps automatically via script[app] at end of body -->
+
+    <template app="sprout-tests" for="chk-host">
+      <html>
+        <input is="reactive-input" type="checkbox" ref="chk" :checked="flag" />
+        <span is="reactive-span" ref="flagText" _text="flag"></span>
+      </html>
+      <script>
+        return {
+          state: { flag: false }
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <chk-host></chk-host>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+  </body>
+</html>

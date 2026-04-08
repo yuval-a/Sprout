@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sprout Lifecycle Debug</title>
+    <style app="sprout-tests">
+      [ref]:not([hidden]) { display: block; min-height: 1px; min-width: 1px; }
+    </style>
+
+    <template app="sprout-tests" for="life-host">
+      <html>
+        <span is="reactive-span" ref="log" _text="logJoined"></span>
+        <life-child ref="child"></life-child>
+        <span is="reactive-span" ref="childLog" _text="childLogJoined"></span>
+      </html>
+      <script>
+        const push = (host, msg) => {
+          const st = host.state;
+          if (st && st.log) { st.log.push(msg); return; }
+          if (!host.$$log) host.$$log = [];
+          host.$$log.push(msg);
+        };
+        return {
+          state: {
+            log: [],
+            childLog: [],
+            get logJoined() { return this.log.join('|'); },
+            get childLogJoined() { return this.childLog.join('|'); }
+          },
+          init() { push(this, 'init'); },
+          mount() {
+            push(this, 'mount');
+            this.addEventListener('active', () => push(this, 'event:active'));
+            this.addEventListener('hide', () => push(this, 'event:hide'));
+            this.addEventListener('unhide', () => push(this, 'event:unhide'));
+          },
+          stateful() {
+            if (this.$$log && this.$$log.length) this.state.log.unshift(...this.$$log);
+            const child = this.findElement('child');
+            if (child && child.state && Array.isArray(child.state.log)) {
+              this.state.childLog = child.state.log.slice();
+            }
+            push(this, 'stateful');
+          },
+          active() { push(this, 'active'); },
+          unmount() { this.setAttribute('did-unmount', '1'); }
+        };
+      </script>
+    </template>
+
+    <template app="sprout-tests" for="life-child">
+      <html>
+        <span is="reactive-span" ref="clog" _text="logJoined"></span>
+      </html>
+      <script>
+        const push = (el, msg) => {
+          if (el.state && el.state.log) { el.state.log.push(msg); return; }
+          if (!el.$$log) el.$$log = [];
+          el.$$log.push(msg);
+        };
+        return {
+          state: { log: [], get logJoined() { return this.log.join('|'); } },
+          init() { push(this, 'child:init'); },
+          mount() { push(this, 'child:mount'); this.addEventListener('active', () => push(this,'child:event:active')); },
+          stateful() {
+            if (this.$$log && this.$$log.length) this.state.log.unshift(...this.$$log);
+            push(this, 'child:stateful');
+          },
+          active() { push(this, 'child:active'); },
+          unmount() { this.setAttribute('did-unmount','1'); }
+        };
+      </script>
+    </template>
+  </head>
+  <body>
+    <life-host></life-host>
+    <pre id="out"></pre>
+    <script src="../../dist/sprout-core.js" app="sprout-tests"></script>
+    <script>
+      setTimeout(() => {
+        const host = document.querySelector('life-host');
+        const child = host?.shadowRoot?.querySelector('life-child');
+        const hostLog = host?.shadowRoot?.querySelector('[ref="log"]')?.textContent || '';
+        const childLog = child?.shadowRoot?.querySelector('[ref="clog"]')?.textContent || '';
+        const childLogMirror = host?.shadowRoot?.querySelector('[ref="childLog"]')?.textContent || '';
+        const hostStateLog = host?.state?.log ? Array.from(host.state.log) : [];
+        const childStateLog = child?.state?.log ? Array.from(child.state.log) : [];
+        const hostQueuedLog = host?.$$log ? Array.from(host.$$log) : [];
+        const childQueuedLog = child?.$$log ? Array.from(child.$$log) : [];
+        document.getElementById('out').textContent = JSON.stringify({
+          hostLog,
+          childLog,
+          childLogMirror,
+          hostStateLog,
+          childStateLog,
+          hostQueuedLog,
+          childQueuedLog
+        });
+      }, 1000);
+    </script>
+  </body>
+</html>

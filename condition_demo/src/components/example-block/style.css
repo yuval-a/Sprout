@@ -1,0 +1,12 @@
+.example {
+    background-color: rgba(101, 108, 118, 0.4);
+    border-radius: 0.65rem;
+    line-height: 1.65rem;
+    padding: 1rem;
+    margin: 2rem 0;
+    position: relative;
+}
+
+::slotted([slot="headline"]) {
+    margin: 3rem 0 1.5rem;
+}

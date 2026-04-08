@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'development',
@@ -7,6 +8,11 @@ module.exports = {
     filename: 'sprout-core.js',
     path: path.resolve(__dirname, 'dist')
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      STRICT: 'false'
+    }),
+  ],
   optimization: {
     splitChunks: {
       chunks: 'all',
